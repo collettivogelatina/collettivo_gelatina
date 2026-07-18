@@ -108,7 +108,7 @@ const members = [
   { name: "Francesco Mastrostefano", role: "Fondastorie", initial: "FM", gradient: ["#6060F0", "#9895FF"], size: 124, rot:  3 },
   { name: "Julia Vignapiano",      role: "Poeta",       initial: "JV", gradient: ["#7A74FF", "#A09BFF"], size: 118, rot: -2 },
   { name: "Flavio Riccardi",       role: "Poeta",       initial: "FR", gradient: ["#8A85FF", "#C8C4FF"], size: 120, rot:  5 },
-  { name: "Joe P.",                role: "Poeta",       initial: "JP", gradient: ["#9895FF", "#D0CDFF"], size: 116, rot: -3 },
+  { name: "Joe P.",                role: "Poeta",       initial: "JP", gradient: ["#9895FF", "#D0CDFF"], size: 116, rot: -3, image: "/Joe_p.jpeg" },
 ];
 
 export default function Home() {
@@ -572,17 +572,25 @@ export default function Home() {
               {members.map((m) => (
                 <div key={m.name} className="flex flex-col items-center gap-3 group">
                   <div
-                    className="rounded-full flex items-center justify-center text-white font-black select-none transition-transform duration-300 group-hover:scale-110 group-hover:rotate-0 shadow-lg"
+                    className="rounded-full flex items-center justify-center text-white font-black select-none transition-transform duration-300 group-hover:scale-110 group-hover:rotate-0 shadow-lg overflow-hidden"
                     style={{
                       width: m.size,
                       height: m.size,
-                      background: `linear-gradient(135deg, ${m.gradient[0]}, ${m.gradient[1]})`,
+                      background: m.image ? "transparent" : `linear-gradient(135deg, ${m.gradient[0]}, ${m.gradient[1]})`,
                       fontSize: m.size * 0.32,
                       transform: `rotate(${m.rot}deg)`,
                       boxShadow: `0 8px 30px ${m.gradient[0]}44`,
                     }}
                   >
-                    {m.initial}
+                    {m.image ? (
+                      <img
+                        src={m.image}
+                        alt={m.name}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      m.initial
+                    )}
                   </div>
                   <div className="text-center">
                     <p className="font-black text-sm" style={{ color: DARK }}>{m.name}</p>
