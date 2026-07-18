@@ -535,9 +535,9 @@ export default function Home() {
 
             <div className="grid grid-cols-2 gap-4">
               {[
-                { number: "40+", label: "Slam organizzati", icon: "🎤" },
-                { number: "120+", label: "Poeti ospitati", icon: "✍️" },
-                { number: "12", label: "Numeri di Gelatino", icon: "📖" },
+                { number: "12", label: "Slam organizzati", icon: "🎤" },
+                { number: "50", label: "Poeti ospitati", icon: "✍️" },
+                { number: "3", label: "Numeri di Gelatino", icon: "📖" },
                 { number: "∞", label: "Parole dette", icon: "💬" },
               ].map((stat) => (
                 <div
