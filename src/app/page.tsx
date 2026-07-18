@@ -108,7 +108,7 @@ const members = [
   { name: "Francesco Mastrostefano", role: "Fondastorie", initial: "FM", gradient: ["#6060F0", "#9895FF"], size: 124, rot:  3 },
   { name: "Julia Vignapiano",      role: "Poeta",       initial: "JV", gradient: ["#7A74FF", "#A09BFF"], size: 118, rot: -2 },
   { name: "Flavio Riccardi",       role: "Poeta",       initial: "FR", gradient: ["#8A85FF", "#C8C4FF"], size: 120, rot:  5 },
-  { name: "Joe P.",                role: "Poeta",       initial: "JP", gradient: ["#9895FF", "#D0CDFF"], size: 116, rot: -3, image: "/Joe_p.jpeg" },
+  { name: "Joe P.",                role: "Poeta",       initial: "JP", gradient: ["#9895FF", "#D0CDFF"], size: 116, rot: -3, image: "/Joe_p.png" },
 ];
 
 export default function Home() {
