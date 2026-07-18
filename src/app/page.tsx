@@ -122,6 +122,7 @@ export default function Home() {
   const [poetryNote, setPoetryNote] = useState("");
   const [poetrySending, setPoetrySending] = useState(false);
   const [poetryDone, setPoetryDone] = useState(false);
+  const [privacyAccepted, setPrivacyAccepted] = useState(false);
 
   const handlePoetrySubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -911,6 +912,28 @@ export default function Home() {
                         className="sm:col-span-2 px-4 py-3 rounded-2xl text-sm font-semibold outline-none border-2 border-transparent focus:border-white/50 transition-all resize-none"
                         style={{ background: "rgba(255,255,255,0.15)", color: "white" }}
                       />
+                      <div className="sm:col-span-2 flex items-start gap-2.5 my-1">
+                        <input
+                          required
+                          type="checkbox"
+                          id="privacy-check"
+                          checked={privacyAccepted}
+                          onChange={e => setPrivacyAccepted(e.target.checked)}
+                          className="mt-1 w-4 h-4 rounded accent-[#4B44DF] cursor-pointer"
+                        />
+                        <label htmlFor="privacy-check" className="text-xs text-white/80 leading-snug select-none cursor-pointer">
+                          Accetto la{" "}
+                          <a
+                            href="/privacy"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="underline font-bold text-white hover:text-[#B8B3FF] transition-colors"
+                          >
+                            Privacy Policy
+                          </a>{" "}
+                          e acconsento al trattamento dei miei dati personali.
+                        </label>
+                      </div>
                       <div className="sm:col-span-2">
                         <div
                           className="p-4 rounded-2xl text-sm mb-4"
@@ -1311,7 +1334,7 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="flex flex-wrap gap-6 justify-center">
+          <div className="flex flex-wrap gap-6 justify-center items-center">
             {["Chi Siamo", "Slam", "Gelatino", "Contatti"].map((item) => (
               <a
                 key={item}
@@ -1321,6 +1344,12 @@ export default function Home() {
                 {item}
               </a>
             ))}
+            <a
+              href="/privacy"
+              className="text-white/60 text-sm font-bold hover:text-white transition-colors border-l border-white/20 pl-6"
+            >
+              Privacy & Cookies
+            </a>
           </div>
 
           <p
