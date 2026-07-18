@@ -50,7 +50,9 @@ const TIMELINE: TEvent[] = [
   { id: 12, label: "11 Apr 2026",    title: "SpazioZero",             desc: "Presentazione della raccolta di Flavio Riccardi. La parola scritta incontra quella detta.",                tag: "PRESENTAZIONE", past: true  },
   { id: 13, label: "14 Mag 2026",    title: "Caffè Poeta Slam",       desc: "Semifinali regionali LIPS 2026. Ogni verso vale un passo verso il campionato.",                           tag: "LIPS",          past: true  },
   { id: 14, label: "18 Giu 2026",    title: "Bacco e Venere Slam",    desc: "Ultima tappa LIPS. Le parole si giocano tutto. Chi va avanti lo decide la voce.",                          tag: "LIPS",          past: true  },
-  { id: 15, label: "Prossimamente",  title: "Il Prossimo Slam",       desc: "Il palco è pronto. La data sarà annunciata presto. Tieni d'occhio questo spazio.",                         tag: "IN ARRIVO",     past: false },
+  { id: 15, label: "11 Lug 2026",    title: "Estrella Pop Slam",      desc: "Poetry slam locale all'Estrella Pop. Le voci del territorio si sfidano a colpi di versi.",               tag: "SLAM",          past: true  },
+  { id: 16, label: "16 Lug 2026",    title: "Sottoscala9",            desc: "Presentazione del libro ed open mic. Uno spazio aperto alle parole e alle nuove pubblicazioni.",           tag: "PRESENTAZIONE", past: true  },
+  { id: 17, label: "Prossimamente",  title: "Il Prossimo Slam",       desc: "Il palco è pronto. La data sarà annunciata presto. Tieni d'occhio questo spazio.",                         tag: "IN ARRIVO",     past: false },
 ];
 
 function CoverFloat({ src }: { src: string }) {
