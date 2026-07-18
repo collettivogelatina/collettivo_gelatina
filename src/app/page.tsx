@@ -1117,6 +1117,7 @@ export default function Home() {
               { name: "Caffè Poeta",                    type: "Bistrot Letterario",    url: "https://www.facebook.com/p/Caff%C3%A8-Poeta-Bistrot-Letterario-61588142742806/",          icon: "☕" },
               { name: "Scrittura Creativa Lab",         type: "Workshop Scrittura",    url: "https://www.facebook.com/p/ScritturacreativaLab-61558158616136/",                         icon: "✍️" },
               { name: "Sottoscala9",                    type: "Spazio Creativo",       url: "https://www.sottoscala9.com/",                                                             icon: "🎨" },
+              { name: "Spazio Zero",                    type: "Associazione & Lab",    url: "https://www.spaziozerolab.it/",                                                            icon: "🌀" },
               { name: "Zeldart",                        type: "Arte & Media",          url: "https://www.zeldart.it/",                                                                  icon: "🎙️" },
               { name: "Oriselia",                       type: "Podcast & Mondi",       url: "https://velocalm.com/",                                                                    icon: "🌙" },
             ].map((partner) => (
