@@ -918,7 +918,7 @@ export default function Home() {
                         >
                           📎 Dopo aver inviato questo modulo, allega il tuo file{" "}
                           <strong className="text-white">PDF o DOC</strong> a{" "}
-                          <strong className="text-white">giorgiopuleo@gmail.com</strong>{" "}
+                          <strong className="text-white">collettivogelatina@gmail.com</strong>{" "}
                           con oggetto:{" "}
                           <em className="text-white">Invio Poesia — [titolo]</em>
                         </div>
@@ -940,7 +940,7 @@ export default function Home() {
                         Ci hai lasciato i tuoi dati. Ora mandaci il file con la poesia.
                       </p>
                       <a
-                        href={`mailto:giorgiopuleo@gmail.com?subject=Invio%20Poesia%20%E2%80%94%20${encodeURIComponent(poetryTitle)}&body=Ciao%2C%20sono%20${encodeURIComponent(poetryName)}.%20In%20allegato%20la%20mia%20poesia.`}
+                        href={`mailto:collettivogelatina@gmail.com?subject=Invio%20Poesia%20%E2%80%94%20${encodeURIComponent(poetryTitle)}&body=Ciao%2C%20sono%20${encodeURIComponent(poetryName)}.%20In%20allegato%20la%20mia%20poesia.`}
                         className="inline-block font-black text-sm px-8 py-4 rounded-full transition-all hover:scale-105"
                         style={{ background: "white", color: BLUE }}
                       >
