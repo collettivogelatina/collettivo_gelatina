@@ -1,0 +1,61 @@
+
+> dev
+> next dev
+
+  ▲ Next.js 14.2.5
+  - Local:        http://localhost:3000
+
+ ✓ Starting...
+Attention: Next.js now collects completely anonymous telemetry regarding usage.
+This information is used to shape Next.js' roadmap and prioritize features.
+You can learn more, including how to opt-out if you'd not like to participate in this anonymous program, by visiting the following URL:
+https://nextjs.org/telemetry
+
+ ✓ Ready in 1568ms
+ ○ Compiling / ...
+ ⨯ ./src/components/VoiceMic.tsx:3:1
+Module not found: Can't resolve '@supabase/supabase-js'
+[0m [90m 1 |[39m [32m"use client"[39m[33m;[39m[0m
+[0m [90m 2 |[39m [36mimport[39m { useEffect[33m,[39m useRef[33m,[39m useState[33m,[39m useCallback } [36mfrom[39m [32m"react"[39m[33m;[39m[0m
+[0m[31m[1m>[22m[39m[90m 3 |[39m [36mimport[39m { createClient } [36mfrom[39m [32m"@supabase/supabase-js"[39m[33m;[39m[0m
+[0m [90m   |[39m [31m[1m^[22m[39m[0m
+[0m [90m 4 |[39m[0m
+[0m [90m 5 |[39m [36mconst[39m supabase [33m=[39m createClient([0m
+[0m [90m 6 |[39m   [32m"https://agymwlchcofmrsyuegli.supabase.co"[39m[33m,[39m[0m
+
+https://nextjs.org/docs/messages/module-not-found
+
+Import trace for requested module:
+./src/app/page.tsx
+ ⨯ ./src/components/VoiceMic.tsx:3:1
+Module not found: Can't resolve '@supabase/supabase-js'
+[0m [90m 1 |[39m [32m"use client"[39m[33m;[39m[0m
+[0m [90m 2 |[39m [36mimport[39m { useEffect[33m,[39m useRef[33m,[39m useState[33m,[39m useCallback } [36mfrom[39m [32m"react"[39m[33m;[39m[0m
+[0m[31m[1m>[22m[39m[90m 3 |[39m [36mimport[39m { createClient } [36mfrom[39m [32m"@supabase/supabase-js"[39m[33m;[39m[0m
+[0m [90m   |[39m [31m[1m^[22m[39m[0m
+[0m [90m 4 |[39m[0m
+[0m [90m 5 |[39m [36mconst[39m supabase [33m=[39m createClient([0m
+[0m [90m 6 |[39m   [32m"https://agymwlchcofmrsyuegli.supabase.co"[39m[33m,[39m[0m
+
+https://nextjs.org/docs/messages/module-not-found
+
+Import trace for requested module:
+./src/app/page.tsx
+ ⨯ ./src/components/VoiceMic.tsx:3:1
+Module not found: Can't resolve '@supabase/supabase-js'
+[0m [90m 1 |[39m [32m"use client"[39m[33m;[39m[0m
+[0m [90m 2 |[39m [36mimport[39m { useEffect[33m,[39m useRef[33m,[39m useState[33m,[39m useCallback } [36mfrom[39m [32m"react"[39m[33m;[39m[0m
+[0m[31m[1m>[22m[39m[90m 3 |[39m [36mimport[39m { createClient } [36mfrom[39m [32m"@supabase/supabase-js"[39m[33m;[39m[0m
+[0m [90m   |[39m [31m[1m^[22m[39m[0m
+[0m [90m 4 |[39m[0m
+[0m [90m 5 |[39m [36mconst[39m supabase [33m=[39m createClient([0m
+[0m [90m 6 |[39m   [32m"https://agymwlchcofmrsyuegli.supabase.co"[39m[33m,[39m[0m
+
+https://nextjs.org/docs/messages/module-not-found
+
+Import trace for requested module:
+./src/app/page.tsx
+ GET / 500 in 1868ms
+ GET / 500 in 35ms
+ GET / 500 in 30ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: ENOENT: no such file or directory, rename '/home/user/agent-runtime/websites/.next/cache/webpack/client-development-fallback/0.pack.gz_' -> '/home/user/agent-runtime/websites/.next/cache/webpack/client-development-fallback/0.pack.gz'
