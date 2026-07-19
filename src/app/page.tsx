@@ -58,6 +58,7 @@ const issues = [
     price: 2,
     url: "https://closurecomics.gumroad.com/l/Gelatinodigitale1",
     preorder: false,
+    cover: "/Gelatina1Cover.jpeg",
     c: {
       primary: "#3B6FE8",
       bg: "#EEF2FF",
@@ -75,6 +76,7 @@ const issues = [
     price: 2,
     url: "https://closurecomics.gumroad.com/l/Gelatino2",
     preorder: false,
+    cover: "/Gelatina2Cover.jpeg",
     c: {
       primary: "#C49200",
       bg: "#FFFDE8",
@@ -86,12 +88,13 @@ const issues = [
   },
   {
     number: 3,
-    flavor: "Menta e Basilico",
+    flavor: "Gusto Menta e Basilico",
     emoji: "🌿",
     tagline: "Il terzo numero illustrato — fresco e balsamico. Ora disponibile!",
     price: 2,
     url: "https://closurecomics.gumroad.com/l/Gelatino3",
     preorder: false,
+    cover: "/Gelatina3cover.jpeg",
     c: {
       primary: "#2A8A5A",
       bg: "#E8F8F0",
@@ -109,6 +112,7 @@ const issues = [
     price: 2,
     url: "mailto:collettivogelatina@gmail.com?subject=Preordine%20Gelatino%20N.4%20Gusto%20Cocomero",
     preorder: true,
+    cover: null,
     c: {
       primary: "#E63946",
       bg: "#FFF0F2",
@@ -132,7 +136,6 @@ export default function Home() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [gelatinFormat, setGelatinFormat] = useState<"pdf" | "cartaceo">("pdf");
-  const [selectedIssues, setSelectedIssues] = useState<Set<number>>(new Set());
   const [poetryName, setPoetryName] = useState("");
   const [poetryEmail, setPoetryEmail] = useState("");
   const [poetryTitle, setPoetryTitle] = useState("");
@@ -159,13 +162,6 @@ export default function Home() {
     setPoetrySending(false);
   };
 
-  const toggleIssue = (n: number) => {
-    setSelectedIssues(prev => {
-      const next = new Set(prev);
-      if (next.has(n)) next.delete(n); else next.add(n);
-      return next;
-    });
-  };
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 60);
@@ -709,33 +705,29 @@ export default function Home() {
               </p>
 
               {/* Flavor cards */}
-              <div className="grid md:grid-cols-3 gap-5 mb-8">
+              <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
                 {issues.map((issue) => {
-                  const sel = selectedIssues.has(issue.number);
                   return (
                     <div
                       key={issue.number}
-                      onClick={() => toggleIssue(issue.number)}
-                      className="rounded-3xl overflow-hidden cursor-pointer transition-all duration-300 hover:scale-[1.02] select-none"
+                      className="rounded-3xl overflow-hidden transition-all duration-300 hover:scale-[1.02] select-none flex flex-col justify-between"
                       style={{
                         background: issue.c.bg,
-                        border: `3px solid ${sel ? issue.c.primary : "transparent"}`,
-                        boxShadow: sel
-                          ? `0 8px 40px ${issue.c.primary}44`
-                          : "0 4px 20px rgba(0,0,0,0.07)",
+                        border: `1.5px solid ${issue.c.border || "rgba(75,68,223,0.09)"}`,
+                        boxShadow: "0 4px 20px rgba(0,0,0,0.07)",
                       }}
                     >
                       {/* Stripe header */}
                       <div
-                        className="relative h-24 flex items-center justify-between px-5"
+                        className="relative h-16 flex items-center justify-between px-5"
                         style={{ background: issue.c.stripe }}
                       >
-                        <span style={{ fontSize: "2.6rem", lineHeight: 1 }}>{issue.emoji}</span>
+                        <span style={{ fontSize: "1.8rem", lineHeight: 1 }}>{issue.emoji}</span>
                         <div className="flex items-center gap-2">
                           {issue.preorder && (
                             <span
-                              className="text-xs font-black px-3 py-1 rounded-full"
-                              style={{ background: "rgba(255,255,255,0.22)", color: "white" }}
+                              className="text-xs font-black px-2 py-0.5 rounded-full"
+                              style={{ background: "rgba(255,255,255,0.22)", color: "white", fontSize: "0.6rem" }}
                             >
                               PROSSIMAMENTE
                             </span>
@@ -747,94 +739,150 @@ export default function Home() {
                             N.{issue.number}
                           </span>
                         </div>
-                        {sel && (
-                          <div
-                            className="absolute top-3 left-3 w-6 h-6 rounded-full flex items-center justify-center shadow"
-                            style={{ background: "white" }}
-                          >
-                            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                              <path d="M2 7l3.5 3.5L12 3.5" stroke={issue.c.primary} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-                            </svg>
-                          </div>
-                        )}
                       </div>
 
+                      {/* Cover showcase */}
+                      {issue.cover ? (
+                        <div
+                          className="flex items-center justify-center py-6 px-4"
+                          style={{ background: `linear-gradient(180deg, ${issue.c.bg} 0%, ${issue.c.border}33 100%)` }}
+                        >
+                          {/* Book volume effect */}
+                          <div
+                            style={{
+                              position: "relative",
+                              display: "inline-block",
+                              perspective: "800px",
+                            }}
+                          >
+                            {/* Page stack shadow (depth illusion) */}
+                            <div
+                              style={{
+                                position: "absolute",
+                                bottom: "-6px",
+                                right: "-10px",
+                                width: "100%",
+                                height: "100%",
+                                background: `linear-gradient(135deg, ${issue.c.border}88, ${issue.c.primary}44)`,
+                                borderRadius: "4px",
+                                transform: "skewY(-1deg) scaleX(0.97)",
+                                filter: "blur(1px)",
+                              }}
+                            />
+                            <div
+                              style={{
+                                position: "absolute",
+                                bottom: "-3px",
+                                right: "-5px",
+                                width: "100%",
+                                height: "100%",
+                                background: `linear-gradient(135deg, ${issue.c.border}cc, ${issue.c.primary}66)`,
+                                borderRadius: "4px",
+                                transform: "skewY(-0.5deg) scaleX(0.985)",
+                              }}
+                            />
+                            {/* Main cover */}
+                            <img
+                              src={issue.cover}
+                              alt={`Copertina Gelatino N.${issue.number} — ${issue.flavor}`}
+                              style={{
+                                position: "relative",
+                                width: "130px",
+                                height: "auto",
+                                borderRadius: "4px",
+                                boxShadow: `
+                                  -4px 4px 0px ${issue.c.border},
+                                  -2px 6px 18px rgba(0,0,0,0.22),
+                                  0 2px 8px rgba(0,0,0,0.14)
+                                `,
+                                display: "block",
+                                objectFit: "cover",
+                              }}
+                            />
+                            {/* Spine highlight */}
+                            <div
+                              style={{
+                                position: "absolute",
+                                top: "0",
+                                left: "0",
+                                width: "8px",
+                                height: "100%",
+                                background: `linear-gradient(90deg, ${issue.c.primary}cc 0%, transparent 100%)`,
+                                borderRadius: "4px 0 0 4px",
+                                opacity: 0.6,
+                              }}
+                            />
+                            {/* Gloss reflection */}
+                            <div
+                              style={{
+                                position: "absolute",
+                                top: "0",
+                                left: "0",
+                                width: "100%",
+                                height: "40%",
+                                background: "linear-gradient(180deg, rgba(255,255,255,0.18) 0%, transparent 100%)",
+                                borderRadius: "4px 4px 0 0",
+                                pointerEvents: "none",
+                              }}
+                            />
+                          </div>
+                        </div>
+                      ) : (
+                        /* Preorder placeholder */
+                        <div
+                          className="flex items-center justify-center py-8 px-4"
+                          style={{ background: `linear-gradient(180deg, ${issue.c.bg} 0%, ${issue.c.border}33 100%)` }}
+                        >
+                          <div
+                            style={{
+                              width: "100px",
+                              height: "140px",
+                              borderRadius: "4px",
+                              background: `linear-gradient(135deg, ${issue.c.border}99, ${issue.c.primary}44)`,
+                              border: `2px dashed ${issue.c.border}`,
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              fontSize: "2.5rem",
+                              boxShadow: `-3px 4px 14px rgba(0,0,0,0.13)`,
+                            }}
+                          >
+                            {issue.emoji}
+                          </div>
+                        </div>
+                      )}
+
                       {/* Body */}
-                      <div className="p-5">
-                        <h3 className="font-black text-lg mb-1" style={{ color: DARK }}>{issue.flavor}</h3>
-                        <p className="text-sm leading-relaxed mb-5" style={{ color: "#4A4880" }}>{issue.tagline}</p>
-                        <div className="flex items-center justify-between">
+                      <div className="p-4 flex-grow flex flex-col justify-between">
+                        <div>
+                          <h3 className="font-black text-base mb-1" style={{ color: DARK }}>{issue.flavor}</h3>
+                          <p className="text-xs leading-relaxed mb-4" style={{ color: "#4A4880" }}>{issue.tagline}</p>
+                        </div>
+                        <div className="flex items-center justify-between mt-auto">
                           {issue.preorder ? (
                             <span className="text-sm font-bold italic" style={{ color: issue.c.primary }}>In arrivo</span>
                           ) : (
-                            <span className="text-2xl font-black" style={{ color: issue.c.primary }}>€{issue.price}</span>
+                            <span className="text-xl font-black" style={{ color: issue.c.primary }}>€{issue.price}</span>
                           )}
-                          <span
-                            className="text-xs font-black px-4 py-2 rounded-full transition-all duration-200"
+                          <a
+                            href={issue.url}
+                            target={issue.preorder ? "_self" : "_blank"}
+                            rel="noopener noreferrer"
+                            className="text-xs font-black px-3 py-2 rounded-full transition-all duration-200 hover:scale-105"
                             style={{
-                              background: sel ? issue.c.primary : "transparent",
-                              color: sel ? "white" : issue.c.primary,
+                              background: issue.c.primary,
+                              color: "white",
                               border: `2px solid ${issue.c.primary}`,
                             }}
                           >
-                            {sel ? "✓ Aggiunto" : issue.preorder ? "Pre-ordina" : "Aggiungi"}
-                          </span>
+                            {issue.preorder ? "Pre-ordina" : "Compra"}
+                          </a>
                         </div>
                       </div>
                     </div>
                   );
                 })}
               </div>
-
-              {/* Summary bar — visible only when something is selected */}
-              {selectedIssues.size > 0 && (
-                <div
-                  className="rounded-3xl p-6 mb-8 transition-all duration-300"
-                  style={{ background: "white", boxShadow: "0 8px 40px rgba(75,68,223,0.14)", border: `2px solid ${LAVENDER}` }}
-                >
-                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-5">
-                    <div>
-                      <p
-                        className="text-xs font-bold mb-1 tracking-[0.35em] uppercase"
-                        style={{ color: "#9896CC", fontFamily: "'Space Mono', monospace" }}
-                      >
-                        Riepilogo
-                      </p>
-                      <p className="font-black text-base" style={{ color: DARK }}>
-                        {Array.from(selectedIssues).sort().map(n => {
-                          const iss = issues.find(i => i.number === n)!;
-                          return `${iss.emoji} N.${n} ${iss.flavor}`;
-                        }).join(" · ")}
-                      </p>
-                    </div>
-                    {Array.from(selectedIssues).some(n => !issues.find(i => i.number === n)!.preorder) && (
-                      <div className="sm:text-right flex-shrink-0">
-                        <p className="text-xs font-bold mb-0.5" style={{ color: "#9896CC" }}>Totale</p>
-                        <p className="text-2xl font-black" style={{ color: BLUE }}>
-                          €{Array.from(selectedIssues).filter(n => !issues.find(i => i.number === n)!.preorder).length * 4}
-                        </p>
-                      </div>
-                    )}
-                  </div>
-                  <div className="flex flex-wrap gap-3">
-                    {Array.from(selectedIssues).sort().map(n => {
-                      const iss = issues.find(i => i.number === n)!;
-                      return (
-                        <a
-                          key={n}
-                          href={iss.url}
-                          target={iss.preorder ? "_self" : "_blank"}
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center gap-2 font-black text-sm px-6 py-3 rounded-full transition-all hover:scale-105"
-                          style={{ background: iss.c.primary, color: "white" }}
-                        >
-                          {iss.emoji} {iss.preorder ? `Pre-ordina N.${n}` : `Acquista N.${n}`} →
-                        </a>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
 
               {/* Subscription strip */}
               <div
