@@ -469,6 +469,60 @@ export default function Home() {
 
           <SlamTimeline />
 
+          {/* ── LIPS badge ── */}
+          <div
+            className="mt-12 flex flex-col sm:flex-row items-center gap-5 p-6 rounded-3xl"
+            style={{
+              background: `linear-gradient(135deg, ${LAVENDER} 0%, #DDD8FF 100%)`,
+              border: `1.5px solid ${BLUE_LIGHT}`,
+            }}
+          >
+            {/* Icon / logo placeholder */}
+            <div
+              className="flex-shrink-0 w-14 h-14 rounded-2xl flex items-center justify-center text-2xl font-black"
+              style={{ background: BLUE, color: "white", fontFamily: "'Space Mono', monospace", letterSpacing: "-0.05em" }}
+            >
+              🎙️
+            </div>
+
+            <div className="flex-grow text-center sm:text-left">
+              <p
+                className="text-xs font-bold tracking-[0.35em] uppercase mb-1"
+                style={{ color: BLUE, fontFamily: "'Space Mono', monospace" }}
+              >
+                Affiliati LIPS
+              </p>
+              <p className="font-black text-base mb-1" style={{ color: DARK }}>
+                I nostri slam sono ufficiali per la{" "}
+                <a
+                  href="https://www.lipslam.it"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="underline underline-offset-2 hover:opacity-75 transition-opacity"
+                  style={{ color: BLUE }}
+                >
+                  LIPS — Lega Italiana Poetry Slam
+                </a>
+              </p>
+              <p className="text-sm leading-relaxed" style={{ color: "#4A4880" }}>
+                Ogni evento di Gelatina fa parte del circuito ufficiale LIPS: i punteggi sono validi
+                per le qualificazioni al{" "}
+                <strong style={{ color: DARK }}>Campionato Italiano di Poetry Slam</strong>.
+                Se sei un poeta agonistico, sali sul palco — conta davvero.
+              </p>
+            </div>
+
+            <a
+              href="https://www.lipslam.it"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex-shrink-0 text-xs font-black px-5 py-3 rounded-full transition-all hover:scale-105 whitespace-nowrap"
+              style={{ background: BLUE, color: "white" }}
+            >
+              Scopri la LIPS →
+            </a>
+          </div>
+
           <div className="mt-10 text-center">
             <p className="text-sm font-semibold mb-2" style={{ color: "#9896CC" }}>
               Vuoi ospitare uno slam nel tuo locale?
