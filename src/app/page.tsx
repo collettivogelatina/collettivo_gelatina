@@ -172,6 +172,73 @@ export default function Home() {
   return (
     <div style={{ fontFamily: "'Nunito', sans-serif", color: DARK }}>
 
+      {/* ── BOTTONE FLOTTANTE VOTA LIVE ── */}
+      <a
+        href="/vota-live"
+        aria-label="Vota in Livestream"
+        style={{
+          position: "fixed",
+          bottom: 28,
+          right: 28,
+          zIndex: 9999,
+          display: "flex",
+          alignItems: "center",
+          gap: 10,
+          background: `linear-gradient(135deg, ${BLUE} 0%, ${BLUE_MID} 100%)`,
+          color: "white",
+          borderRadius: 50,
+          padding: "13px 20px 13px 14px",
+          boxShadow: `0 8px 28px ${BLUE}66, 0 2px 8px rgba(0,0,0,0.18)`,
+          textDecoration: "none",
+          fontFamily: "'Nunito', sans-serif",
+          fontWeight: 900,
+          fontSize: "0.88rem",
+          letterSpacing: "0.01em",
+          transition: "transform 0.2s, box-shadow 0.2s",
+        }}
+        onMouseEnter={e => {
+          (e.currentTarget as HTMLAnchorElement).style.transform = "scale(1.07)";
+          (e.currentTarget as HTMLAnchorElement).style.boxShadow = `0 12px 36px ${BLUE}88, 0 2px 10px rgba(0,0,0,0.22)`;
+        }}
+        onMouseLeave={e => {
+          (e.currentTarget as HTMLAnchorElement).style.transform = "scale(1)";
+          (e.currentTarget as HTMLAnchorElement).style.boxShadow = `0 8px 28px ${BLUE}66, 0 2px 8px rgba(0,0,0,0.18)`;
+        }}
+      >
+        {/* Pallina pulse */}
+        <span style={{
+          position: "relative",
+          display: "inline-flex",
+          alignItems: "center",
+          justifyContent: "center",
+          width: 38,
+          height: 38,
+          borderRadius: "50%",
+          background: "rgba(255,255,255,0.18)",
+          fontSize: "1.25rem",
+          flexShrink: 0,
+        }}>
+          🤚
+          <span style={{
+            position: "absolute",
+            inset: -3,
+            borderRadius: "50%",
+            border: "2px solid rgba(255,255,255,0.35)",
+            animation: "votePulse 2s ease-in-out infinite",
+          }} />
+        </span>
+        <span style={{ lineHeight: 1.2 }}>
+          Vota<br />
+          <span style={{ fontSize: "0.72rem", fontWeight: 700, opacity: 0.75 }}>Livestream →</span>
+        </span>
+        <style>{`
+          @keyframes votePulse {
+            0%, 100% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.35); opacity: 0; }
+          }
+        `}</style>
+      </a>
+
       {/* ── NAVBAR ── */}
       <nav
         className="fixed top-0 left-0 right-0 z-50 transition-all duration-400"
