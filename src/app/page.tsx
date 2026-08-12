@@ -275,6 +275,17 @@ export default function Home() {
               </a>
             ))}
             <a
+              href="/vota-live"
+              className="px-4 py-2 rounded-full text-sm font-black transition-all hover:scale-105 flex items-center gap-1.5"
+              style={{
+                background: `linear-gradient(135deg, ${BLUE} 0%, ${BLUE_MID} 100%)`,
+                color: "white",
+                boxShadow: `0 4px 14px ${BLUE}55`,
+              }}
+            >
+              🤚 Vota Live
+            </a>
+            <a
               href="mailto:collettivogelatina@gmail.com?subject=Acquisto%20Gelatino"
               className="px-5 py-2 rounded-full text-sm font-black transition-all"
               style={{
@@ -320,6 +331,17 @@ export default function Home() {
                 {item}
               </a>
             ))}
+            <a
+              href="/vota-live"
+              onClick={() => setMenuOpen(false)}
+              className="font-black py-2.5 px-4 rounded-xl text-base text-center"
+              style={{
+                background: `linear-gradient(135deg, ${BLUE} 0%, ${BLUE_MID} 100%)`,
+                color: "white",
+              }}
+            >
+              🤚 Vota Live
+            </a>
           </div>
         )}
       </nav>
