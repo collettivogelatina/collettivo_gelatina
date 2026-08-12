@@ -286,6 +286,17 @@ export default function Home() {
               🤚 Vota Live
             </a>
             <a
+              href="/vota-live/admin"
+              className="px-4 py-2 rounded-full text-sm font-black transition-all hover:scale-105 flex items-center gap-1.5"
+              style={{
+                background: "transparent",
+                color: scrolled ? DARK : "white",
+                border: `1.5px solid ${scrolled ? "rgba(28,26,74,0.25)" : "rgba(255,255,255,0.35)"}`,
+              }}
+            >
+              🔐 Admin
+            </a>
+            <a
               href="mailto:collettivogelatina@gmail.com?subject=Acquisto%20Gelatino"
               className="px-5 py-2 rounded-full text-sm font-black transition-all"
               style={{
@@ -341,6 +352,18 @@ export default function Home() {
               }}
             >
               🤚 Vota Live
+            </a>
+            <a
+              href="/vota-live/admin"
+              onClick={() => setMenuOpen(false)}
+              className="font-black py-2.5 px-4 rounded-xl text-base text-center"
+              style={{
+                background: "transparent",
+                color: DARK,
+                border: `1.5px solid rgba(28,26,74,0.2)`,
+              }}
+            >
+              🔐 Admin organizzatori
             </a>
           </div>
         )}
