@@ -85,6 +85,7 @@ export default function AdminPage() {
 
   // ── UI ──
   const [tab, setTab] = useState<Tab>("serata");
+  const [dbError, setDbError] = useState<string | null>(null);
 
   // ── Events ──
   const [events, setEvents]         = useState<SlamEvent[]>([]);
@@ -112,10 +113,15 @@ export default function AdminPage() {
   // ── Loaders ──────────────────────────────────────────────────────────────
 
   const loadEvents = useCallback(async () => {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from("slam_events")
       .select("*")
       .order("created_at", { ascending: false });
+    if (error) {
+      setDbError(`Errore caricamento serate: ${error.message}`);
+      return;
+    }
+    setDbError(null);
     const evts = (data ?? []) as SlamEvent[];
     setEvents(evts);
     const active = evts.find((e) => e.active) ?? null;
@@ -226,12 +232,18 @@ export default function AdminPage() {
   const createEvent = async () => {
     if (!evtName.trim()) return;
     setEvtBusy(true);
-    await supabase.from("slam_events").insert({
+    setDbError(null);
+    const { error } = await supabase.from("slam_events").insert({
       name: evtName.trim(),
       event_date: evtDate || null,
       active: false,
       poets: [],
     });
+    if (error) {
+      setDbError(`Errore creazione serata: ${error.message}`);
+      setEvtBusy(false);
+      return;
+    }
     setEvtName(""); setEvtDate("");
     await loadEvents();
     setEvtBusy(false);
@@ -257,8 +269,14 @@ export default function AdminPage() {
   const addPoet = async () => {
     if (!poetName.trim() || !activeEvent) return;
     setPoetBusy(true);
+    setDbError(null);
     const newPoets = [...(activeEvent.poets ?? []), { name: poetName.trim(), poem: poemTitle.trim() }];
-    await supabase.from("slam_events").update({ poets: newPoets }).eq("id", activeEvent.id);
+    const { error } = await supabase.from("slam_events").update({ poets: newPoets }).eq("id", activeEvent.id);
+    if (error) {
+      setDbError(`Errore aggiunta poeta: ${error.message}`);
+      setPoetBusy(false);
+      return;
+    }
     setPoetName(""); setPoemTitle("");
     await loadEvents();
     setPoetBusy(false);
@@ -461,6 +479,18 @@ export default function AdminPage() {
             </button>
           ))}
         </div>
+
+        {/* Error banner */}
+        {dbError && (
+          <div style={{
+            marginBottom: 18, padding: "12px 16px",
+            background: "rgba(230,57,70,0.18)", border: "1.5px solid rgba(230,57,70,0.45)",
+            borderRadius: 12, fontSize: "0.82rem", color: "#FF9999",
+            fontFamily: "'Space Mono', monospace", lineHeight: 1.6,
+          }}>
+            ⚠️ {dbError}
+          </div>
+        )}
 
         {/* ══════════════════════════════════════════
             TAB: SERATA
