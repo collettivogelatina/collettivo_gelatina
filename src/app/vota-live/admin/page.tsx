@@ -8,28 +8,24 @@ const supabase = createClient(
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFneW13bGNoY29mbXJzeXVlZ2xpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI0NzU3MzUsImV4cCI6MjA5ODA1MTczNX0.sGPrYL_kdVgOGpaNKTa_xAHYbkeH7mt0cfR9ruVOq48"
 );
 
-const PASSWORD   = "gelat1na!";
-const BLUE       = "#4B44DF";
-const BLUE_MID   = "#7A74FF";
-const BLUE_LIGHT = "#B8B3FF";
-const DARK       = "#1C1A4A";
-const GREEN      = "#2A8A5A";
-const RED        = "#E63946";
+const PASSWORD    = "gelat1na!";
+const BLUE        = "#4B44DF";
+const BLUE_MID    = "#7A74FF";
+const BLUE_LIGHT  = "#B8B3FF";
+const DARK        = "#1C1A4A";
+const GREEN       = "#2A8A5A";
+const RED         = "#E63946";
+const STORAGE_KEY = "gelatina_admin_event_v2";
 
 type Tab = "serata" | "poeti" | "live";
 
-interface Poet {
-  name: string;
-  poem: string;
-}
+interface Poet { name: string; poem: string; }
 
-interface SlamEvent {
-  id: string;
+interface LocalEvent {
   name: string;
-  event_date: string | null;
-  active: boolean;
-  poets: Poet[];
-  created_at: string;
+  date: string;
+  poetQueue: Poet[];
+  sessionIds: string[];  // IDs delle slam_sessions di questa serata
 }
 
 interface SlamSession {
@@ -37,15 +33,30 @@ interface SlamSession {
   poet_name: string;
   poem_title: string;
   voting_open: boolean;
-  event_id: string | null;
   created_at: string;
 }
 
 interface HistoryEntry {
+  id: string;
   poet: string;
   poem: string;
   avg: number;
   count: number;
+}
+
+// ── localStorage helpers ──────────────────────────────────────────────────────
+function loadLocalEvent(): LocalEvent | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch { return null; }
+}
+
+function saveLocalEvent(evt: LocalEvent | null) {
+  if (typeof window === "undefined") return;
+  if (!evt) { localStorage.removeItem(STORAGE_KEY); return; }
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(evt));
 }
 
 function scoreColor(s: number): string {
@@ -58,21 +69,15 @@ function scoreColor(s: number): string {
 const inputStyle: React.CSSProperties = {
   background: "rgba(255,255,255,0.08)",
   border: "1.5px solid rgba(255,255,255,0.12)",
-  borderRadius: 10,
-  padding: "11px 14px",
-  color: "white",
-  fontSize: "0.92rem",
-  fontFamily: "'Nunito', sans-serif",
-  outline: "none",
-  width: "100%",
+  borderRadius: 10, padding: "11px 14px", color: "white",
+  fontSize: "0.92rem", fontFamily: "'Nunito', sans-serif",
+  outline: "none", width: "100%",
 };
 
 const cardStyle: React.CSSProperties = {
   background: "rgba(255,255,255,0.05)",
   border: "1.5px solid rgba(255,255,255,0.09)",
-  borderRadius: 20,
-  padding: "20px 22px",
-  marginBottom: 18,
+  borderRadius: 20, padding: "20px 22px", marginBottom: 18,
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -85,19 +90,15 @@ export default function AdminPage() {
 
   // ── UI ──
   const [tab, setTab] = useState<Tab>("serata");
-  const [dbError, setDbError] = useState<string | null>(null);
 
-  // ── Events ──
-  const [events, setEvents]         = useState<SlamEvent[]>([]);
-  const [activeEvent, setActiveEvent] = useState<SlamEvent | null>(null);
-  const [evtName, setEvtName]       = useState("");
-  const [evtDate, setEvtDate]       = useState("");
-  const [evtBusy, setEvtBusy]       = useState(false);
+  // ── Serata locale ──
+  const [localEvent, setLocalEventState] = useState<LocalEvent | null>(null);
+  const [evtName, setEvtName] = useState("");
+  const [evtDate, setEvtDate] = useState("");
 
   // ── Poets form ──
   const [poetName, setPoetName]   = useState("");
   const [poemTitle, setPoemTitle] = useState("");
-  const [poetBusy, setPoetBusy]   = useState(false);
 
   // ── Live ──
   const [session, setSession]         = useState<SlamSession | null>(null);
@@ -106,42 +107,31 @@ export default function AdminPage() {
   const [avgScore, setAvgScore]       = useState<number | null>(null);
   const [history, setHistory]         = useState<HistoryEntry[]>([]);
 
-  const channelRef      = useRef<RealtimeChannel | null>(null);
-  const sessionRef      = useRef<SlamSession | null>(null);
-  const activeEventRef  = useRef<SlamEvent | null>(null);
+  const channelRef  = useRef<RealtimeChannel | null>(null);
+  const sessionRef  = useRef<SlamSession | null>(null);
+
+  // ── Aggiorna localStorage e stato insieme ──
+  const setLocalEvent = (evt: LocalEvent | null) => {
+    setLocalEventState(evt);
+    saveLocalEvent(evt);
+  };
 
   // ── Loaders ──────────────────────────────────────────────────────────────
 
-  const loadEvents = useCallback(async () => {
-    const { data, error } = await supabase
-      .from("slam_events")
-      .select("*")
-      .order("created_at", { ascending: false });
-    if (error) {
-      setDbError(`Errore caricamento serate: ${error.message}`);
-      return;
-    }
-    setDbError(null);
-    const evts = (data ?? []) as SlamEvent[];
-    setEvents(evts);
-    const active = evts.find((e) => e.active) ?? null;
-    setActiveEvent(active);
-    activeEventRef.current = active;
-  }, []);
-
-  const loadSession = useCallback(async (eventId?: string) => {
-    const eid = eventId ?? activeEventRef.current?.id;
-    if (!eid) { setSession(null); sessionRef.current = null; return; }
+  const loadSession = useCallback(async (sessionIds?: string[]) => {
+    const ids = sessionIds ?? localEvent?.sessionIds;
+    if (!ids || ids.length === 0) { setSession(null); sessionRef.current = null; return; }
+    // Prende l'ultima sessione della serata
     const { data } = await supabase
       .from("slam_sessions")
       .select("*")
-      .eq("event_id", eid)
+      .in("id", ids)
       .order("created_at", { ascending: false })
       .limit(1)
       .maybeSingle();
     setSession(data ?? null);
     sessionRef.current = data ?? null;
-  }, []);
+  }, [localEvent?.sessionIds]);
 
   const loadVoteStats = useCallback(async (sessionId: string) => {
     const { data } = await supabase
@@ -158,25 +148,24 @@ export default function AdminPage() {
     }
   }, []);
 
-  const loadHistory = useCallback(async (eventId: string) => {
+  const loadHistory = useCallback(async (sessionIds: string[]) => {
+    if (sessionIds.length === 0) { setHistory([]); return; }
     const { data: sessions } = await supabase
       .from("slam_sessions")
       .select("id, poet_name, poem_title")
-      .eq("event_id", eventId)
+      .in("id", sessionIds)
       .order("created_at", { ascending: true });
     if (!sessions) return;
 
     const results: HistoryEntry[] = await Promise.all(
       sessions.map(async (s) => {
         const { data: votes } = await supabase
-          .from("slam_votes")
-          .select("score")
-          .eq("session_id", s.id);
+          .from("slam_votes").select("score").eq("session_id", s.id);
         const count = votes?.length ?? 0;
         const avg = count > 0
           ? votes!.reduce((acc: number, v: { score: number }) => acc + Number(v.score), 0) / count
           : 0;
-        return { poet: s.poet_name, poem: s.poem_title, avg: Math.round(avg * 10) / 10, count };
+        return { id: s.id, poet: s.poet_name, poem: s.poem_title, avg: Math.round(avg * 10) / 10, count };
       })
     );
     setHistory(results.filter((r) => r.count > 0));
@@ -184,126 +173,109 @@ export default function AdminPage() {
 
   // ── Effects ──────────────────────────────────────────────────────────────
 
+  // Carica da localStorage al login
   useEffect(() => {
     if (locked) return;
-    loadEvents();
-  }, [locked, loadEvents]);
-
-  useEffect(() => {
-    if (locked || !activeEvent) return;
-    loadSession(activeEvent.id);
-    loadHistory(activeEvent.id);
-  }, [locked, activeEvent?.id, loadSession, loadHistory]);
+    const saved = loadLocalEvent();
+    setLocalEventState(saved);
+    if (saved?.sessionIds?.length) {
+      loadSession(saved.sessionIds);
+      loadHistory(saved.sessionIds);
+    }
+  }, [locked, loadSession, loadHistory]);
 
   useEffect(() => {
     if (session?.id) loadVoteStats(session.id);
   }, [session?.id, loadVoteStats]);
 
+  // Realtime
   useEffect(() => {
     if (locked) return;
     const ch = supabase
-      .channel("admin_v2")
-      .on("postgres_changes", { event: "*", schema: "public", table: "slam_events" }, () => {
-        loadEvents();
-      })
+      .channel("admin_v3")
       .on("postgres_changes", { event: "*", schema: "public", table: "slam_sessions" }, () => {
-        loadSession();
-        if (activeEventRef.current) loadHistory(activeEventRef.current.id);
+        const ids = localEvent?.sessionIds;
+        if (ids?.length) { loadSession(ids); loadHistory(ids); }
       })
       .on("postgres_changes", { event: "*", schema: "public", table: "slam_votes" }, (payload) => {
-        const sid =
-          (payload.new as { session_id?: string })?.session_id ?? sessionRef.current?.id;
+        const sid = (payload.new as { session_id?: string })?.session_id ?? sessionRef.current?.id;
         if (sid) loadVoteStats(sid);
       })
       .subscribe();
     channelRef.current = ch;
     return () => { supabase.removeChannel(ch); };
-  }, [locked, loadEvents, loadSession, loadHistory, loadVoteStats]);
+  }, [locked, localEvent?.sessionIds, loadSession, loadHistory, loadVoteStats]);
 
-  // ── Auth handlers ─────────────────────────────────────────────────────────
+  // ── Auth ──────────────────────────────────────────────────────────────────
 
   const handleLogin = () => {
     if (pwd === PASSWORD) { setLocked(false); setPwdError(false); }
     else setPwdError(true);
   };
 
-  // ── Event handlers ────────────────────────────────────────────────────────
+  // ── Serata ────────────────────────────────────────────────────────────────
 
-  const createEvent = async () => {
+  const createEvent = () => {
     if (!evtName.trim()) return;
-    setEvtBusy(true);
-    setDbError(null);
-    const { error } = await supabase.from("slam_events").insert({
-      name: evtName.trim(),
-      event_date: evtDate || null,
-      active: false,
-      poets: [],
-    });
-    if (error) {
-      setDbError(`Errore creazione serata: ${error.message}`);
-      setEvtBusy(false);
-      return;
-    }
+    setLocalEvent({ name: evtName.trim(), date: evtDate, poetQueue: [], sessionIds: [] });
     setEvtName(""); setEvtDate("");
-    await loadEvents();
-    setEvtBusy(false);
+    setSession(null); sessionRef.current = null;
+    setHistory([]); setVoteCount(0); setAvgScore(null);
   };
 
-  const activateEvent = async (evt: SlamEvent) => {
-    setEvtBusy(true);
-    await supabase.from("slam_events").update({ active: false }).neq("id", evt.id);
-    await supabase.from("slam_events").update({ active: true }).eq("id", evt.id);
-    await loadEvents();
-    setEvtBusy(false);
+  const clearEvent = () => {
+    if (!confirm("Sei sicuro di voler terminare questa serata? I dati locali verranno cancellati.")) return;
+    setLocalEvent(null);
+    setSession(null); sessionRef.current = null;
+    setHistory([]); setVoteCount(0); setAvgScore(null);
   };
 
-  const deactivateEvent = async (evt: SlamEvent) => {
-    setEvtBusy(true);
-    await supabase.from("slam_events").update({ active: false }).eq("id", evt.id);
-    await loadEvents();
-    setEvtBusy(false);
-  };
+  // ── Poeti ─────────────────────────────────────────────────────────────────
 
-  // ── Poet handlers ─────────────────────────────────────────────────────────
-
-  const addPoet = async () => {
-    if (!poetName.trim() || !activeEvent) return;
-    setPoetBusy(true);
-    setDbError(null);
-    const newPoets = [...(activeEvent.poets ?? []), { name: poetName.trim(), poem: poemTitle.trim() }];
-    const { error } = await supabase.from("slam_events").update({ poets: newPoets }).eq("id", activeEvent.id);
-    if (error) {
-      setDbError(`Errore aggiunta poeta: ${error.message}`);
-      setPoetBusy(false);
-      return;
-    }
+  const addPoet = () => {
+    if (!poetName.trim() || !localEvent) return;
+    const updated: LocalEvent = {
+      ...localEvent,
+      poetQueue: [...localEvent.poetQueue, { name: poetName.trim(), poem: poemTitle.trim() }],
+    };
+    setLocalEvent(updated);
     setPoetName(""); setPoemTitle("");
-    await loadEvents();
-    setPoetBusy(false);
   };
 
-  const removePoet = async (index: number) => {
-    if (!activeEvent) return;
-    const newPoets = activeEvent.poets.filter((_, i) => i !== index);
-    await supabase.from("slam_events").update({ poets: newPoets }).eq("id", activeEvent.id);
-    await loadEvents();
+  const removePoet = (index: number) => {
+    if (!localEvent) return;
+    const updated: LocalEvent = {
+      ...localEvent,
+      poetQueue: localEvent.poetQueue.filter((_, i) => i !== index),
+    };
+    setLocalEvent(updated);
   };
+
+  // ── Live ──────────────────────────────────────────────────────────────────
 
   const callPoet = async (poet: Poet) => {
-    if (!activeEvent) return;
+    if (!localEvent) return;
     setSessionBusy(true);
-    // Remove from queue first
-    const newPoets = activeEvent.poets.filter((p) => !(p.name === poet.name && p.poem === poet.poem));
-    await supabase.from("slam_events").update({ poets: newPoets }).eq("id", activeEvent.id);
-    // Create session
-    await supabase.from("slam_sessions").insert({
-      poet_name: poet.name,
-      poem_title: poet.poem,
-      voting_open: false,
-      event_id: activeEvent.id,
-    });
-    await loadEvents();
-    await loadSession(activeEvent.id);
+    // Crea la sessione in Supabase
+    const { data, error } = await supabase
+      .from("slam_sessions")
+      .insert({ poet_name: poet.name, poem_title: poet.poem, voting_open: false })
+      .select()
+      .single();
+
+    if (error || !data) { setSessionBusy(false); return; }
+
+    // Rimuovi dalla coda e salva l'ID della sessione
+    const updated: LocalEvent = {
+      ...localEvent,
+      poetQueue: localEvent.poetQueue.filter((p) => !(p.name === poet.name && p.poem === poet.poem)),
+      sessionIds: [...localEvent.sessionIds, data.id],
+    };
+    setLocalEvent(updated);
+    setSession(data);
+    sessionRef.current = data;
+    setVoteCount(0); setAvgScore(null);
+    await loadHistory(updated.sessionIds);
     setSessionBusy(false);
   };
 
@@ -367,14 +339,11 @@ export default function AdminPage() {
         >
           Entra →
         </button>
-        <Link
-          href="/vota-live"
-          style={{
-            display: "block", marginTop: 22,
-            color: "rgba(255,255,255,0.28)", fontSize: "0.75rem",
-            textDecoration: "none", fontFamily: "'Space Mono', monospace",
-          }}
-        >
+        <Link href="/vota-live" style={{
+          display: "block", marginTop: 22,
+          color: "rgba(255,255,255,0.28)", fontSize: "0.75rem",
+          textDecoration: "none", fontFamily: "'Space Mono', monospace",
+        }}>
           ← Pagina voto pubblico
         </Link>
       </div>
@@ -412,13 +381,11 @@ export default function AdminPage() {
               fontSize: "0.6rem", fontWeight: 700, letterSpacing: "0.42em",
               textTransform: "uppercase", color: BLUE_LIGHT,
               fontFamily: "'Space Mono', monospace", marginBottom: 5,
-            }}>
-              🎛️ Organizzatore
-            </p>
+            }}>🎛️ Organizzatore</p>
             <h1 style={{ fontSize: "1.4rem", fontWeight: 900 }}>Pannello Admin</h1>
           </div>
           <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 7 }}>
-            {activeEvent && (
+            {localEvent && (
               <div style={{
                 display: "flex", alignItems: "center", gap: 6,
                 background: "rgba(42,138,90,0.18)", border: "1px solid rgba(42,138,90,0.38)",
@@ -426,24 +393,19 @@ export default function AdminPage() {
               }}>
                 <span style={{
                   width: 7, height: 7, borderRadius: "50%", background: "#3DC878",
-                  boxShadow: "0 0 6px #3DC878", display: "inline-block",
-                  animation: "pulse 1.5s infinite",
+                  display: "inline-block", animation: "pulse 1.5s infinite",
                 }} />
                 <span style={{ fontSize: "0.72rem", color: "#3DC878", fontWeight: 700 }}>
-                  {activeEvent.name}
+                  {localEvent.name}
                 </span>
               </div>
             )}
-            <Link
-              href="/vota-live"
-              target="_blank"
-              style={{
-                fontSize: "0.7rem", color: "rgba(255,255,255,0.38)", textDecoration: "none",
-                fontFamily: "'Space Mono', monospace",
-                border: "1px solid rgba(255,255,255,0.14)",
-                padding: "6px 12px", borderRadius: 8,
-              }}
-            >
+            <Link href="/vota-live" target="_blank" style={{
+              fontSize: "0.7rem", color: "rgba(255,255,255,0.38)", textDecoration: "none",
+              fontFamily: "'Space Mono', monospace",
+              border: "1px solid rgba(255,255,255,0.14)",
+              padding: "6px 12px", borderRadius: 8,
+            }}>
               Vista pubblico ↗
             </Link>
           </div>
@@ -454,13 +416,11 @@ export default function AdminPage() {
           display: "flex", gap: 5, marginBottom: 26,
           background: "rgba(255,255,255,0.05)", borderRadius: 14, padding: 5,
         }}>
-          {(
-            [
-              { id: "serata" as Tab, label: "🎪 Serata" },
-              { id: "poeti"  as Tab, label: "🎤 Poeti"  },
-              { id: "live"   as Tab, label: "🔴 Live"   },
-            ] as { id: Tab; label: string }[]
-          ).map((t) => (
+          {([
+            { id: "serata" as Tab, label: "🎪 Serata" },
+            { id: "poeti"  as Tab, label: "🎤 Poeti"  },
+            { id: "live"   as Tab, label: "🔴 Live"   },
+          ] as { id: Tab; label: string }[]).map((t) => (
             <button
               key={t.id}
               id={`tab-${t.id}`}
@@ -480,157 +440,115 @@ export default function AdminPage() {
           ))}
         </div>
 
-        {/* Error banner */}
-        {dbError && (
-          <div style={{
-            marginBottom: 18, padding: "12px 16px",
-            background: "rgba(230,57,70,0.18)", border: "1.5px solid rgba(230,57,70,0.45)",
-            borderRadius: 12, fontSize: "0.82rem", color: "#FF9999",
-            fontFamily: "'Space Mono', monospace", lineHeight: 1.6,
-          }}>
-            ⚠️ {dbError}
-          </div>
-        )}
-
         {/* ══════════════════════════════════════════
             TAB: SERATA
         ══════════════════════════════════════════ */}
         {tab === "serata" && (
           <div style={{ animation: "fadeIn 0.3s ease" }}>
-            {/* Create */}
-            <div style={cardStyle}>
-              <p style={{
-                fontSize: "0.6rem", fontWeight: 700, letterSpacing: "0.38em",
-                textTransform: "uppercase", color: "rgba(255,255,255,0.32)",
-                fontFamily: "'Space Mono', monospace", marginBottom: 16,
-              }}>
-                Nuova Serata
-              </p>
-              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                <input
-                  id="evt-name-input"
-                  value={evtName}
-                  onChange={(e) => setEvtName(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && createEvent()}
-                  placeholder="Nome della serata *"
-                  style={inputStyle}
-                />
-                <input
-                  id="evt-date-input"
-                  type="date"
-                  value={evtDate}
-                  onChange={(e) => setEvtDate(e.target.value)}
-                  style={inputStyle}
-                />
-                <button
-                  id="evt-create-btn"
-                  onClick={createEvent}
-                  disabled={evtBusy || !evtName.trim()}
-                  style={{
-                    padding: "12px 18px", borderRadius: 10, fontWeight: 900,
-                    fontSize: "0.9rem", cursor: "pointer", border: "none",
-                    background: evtName.trim()
-                      ? `linear-gradient(135deg, ${BLUE}, ${BLUE_MID})`
-                      : "rgba(255,255,255,0.07)",
-                    color: "white",
-                    boxShadow: evtName.trim() ? `0 4px 16px ${BLUE}44` : "none",
-                    opacity: evtBusy || !evtName.trim() ? 0.5 : 1,
-                    transition: "all 0.2s",
-                  }}
-                >
-                  {evtBusy ? "..." : "✚ Crea Serata"}
-                </button>
-              </div>
-            </div>
 
-            {/* List */}
-            <p style={{
-              fontSize: "0.6rem", fontWeight: 700, letterSpacing: "0.38em",
-              textTransform: "uppercase", color: "rgba(255,255,255,0.28)",
-              fontFamily: "'Space Mono', monospace", marginBottom: 12,
-            }}>
-              Serate
-            </p>
-            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-              {events.length === 0 && (
-                <div style={{
-                  textAlign: "center", padding: "36px 20px",
-                  background: "rgba(255,255,255,0.03)", borderRadius: 16,
-                  color: "rgba(255,255,255,0.28)", fontSize: "0.88rem",
-                }}>
-                  Nessuna serata. Creane una qui sopra.
+            {!localEvent ? (
+              /* Crea nuova serata */
+              <div style={cardStyle}>
+                <p style={{
+                  fontSize: "0.6rem", fontWeight: 700, letterSpacing: "0.38em",
+                  textTransform: "uppercase", color: "rgba(255,255,255,0.32)",
+                  fontFamily: "'Space Mono', monospace", marginBottom: 16,
+                }}>Nuova Serata</p>
+                <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                  <input
+                    id="evt-name-input"
+                    value={evtName}
+                    onChange={(e) => setEvtName(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && createEvent()}
+                    placeholder="Nome della serata *"
+                    style={inputStyle}
+                  />
+                  <input
+                    id="evt-date-input"
+                    type="date"
+                    value={evtDate}
+                    onChange={(e) => setEvtDate(e.target.value)}
+                    style={inputStyle}
+                  />
+                  <button
+                    id="evt-create-btn"
+                    onClick={createEvent}
+                    disabled={!evtName.trim()}
+                    style={{
+                      padding: "13px 18px", borderRadius: 10, fontWeight: 900,
+                      fontSize: "0.9rem", cursor: "pointer", border: "none",
+                      background: evtName.trim()
+                        ? `linear-gradient(135deg, ${BLUE}, ${BLUE_MID})`
+                        : "rgba(255,255,255,0.07)",
+                      color: "white",
+                      boxShadow: evtName.trim() ? `0 4px 16px ${BLUE}44` : "none",
+                      opacity: !evtName.trim() ? 0.5 : 1,
+                      transition: "all 0.2s",
+                    }}
+                  >
+                    ✚ Crea Serata
+                  </button>
                 </div>
-              )}
-              {events.map((evt) => (
-                <div
-                  key={evt.id}
+              </div>
+            ) : (
+              /* Serata attiva */
+              <>
+                <div style={{
+                  background: "rgba(42,138,90,0.1)", border: "1.5px solid rgba(42,138,90,0.32)",
+                  borderRadius: 20, padding: "20px 22px", marginBottom: 18,
+                }}>
+                  <p style={{
+                    fontSize: "0.6rem", fontWeight: 700, letterSpacing: "0.38em",
+                    textTransform: "uppercase", color: "rgba(255,255,255,0.32)",
+                    fontFamily: "'Space Mono', monospace", marginBottom: 10,
+                  }}>Serata attiva</p>
+                  <p style={{ fontSize: "1.3rem", fontWeight: 900, marginBottom: 4 }}>
+                    {localEvent.name}
+                  </p>
+                  {localEvent.date && (
+                    <p style={{ fontSize: "0.78rem", color: "rgba(255,255,255,0.38)",
+                      fontFamily: "'Space Mono', monospace", marginBottom: 12 }}>
+                      {new Date(localEvent.date).toLocaleDateString("it-IT", {
+                        day: "2-digit", month: "long", year: "numeric",
+                      })}
+                    </p>
+                  )}
+                  <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 4 }}>
+                    <div style={{
+                      background: "rgba(255,255,255,0.07)", borderRadius: 10,
+                      padding: "8px 14px", fontSize: "0.8rem", color: "rgba(255,255,255,0.6)",
+                    }}>
+                      🎤 {localEvent.poetQueue.length} in coda
+                    </div>
+                    <div style={{
+                      background: "rgba(255,255,255,0.07)", borderRadius: 10,
+                      padding: "8px 14px", fontSize: "0.8rem", color: "rgba(255,255,255,0.6)",
+                    }}>
+                      🎙️ {localEvent.sessionIds.length} esib.
+                    </div>
+                  </div>
+                </div>
+
+                <button
+                  onClick={clearEvent}
                   style={{
-                    background: evt.active ? "rgba(42,138,90,0.1)" : "rgba(255,255,255,0.04)",
-                    border: evt.active
-                      ? "1.5px solid rgba(42,138,90,0.32)"
-                      : "1px solid rgba(255,255,255,0.07)",
-                    borderRadius: 16, padding: "16px 18px",
-                    display: "flex", alignItems: "center",
-                    justifyContent: "space-between", gap: 12,
-                    transition: "all 0.2s",
+                    width: "100%", padding: "13px 0", borderRadius: 12, border: "none",
+                    background: "rgba(230,57,70,0.14)", color: RED,
+                    fontWeight: 800, fontSize: "0.9rem", cursor: "pointer",
                   }}
                 >
-                  <div>
-                    <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 3 }}>
-                      {evt.active && (
-                        <span style={{
-                          width: 7, height: 7, borderRadius: "50%", background: "#3DC878",
-                          boxShadow: "0 0 6px #3DC878", display: "inline-block",
-                          animation: "pulse 1.5s infinite",
-                        }} />
-                      )}
-                      <p style={{ fontWeight: 800, fontSize: "0.95rem" }}>{evt.name}</p>
-                    </div>
-                    {evt.event_date && (
-                      <p style={{
-                        fontSize: "0.7rem", color: "rgba(255,255,255,0.32)",
-                        fontFamily: "'Space Mono', monospace", marginBottom: 3,
-                      }}>
-                        {new Date(evt.event_date).toLocaleDateString("it-IT", {
-                          day: "2-digit", month: "long", year: "numeric",
-                        })}
-                      </p>
-                    )}
-                    <p style={{ fontSize: "0.7rem", color: "rgba(255,255,255,0.22)" }}>
-                      {(evt.poets ?? []).length} poet
-                      {(evt.poets ?? []).length === 1 ? "a" : "i"} in lista
-                    </p>
-                  </div>
-                  {evt.active ? (
-                    <button
-                      onClick={() => deactivateEvent(evt)}
-                      disabled={evtBusy}
-                      style={{
-                        padding: "8px 14px", borderRadius: 9, border: "none",
-                        cursor: "pointer", background: "rgba(230,57,70,0.18)",
-                        color: RED, fontWeight: 800, fontSize: "0.78rem",
-                        opacity: evtBusy ? 0.5 : 1,
-                      }}
-                    >
-                      Disattiva
-                    </button>
-                  ) : (
-                    <button
-                      onClick={() => activateEvent(evt)}
-                      disabled={evtBusy}
-                      style={{
-                        padding: "8px 14px", borderRadius: 9, border: "none",
-                        cursor: "pointer", background: "rgba(42,138,90,0.18)",
-                        color: "#3DC878", fontWeight: 800, fontSize: "0.78rem",
-                        opacity: evtBusy ? 0.5 : 1,
-                      }}
-                    >
-                      Attiva
-                    </button>
-                  )}
-                </div>
-              ))}
-            </div>
+                  🗑 Termina e cancella serata
+                </button>
+
+                <p style={{
+                  textAlign: "center", marginTop: 12,
+                  fontSize: "0.68rem", color: "rgba(255,255,255,0.22)",
+                  fontFamily: "'Space Mono', monospace",
+                }}>
+                  I voti su Supabase restano salvati
+                </p>
+              </>
+            )}
           </div>
         )}
 
@@ -639,7 +557,7 @@ export default function AdminPage() {
         ══════════════════════════════════════════ */}
         {tab === "poeti" && (
           <div style={{ animation: "fadeIn 0.3s ease" }}>
-            {!activeEvent ? (
+            {!localEvent ? (
               <div style={{
                 textAlign: "center", padding: "52px 20px",
                 background: "rgba(255,255,255,0.03)", borderRadius: 20,
@@ -647,7 +565,7 @@ export default function AdminPage() {
               }}>
                 <div style={{ fontSize: "2.2rem", marginBottom: 12 }}>🎪</div>
                 Nessuna serata attiva.<br />
-                <span style={{ fontSize: "0.8rem" }}>Vai nella tab Serata e attivane una.</span>
+                <span style={{ fontSize: "0.8rem" }}>Creane una dalla tab Serata.</span>
               </div>
             ) : (
               <>
@@ -657,22 +575,18 @@ export default function AdminPage() {
                   borderRadius: 12, fontSize: "0.82rem", color: "#3DC878", fontWeight: 700,
                   display: "flex", alignItems: "center", gap: 7,
                 }}>
-                  <span style={{
-                    width: 6, height: 6, borderRadius: "50%", background: "#3DC878",
-                    display: "inline-block", animation: "pulse 1.5s infinite",
-                  }} />
-                  Serata attiva: {activeEvent.name}
+                  <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#3DC878",
+                    display: "inline-block", animation: "pulse 1.5s infinite" }} />
+                  Serata: {localEvent.name}
                 </div>
 
-                {/* Add poet */}
+                {/* Form aggiungi */}
                 <div style={cardStyle}>
                   <p style={{
                     fontSize: "0.6rem", fontWeight: 700, letterSpacing: "0.38em",
                     textTransform: "uppercase", color: "rgba(255,255,255,0.32)",
                     fontFamily: "'Space Mono', monospace", marginBottom: 16,
-                  }}>
-                    Aggiungi Poeta
-                  </p>
+                  }}>Aggiungi Poeta</p>
                   <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                     <input
                       id="poet-name-input"
@@ -693,34 +607,35 @@ export default function AdminPage() {
                     <button
                       id="add-poet-btn"
                       onClick={addPoet}
-                      disabled={poetBusy || !poetName.trim()}
+                      disabled={!poetName.trim()}
                       style={{
-                        padding: "12px 18px", borderRadius: 10, fontWeight: 900,
+                        padding: "13px 18px", borderRadius: 10, fontWeight: 900,
                         fontSize: "0.9rem", cursor: "pointer", border: "none",
                         background: poetName.trim()
                           ? `linear-gradient(135deg, ${BLUE}, ${BLUE_MID})`
                           : "rgba(255,255,255,0.07)",
                         color: "white",
                         boxShadow: poetName.trim() ? `0 4px 16px ${BLUE}44` : "none",
-                        opacity: poetBusy || !poetName.trim() ? 0.5 : 1,
+                        opacity: !poetName.trim() ? 0.5 : 1,
                       }}
                     >
-                      {poetBusy ? "..." : "✚ Aggiungi"}
+                      ✚ Aggiungi
                     </button>
                   </div>
                 </div>
 
-                {/* Poet list */}
+                {/* Lista */}
                 <p style={{
                   fontSize: "0.6rem", fontWeight: 700, letterSpacing: "0.38em",
                   textTransform: "uppercase", color: "rgba(255,255,255,0.28)",
                   fontFamily: "'Space Mono', monospace", marginBottom: 12,
                 }}>
-                  In lista — {(activeEvent.poets ?? []).length} poet
-                  {(activeEvent.poets ?? []).length === 1 ? "a" : "i"}
+                  In coda — {localEvent.poetQueue.length} poet
+                  {localEvent.poetQueue.length === 1 ? "a" : "i"}
                 </p>
+
                 <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                  {(activeEvent.poets ?? []).length === 0 ? (
+                  {localEvent.poetQueue.length === 0 ? (
                     <div style={{
                       textAlign: "center", padding: "28px 20px",
                       background: "rgba(255,255,255,0.03)", borderRadius: 16,
@@ -729,31 +644,22 @@ export default function AdminPage() {
                       Nessun poeta. Aggiungili qui sopra.
                     </div>
                   ) : (
-                    (activeEvent.poets ?? []).map((poet, i) => (
-                      <div
-                        key={i}
-                        style={{
-                          display: "flex", alignItems: "center",
-                          justifyContent: "space-between",
-                          background: "rgba(255,255,255,0.05)",
-                          border: "1px solid rgba(255,255,255,0.07)",
-                          borderRadius: 14, padding: "14px 16px",
-                        }}
-                      >
+                    localEvent.poetQueue.map((poet, i) => (
+                      <div key={i} style={{
+                        display: "flex", alignItems: "center", justifyContent: "space-between",
+                        background: "rgba(255,255,255,0.05)",
+                        border: "1px solid rgba(255,255,255,0.07)",
+                        borderRadius: 14, padding: "14px 16px",
+                      }}>
                         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                           <span style={{
                             fontFamily: "'Space Mono', monospace",
                             fontSize: "0.7rem", color: "rgba(255,255,255,0.22)", minWidth: 20,
-                          }}>
-                            {i + 1}.
-                          </span>
+                          }}>{i + 1}.</span>
                           <div>
                             <p style={{ fontWeight: 800, fontSize: "0.92rem" }}>{poet.name}</p>
                             {poet.poem && (
-                              <p style={{
-                                fontSize: "0.75rem", color: "rgba(255,255,255,0.35)",
-                                fontStyle: "italic",
-                              }}>
+                              <p style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.35)", fontStyle: "italic" }}>
                                 &ldquo;{poet.poem}&rdquo;
                               </p>
                             )}
@@ -764,13 +670,9 @@ export default function AdminPage() {
                           style={{
                             background: "rgba(230,57,70,0.14)", border: "none",
                             cursor: "pointer", color: RED,
-                            fontWeight: 800, borderRadius: 8,
-                            padding: "6px 11px", fontSize: "0.85rem",
+                            fontWeight: 800, borderRadius: 8, padding: "6px 11px",
                           }}
-                          title="Rimuovi dalla lista"
-                        >
-                          🗑
-                        </button>
+                        >🗑</button>
                       </div>
                     ))
                   )}
@@ -785,7 +687,7 @@ export default function AdminPage() {
         ══════════════════════════════════════════ */}
         {tab === "live" && (
           <div style={{ animation: "fadeIn 0.3s ease" }}>
-            {!activeEvent ? (
+            {!localEvent ? (
               <div style={{
                 textAlign: "center", padding: "52px 20px",
                 background: "rgba(255,255,255,0.03)", borderRadius: 20,
@@ -793,45 +695,33 @@ export default function AdminPage() {
               }}>
                 <div style={{ fontSize: "2.2rem", marginBottom: 12 }}>🎪</div>
                 Nessuna serata attiva.<br />
-                <span style={{ fontSize: "0.8rem" }}>Vai nella tab Serata e attivane una.</span>
+                <span style={{ fontSize: "0.8rem" }}>Creane una dalla tab Serata.</span>
               </div>
             ) : (
               <>
-                {/* Queue */}
-                {(activeEvent.poets ?? []).length > 0 && (
+                {/* Coda prossimi */}
+                {localEvent.poetQueue.length > 0 && (
                   <div style={{ ...cardStyle, marginBottom: 18 }}>
                     <p style={{
                       fontSize: "0.6rem", fontWeight: 700, letterSpacing: "0.38em",
                       textTransform: "uppercase", color: "rgba(255,255,255,0.32)",
                       fontFamily: "'Space Mono', monospace", marginBottom: 16,
-                    }}>
-                      Prossimi in scena
-                    </p>
+                    }}>Prossimi in scena</p>
                     <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                      {(activeEvent.poets ?? []).map((poet, i) => (
-                        <div
-                          key={i}
-                          style={{
-                            display: "flex", alignItems: "center",
-                            justifyContent: "space-between",
-                            background: "rgba(255,255,255,0.04)",
-                            borderRadius: 12, padding: "12px 14px",
-                          }}
-                        >
+                      {localEvent.poetQueue.map((poet, i) => (
+                        <div key={i} style={{
+                          display: "flex", alignItems: "center", justifyContent: "space-between",
+                          background: "rgba(255,255,255,0.04)", borderRadius: 12, padding: "12px 14px",
+                        }}>
                           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                             <span style={{
                               fontSize: "0.68rem", color: "rgba(255,255,255,0.22)",
                               fontFamily: "'Space Mono', monospace",
-                            }}>
-                              {i + 1}.
-                            </span>
+                            }}>{i + 1}.</span>
                             <div>
                               <p style={{ fontWeight: 800, fontSize: "0.9rem" }}>{poet.name}</p>
                               {poet.poem && (
-                                <p style={{
-                                  fontSize: "0.73rem", color: "rgba(255,255,255,0.35)",
-                                  fontStyle: "italic",
-                                }}>
+                                <p style={{ fontSize: "0.73rem", color: "rgba(255,255,255,0.35)", fontStyle: "italic" }}>
                                   &ldquo;{poet.poem}&rdquo;
                                 </p>
                               )}
@@ -841,13 +731,11 @@ export default function AdminPage() {
                             onClick={() => callPoet(poet)}
                             disabled={sessionBusy}
                             style={{
-                              padding: "8px 15px", borderRadius: 9, border: "none",
-                              cursor: "pointer",
+                              padding: "8px 15px", borderRadius: 9, border: "none", cursor: "pointer",
                               background: `linear-gradient(135deg, ${BLUE}, ${BLUE_MID})`,
                               color: "white", fontWeight: 800, fontSize: "0.78rem",
                               boxShadow: `0 3px 10px ${BLUE}44`,
                               opacity: sessionBusy ? 0.5 : 1,
-                              transition: "all 0.2s",
                             }}
                           >
                             🎤 Chiama
@@ -858,7 +746,7 @@ export default function AdminPage() {
                   </div>
                 )}
 
-                {/* Current session */}
+                {/* Sessione corrente */}
                 {session ? (
                   <div style={{
                     background: "rgba(255,255,255,0.05)",
@@ -874,20 +762,12 @@ export default function AdminPage() {
                     }}>
                       <div>
                         <p style={{
-                          fontSize: "0.58rem", letterSpacing: "0.42em",
-                          textTransform: "uppercase", color: "rgba(255,255,255,0.28)",
-                          fontFamily: "'Space Mono', monospace", marginBottom: 7,
-                        }}>
-                          In scena adesso
-                        </p>
-                        <p style={{ fontSize: "1.2rem", fontWeight: 900 }}>
-                          {session.poet_name}
-                        </p>
+                          fontSize: "0.58rem", letterSpacing: "0.42em", textTransform: "uppercase",
+                          color: "rgba(255,255,255,0.28)", fontFamily: "'Space Mono', monospace", marginBottom: 7,
+                        }}>In scena adesso</p>
+                        <p style={{ fontSize: "1.2rem", fontWeight: 900 }}>{session.poet_name}</p>
                         {session.poem_title && (
-                          <p style={{
-                            fontSize: "0.85rem", color: "rgba(255,255,255,0.4)",
-                            fontStyle: "italic",
-                          }}>
+                          <p style={{ fontSize: "0.85rem", color: "rgba(255,255,255,0.4)", fontStyle: "italic" }}>
                             &ldquo;{session.poem_title}&rdquo;
                           </p>
                         )}
@@ -903,26 +783,20 @@ export default function AdminPage() {
                             boxShadow: "0 0 8px #3DC878", display: "inline-block",
                             animation: "pulse 1.5s infinite",
                           }} />
-                          <span style={{ fontSize: "0.7rem", fontWeight: 800, color: "#3DC878" }}>
-                            LIVE
-                          </span>
+                          <span style={{ fontSize: "0.7rem", fontWeight: 800, color: "#3DC878" }}>LIVE</span>
                         </div>
                       ) : (
                         <div style={{
                           flexShrink: 0, background: "rgba(255,255,255,0.07)",
                           borderRadius: 100, padding: "5px 12px",
                         }}>
-                          <span style={{
-                            fontSize: "0.7rem", fontWeight: 800,
-                            color: "rgba(255,255,255,0.35)",
-                          }}>
+                          <span style={{ fontSize: "0.7rem", fontWeight: 800, color: "rgba(255,255,255,0.35)" }}>
                             IN PAUSA
                           </span>
                         </div>
                       )}
                     </div>
 
-                    {/* Live stats */}
                     {voteCount > 0 && (
                       <div style={{
                         marginBottom: 16, padding: "12px 16px",
@@ -935,8 +809,7 @@ export default function AdminPage() {
                         {avgScore !== null && (
                           <span style={{
                             fontSize: "1.9rem", fontWeight: 900,
-                            fontFamily: "'Space Mono', monospace",
-                            color: scoreColor(avgScore),
+                            fontFamily: "'Space Mono', monospace", color: scoreColor(avgScore),
                           }}>
                             {avgScore.toFixed(1)}
                           </span>
@@ -944,42 +817,33 @@ export default function AdminPage() {
                       </div>
                     )}
 
-                    {/* Open / Close voting */}
                     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
                       <button
                         id="open-vote-btn"
                         onClick={() => toggleVoting(true)}
                         disabled={sessionBusy || session.voting_open}
                         style={{
-                          padding: "16px 0", borderRadius: 14, fontWeight: 900,
-                          fontSize: "1rem",
+                          padding: "16px 0", borderRadius: 14, fontWeight: 900, fontSize: "1rem",
                           cursor: session.voting_open ? "not-allowed" : "pointer",
                           border: "none", transition: "all 0.2s",
                           background: session.voting_open ? "rgba(42,138,90,0.15)" : GREEN,
-                          color: "white",
-                          opacity: session.voting_open ? 0.45 : 1,
+                          color: "white", opacity: session.voting_open ? 0.45 : 1,
                           boxShadow: session.voting_open ? "none" : "0 4px 16px rgba(42,138,90,0.4)",
                         }}
-                      >
-                        🟢 Apri Voto
-                      </button>
+                      >🟢 Apri Voto</button>
                       <button
                         id="close-vote-btn"
                         onClick={() => toggleVoting(false)}
                         disabled={sessionBusy || !session.voting_open}
                         style={{
-                          padding: "16px 0", borderRadius: 14, fontWeight: 900,
-                          fontSize: "1rem",
+                          padding: "16px 0", borderRadius: 14, fontWeight: 900, fontSize: "1rem",
                           cursor: !session.voting_open ? "not-allowed" : "pointer",
                           border: "none", transition: "all 0.2s",
                           background: !session.voting_open ? "rgba(230,57,70,0.15)" : RED,
-                          color: "white",
-                          opacity: !session.voting_open ? 0.45 : 1,
+                          color: "white", opacity: !session.voting_open ? 0.45 : 1,
                           boxShadow: !session.voting_open ? "none" : "0 4px 16px rgba(230,57,70,0.4)",
                         }}
-                      >
-                        🔴 Chiudi Voto
-                      </button>
+                      >🔴 Chiudi Voto</button>
                     </div>
                   </div>
                 ) : (
@@ -988,14 +852,13 @@ export default function AdminPage() {
                     background: "rgba(255,255,255,0.03)", borderRadius: 16,
                     color: "rgba(255,255,255,0.28)", fontSize: "0.85rem", marginBottom: 18,
                   }}>
-                    {(activeEvent.poets ?? []).length > 0
+                    {localEvent.poetQueue.length > 0
                       ? "Premi 🎤 Chiama per iniziare."
-                      : "Nessun poeta in lista. Aggiungili dalla tab Poeti."
-                    }
+                      : "Aggiungi poeti dalla tab Poeti."}
                   </div>
                 )}
 
-                {/* Serata history */}
+                {/* Storico serata */}
                 {history.length > 0 && (
                   <div style={{
                     background: "rgba(255,255,255,0.04)",
@@ -1006,27 +869,18 @@ export default function AdminPage() {
                       fontSize: "0.6rem", fontWeight: 700, letterSpacing: "0.38em",
                       textTransform: "uppercase", color: "rgba(255,255,255,0.26)",
                       fontFamily: "'Space Mono', monospace", marginBottom: 14,
-                    }}>
-                      Risultati serata
-                    </p>
+                    }}>Risultati serata</p>
                     <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                       {history.map((h, i) => (
-                        <div
-                          key={i}
-                          style={{
-                            display: "flex", alignItems: "center",
-                            justifyContent: "space-between",
-                            padding: "10px 14px",
-                            background: "rgba(255,255,255,0.04)", borderRadius: 10,
-                          }}
-                        >
+                        <div key={i} style={{
+                          display: "flex", alignItems: "center", justifyContent: "space-between",
+                          padding: "10px 14px",
+                          background: "rgba(255,255,255,0.04)", borderRadius: 10,
+                        }}>
                           <div>
                             <p style={{ fontWeight: 800, fontSize: "0.9rem" }}>{h.poet}</p>
                             {h.poem && (
-                              <p style={{
-                                fontSize: "0.75rem", color: "rgba(255,255,255,0.32)",
-                                fontStyle: "italic",
-                              }}>
+                              <p style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.32)", fontStyle: "italic" }}>
                                 &ldquo;{h.poem}&rdquo;
                               </p>
                             )}
@@ -1036,8 +890,7 @@ export default function AdminPage() {
                           </div>
                           <span style={{
                             fontSize: "1.6rem", fontWeight: 900,
-                            fontFamily: "'Space Mono', monospace",
-                            color: scoreColor(h.avg),
+                            fontFamily: "'Space Mono', monospace", color: scoreColor(h.avg),
                           }}>
                             {h.avg.toFixed(1)}
                           </span>
