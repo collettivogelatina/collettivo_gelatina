@@ -141,32 +141,33 @@ export default function AdminPage() {
   const [provaError, setProvaError]       = useState<string | null>(null);
   const provaSessionRef = useRef<SlamSession | null>(null);
 
-  const channelRef  = useRef<RealtimeChannel | null>(null);
-  const sessionRef  = useRef<SlamSession | null>(null);
+  const channelRef       = useRef<RealtimeChannel | null>(null);
+  const sessionRef       = useRef<SlamSession | null>(null);
+  const localEventRef    = useRef<LocalEvent | null>(null); // sempre aggiornato, evita stale closure
 
 
   // ── Aggiorna localStorage e stato insieme ──
   const setLocalEvent = (evt: LocalEvent | null) => {
+    localEventRef.current = evt;   // aggiorna il ref subito, sincrono
     setLocalEventState(evt);
     saveLocalEvent(evt);
   };
 
   // ── Loaders ──────────────────────────────────────────────────────────────
 
-  const loadSession = useCallback(async (sessionIds?: string[]) => {
-    const ids = sessionIds ?? localEvent?.sessionIds;
-    if (!ids || ids.length === 0) { setSession(null); sessionRef.current = null; return; }
-    // Prende l'ultima sessione della serata
+  // loadSession: NON dipende da localEvent (usa solo gli IDs passati esplicitamente)
+  const loadSession = useCallback(async (sessionIds: string[]) => {
+    if (!sessionIds || sessionIds.length === 0) { setSession(null); sessionRef.current = null; return; }
     const { data } = await supabase
       .from("slam_sessions")
       .select("*")
-      .in("id", ids)
+      .in("id", sessionIds)
       .order("created_at", { ascending: false })
       .limit(1)
       .maybeSingle();
     setSession(data ?? null);
     sessionRef.current = data ?? null;
-  }, [localEvent?.sessionIds]);
+  }, []); // stabile: nessuna dipendenza esterna
 
   const loadVoteStats = useCallback(async (sessionId: string) => {
     const { data } = await supabase
@@ -229,22 +230,18 @@ export default function AdminPage() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [provaSession?.id]);
 
-  // Realtime
+  // Realtime — canale stabile, usa localEventRef per sempre IDs aggiornati
   useEffect(() => {
     if (locked) return;
     const ch = supabase
-      .channel("admin_v3")
+      .channel("admin_v4")
       .on("postgres_changes", { event: "*", schema: "public", table: "slam_sessions" }, () => {
-        const ids = localEvent?.sessionIds;
+        const ids = localEventRef.current?.sessionIds;  // ← ref sempre fresco
         if (ids?.length) { loadSession(ids); loadHistory(ids); }
       })
       .on("postgres_changes", { event: "*", schema: "public", table: "slam_votes" }, async (payload) => {
         const sid = (payload.new as { session_id?: string })?.session_id;
-
-        // Aggiorna stats live normali
-        if (sid && (sid === sessionRef.current?.id)) loadVoteStats(sid);
-
-        // Aggiorna stats prova
+        if (sid && sid === sessionRef.current?.id) loadVoteStats(sid);
         if (sid && sid === provaSessionRef.current?.id) {
           const { data } = await supabase
             .from("slam_votes").select("score").eq("session_id", sid);
@@ -256,7 +253,7 @@ export default function AdminPage() {
       .subscribe();
     channelRef.current = ch;
     return () => { supabase.removeChannel(ch); };
-  }, [locked, localEvent?.sessionIds, loadSession, loadHistory, loadVoteStats]);
+  }, [locked, loadSession, loadHistory, loadVoteStats]); // NON dipende da localEvent?.sessionIds
 
 
   // ── Auth ──────────────────────────────────────────────────────────────────
