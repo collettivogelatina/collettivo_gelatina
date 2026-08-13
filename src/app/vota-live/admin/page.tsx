@@ -230,15 +230,28 @@ export default function AdminPage() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [provaSession?.id]);
 
-  // Realtime — canale stabile, usa localEventRef per sempre IDs aggiornati
+  // Realtime — canale stabile, aggiornamenti in-place (no null flash)
   useEffect(() => {
     if (locked) return;
     const ch = supabase
-      .channel("admin_v4")
-      .on("postgres_changes", { event: "*", schema: "public", table: "slam_sessions" }, () => {
-        const ids = localEventRef.current?.sessionIds;  // ← ref sempre fresco
-        if (ids?.length) { loadSession(ids); loadHistory(ids); }
+      .channel("admin_v5")
+      // INSERT: callAndRecord già setta il session, qui aggiorno solo la history
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "slam_sessions" }, () => {
+        const ids = localEventRef.current?.sessionIds;
+        if (ids?.length) loadHistory(ids);
       })
+      // UPDATE: patch in-place, MAI setSession(null)
+      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "slam_sessions" }, (payload) => {
+        const upd = payload.new as { id: string; voting_open: boolean; audio_url: string | null };
+        if (sessionRef.current?.id === upd.id) {
+          const merged: SlamSession = { ...sessionRef.current, voting_open: upd.voting_open, audio_url: upd.audio_url };
+          sessionRef.current = merged;
+          setSession(merged);
+        }
+        const ids = localEventRef.current?.sessionIds;
+        if (ids?.length) loadHistory(ids);
+      })
+      // VOTES: aggiorna stats live o prova
       .on("postgres_changes", { event: "*", schema: "public", table: "slam_votes" }, async (payload) => {
         const sid = (payload.new as { session_id?: string })?.session_id;
         if (sid && sid === sessionRef.current?.id) loadVoteStats(sid);
@@ -253,7 +266,7 @@ export default function AdminPage() {
       .subscribe();
     channelRef.current = ch;
     return () => { supabase.removeChannel(ch); };
-  }, [locked, loadSession, loadHistory, loadVoteStats]); // NON dipende da localEvent?.sessionIds
+  }, [locked, loadHistory, loadVoteStats]); // stabile: nessuna dipendenza su sessionIds o loadSession
 
 
   // ── Auth ──────────────────────────────────────────────────────────────────
