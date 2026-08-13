@@ -125,6 +125,7 @@ export default function AdminPage() {
   const [provaScores, setProvaScores]     = useState<number[]>([]);
   const [provaBusy, setProvaBusy]         = useState(false);
   const [provaTrimmed, setProvaTrimmed]   = useState<number | null>(null);
+  const [provaError, setProvaError]       = useState<string | null>(null);
   const provaSessionRef = useRef<SlamSession | null>(null);
 
   const channelRef  = useRef<RealtimeChannel | null>(null);
@@ -331,16 +332,22 @@ export default function AdminPage() {
 
   const createProvaSession = async () => {
     setProvaBusy(true);
+    setProvaError(null);
     // Chiudi e disattiva eventuale sessione prova precedente
     if (provaSession) {
       await supabase.from("slam_sessions")
         .update({ voting_open: false })
         .eq("id", provaSession.id);
     }
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from("slam_sessions")
       .insert({ poet_name: "🧪 Poeta di Prova", poem_title: "Sessione test — non conteggiata", voting_open: false })
       .select().single();
+    if (error) {
+      setProvaError(`Errore: ${error.message}`);
+      setProvaBusy(false);
+      return;
+    }
     if (data) {
       setProvaSession(data);
       provaSessionRef.current = data;
@@ -1004,6 +1011,18 @@ export default function AdminPage() {
                 Usa questa sessione per testare il voto dal tuo telefono o da un&apos;altra scheda.
               </span>
             </div>
+
+            {/* Errore */}
+            {provaError && (
+              <div style={{
+                marginBottom: 14, padding: "12px 16px",
+                background: "rgba(230,57,70,0.18)", border: "1.5px solid rgba(230,57,70,0.45)",
+                borderRadius: 12, fontSize: "0.82rem", color: "#FF9999",
+                fontFamily: "'Space Mono', monospace", lineHeight: 1.6,
+              }}>
+                ⚠️ {provaError}
+              </div>
+            )}
 
             {/* Crea sessione prova */}
             {!provaSession ? (
