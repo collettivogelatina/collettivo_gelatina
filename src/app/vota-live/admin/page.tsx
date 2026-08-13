@@ -33,8 +33,11 @@ interface SlamSession {
   poet_name: string;
   poem_title: string;
   voting_open: boolean;
+  audio_url: string | null;
   created_at: string;
 }
+
+type RecPhase = "idle" | "recording" | "preview" | "uploading";
 
 interface HistoryEntry {
   id: string;
@@ -121,6 +124,14 @@ export default function AdminPage() {
   const [liveScores, setLiveScores]   = useState<number[]>([]);
   const [liveTrimmed, setLiveTrimmed] = useState<number | null>(null);
   const [history, setHistory]         = useState<HistoryEntry[]>([]);
+
+  // ── Registrazione audio ──
+  const [recPhase, setRecPhase]     = useState<RecPhase>("idle");
+  const [audioBlob, setAudioBlob]   = useState<Blob | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [recError, setRecError]     = useState<string | null>(null);
+  const mediaRecRef = useRef<MediaRecorder | null>(null);
+  const chunksRef   = useRef<Blob[]>([]);
 
   // ── Prova ──
   const [provaSession, setProvaSession]   = useState<SlamSession | null>(null);
@@ -326,6 +337,76 @@ export default function AdminPage() {
     setSessionBusy(true);
     await supabase.from("slam_sessions").update({ voting_open: open }).eq("id", session.id);
     setSessionBusy(false);
+  };
+
+  // ── Registrazione audio ─────────────────────────────────────────────────────
+
+  const startRec = async () => {
+    setRecError(null);
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const mimeType = MediaRecorder.isTypeSupported("audio/webm;codecs=opus")
+        ? "audio/webm;codecs=opus"
+        : MediaRecorder.isTypeSupported("audio/webm") ? "audio/webm" : "audio/mp4";
+      chunksRef.current = [];
+      const mr = new MediaRecorder(stream, { mimeType });
+      mr.ondataavailable = (e) => { if (e.data.size > 0) chunksRef.current.push(e.data); };
+      mr.onstop = () => {
+        const blob = new Blob(chunksRef.current, { type: mimeType });
+        setAudioBlob(blob);
+        setPreviewUrl(URL.createObjectURL(blob));
+        setRecPhase("preview");
+        stream.getTracks().forEach((t) => t.stop());
+      };
+      mr.start(100);
+      mediaRecRef.current = mr;
+      setRecPhase("recording");
+    } catch {
+      setRecError("Permesso microfono negato. Controlla le impostazioni del browser.");
+    }
+  };
+
+  const stopRec = () => mediaRecRef.current?.stop();
+
+  const cancelRec = () => {
+    if (previewUrl) URL.revokeObjectURL(previewUrl);
+    setRecPhase("idle");
+    setAudioBlob(null);
+    setPreviewUrl(null);
+    setRecError(null);
+  };
+
+  const publishAudio = async () => {
+    if (!audioBlob || !session) return;
+    setRecPhase("uploading");
+    setRecError(null);
+    const ext  = audioBlob.type.includes("mp4") ? "m4a" : "webm";
+    const path = `slam/${session.id}-${Date.now()}.${ext}`;
+    const { error: upErr } = await supabase.storage
+      .from("slam-recordings")
+      .upload(path, audioBlob, { contentType: audioBlob.type });
+    if (upErr) {
+      setRecError(`Errore upload: ${upErr.message}`);
+      setRecPhase("preview");
+      return;
+    }
+    const { data: { publicUrl } } = supabase.storage.from("slam-recordings").getPublicUrl(path);
+    const { error: dbErr } = await supabase
+      .from("slam_sessions")
+      .update({ audio_url: publicUrl })
+      .eq("id", session.id);
+    if (dbErr) {
+      setRecError(`Errore salvataggio: ${dbErr.message}`);
+      setRecPhase("preview");
+      return;
+    }
+    // Aggiorna lo stato locale
+    setSession((s) => s ? { ...s, audio_url: publicUrl } : s);
+    sessionRef.current = sessionRef.current ? { ...sessionRef.current, audio_url: publicUrl } : null;
+    if (previewUrl) URL.revokeObjectURL(previewUrl);
+    setRecPhase("idle");
+    setAudioBlob(null);
+    setPreviewUrl(null);
   };
 
   // ── Prova handlers ────────────────────────────────────────────────────────
@@ -890,6 +971,107 @@ export default function AdminPage() {
                           <span style={{ fontSize: "0.7rem", fontWeight: 800, color: "rgba(255,255,255,0.35)" }}>
                             IN PAUSA
                           </span>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* ── REGISTRAZIONE AUDIO ────────────────────────── */}
+                    <div style={{ marginBottom: 18 }}>
+                      {recError && (
+                        <div style={{
+                          padding: "10px 14px", marginBottom: 12,
+                          background: "rgba(230,57,70,0.15)", border: "1px solid rgba(230,57,70,0.4)",
+                          borderRadius: 10, fontSize: "0.78rem", color: "#FF9999",
+                          fontFamily: "'Space Mono', monospace",
+                        }}>⚠️ {recError}</div>
+                      )}
+
+                      {/* Mostra il player se già pubblicata */}
+                      {session.audio_url && recPhase === "idle" && (
+                        <div style={{ marginBottom: 12 }}>
+                          <p style={{
+                            fontSize: "0.58rem", letterSpacing: "0.38em", textTransform: "uppercase",
+                            color: "rgba(255,255,255,0.28)", fontFamily: "'Space Mono', monospace", marginBottom: 8,
+                          }}>🎙️ Registrazione inviata al palco</p>
+                          <audio src={session.audio_url} controls style={{ width: "100%", borderRadius: 8 }} />
+                          <button onClick={cancelRec} style={{
+                            marginTop: 8, fontSize: "0.75rem", padding: "6px 12px", borderRadius: 8,
+                            border: "none", background: "rgba(255,255,255,0.07)",
+                            color: "rgba(255,255,255,0.5)", cursor: "pointer",
+                          }}>↺ Riregistra</button>
+                        </div>
+                      )}
+
+                      {/* Fase idle senza audio */}
+                      {!session.audio_url && recPhase === "idle" && (
+                        <button onClick={startRec} style={{
+                          width: "100%", padding: "14px 0", borderRadius: 12, border: "none",
+                          background: `linear-gradient(135deg, #C0392B, #E74C3C)`,
+                          color: "white", fontWeight: 900, fontSize: "0.95rem",
+                          cursor: "pointer", boxShadow: "0 4px 16px rgba(192,57,43,0.5)",
+                          display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+                        }}>
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
+                            <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+                            <line x1="12" y1="19" x2="12" y2="23" />
+                          </svg>
+                          Registra la poesia
+                        </button>
+                      )}
+
+                      {/* Fase recording */}
+                      {recPhase === "recording" && (
+                        <div style={{ textAlign: "center", padding: "10px 0" }}>
+                          <div style={{ display: "flex", justifyContent: "center", gap: 3, marginBottom: 12, height: 28 }}>
+                            {[...Array(9)].map((_, i) => (
+                              <div key={i} style={{
+                                width: 3, height: `${10 + (i % 4) * 7}px`, background: "#FF5555",
+                                borderRadius: 2, animation: `pulse ${0.5 + i * 0.1}s ease-in-out infinite alternate`,
+                              }} />
+                            ))}
+                          </div>
+                          <p style={{ fontSize: "0.82rem", color: "rgba(255,255,255,0.7)", marginBottom: 12 }}>
+                            <span style={{ color: "#FF5555" }}>●</span> Registrazione in corso...
+                          </p>
+                          <button onClick={stopRec} style={{
+                            padding: "10px 24px", borderRadius: 10, border: "none",
+                            background: "rgba(255,255,255,0.1)", color: "white",
+                            fontWeight: 800, fontSize: "0.85rem", cursor: "pointer",
+                          }}>■ Stop</button>
+                        </div>
+                      )}
+
+                      {/* Fase preview */}
+                      {recPhase === "preview" && previewUrl && (
+                        <div>
+                          <p style={{
+                            fontSize: "0.7rem", color: "rgba(255,255,255,0.45)", marginBottom: 8,
+                            fontFamily: "'Space Mono', monospace",
+                          }}>Ascolta prima di inviare:</p>
+                          <audio src={previewUrl} controls style={{ width: "100%", borderRadius: 8, marginBottom: 10 }} />
+                          <div style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: 8 }}>
+                            <button onClick={publishAudio} style={{
+                              padding: "12px 0", borderRadius: 10, border: "none",
+                              background: `linear-gradient(135deg, ${BLUE}, ${BLUE_MID})`,
+                              color: "white", fontWeight: 900, fontSize: "0.9rem", cursor: "pointer",
+                              boxShadow: `0 4px 14px ${BLUE}55`,
+                            }}>📤 Invia al palco</button>
+                            <button onClick={cancelRec} style={{
+                              padding: "12px 14px", borderRadius: 10, border: "none",
+                              background: "rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.5)",
+                              fontWeight: 800, fontSize: "0.82rem", cursor: "pointer",
+                            }}>↩ Riregistra</button>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Fase uploading */}
+                      {recPhase === "uploading" && (
+                        <div style={{ textAlign: "center", padding: "14px 0" }}>
+                          <p style={{ fontSize: "0.85rem", color: "rgba(255,255,255,0.6)" }}>
+                            🎙️ Invio in corso...
+                          </p>
                         </div>
                       )}
                     </div>

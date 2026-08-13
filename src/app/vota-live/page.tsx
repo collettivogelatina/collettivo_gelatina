@@ -19,6 +19,7 @@ interface SlamSession {
   poet_name: string;
   poem_title: string;
   voting_open: boolean;
+  audio_url: string | null;
   created_at: string;
 }
 
@@ -323,6 +324,26 @@ export default function VotaLive() {
                 </p>
               )}
             </div>
+
+            {/* Audio player — compare appena l'admin invia la registrazione */}
+            {session.audio_url && (
+              <div style={{
+                background: "rgba(255,255,255,0.04)",
+                border: "1.5px solid rgba(75,68,223,0.3)",
+                borderRadius: 18, padding: "20px 22px", marginBottom: 20,
+              }}>
+                <p style={{
+                  fontSize: "0.6rem", fontWeight: 700, letterSpacing: "0.4em",
+                  textTransform: "uppercase", color: "rgba(255,255,255,0.35)",
+                  fontFamily: "'Space Mono', monospace", marginBottom: 12,
+                }}>🎙️ Ascolta la poesia</p>
+                <audio
+                  src={session.audio_url}
+                  controls
+                  style={{ width: "100%", borderRadius: 10 }}
+                />
+              </div>
+            )}
 
             {/* VOTO APERTO — non ancora votato */}
             {session.voting_open && !voted && (
