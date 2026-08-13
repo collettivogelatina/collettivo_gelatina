@@ -37,7 +37,7 @@ interface SlamSession {
   created_at: string;
 }
 
-type RecPhase = "idle" | "recording" | "preview" | "uploading";
+type RecPhase = "idle" | "preparing" | "recording" | "preview" | "uploading";
 
 interface HistoryEntry {
   id: string;
@@ -337,12 +337,15 @@ export default function AdminPage() {
   const callAndRecord = async (poet: Poet) => {
     if (!localEvent) return;
 
-    // Ferma la registrazione precedente se attiva
+    // Ferma il recorder precedente: annulla onstop per evitare flash asincrono
     if (mediaRecRef.current && mediaRecRef.current.state !== "inactive") {
+      mediaRecRef.current.onstop = null;  // ← disabilita il vecchio callback
+      mediaRecRef.current.ondataavailable = null;
       mediaRecRef.current.stop();
     }
     if (previewUrl) URL.revokeObjectURL(previewUrl);
-    setRecPhase("idle"); setAudioBlob(null); setPreviewUrl(null); setRecError(null);
+    setAudioBlob(null); setPreviewUrl(null); setRecError(null);
+    setRecPhase("preparing"); // spinner mentre creiamo la sessione
 
     setSessionBusy(true);
     const { data, error } = await supabase
@@ -351,6 +354,7 @@ export default function AdminPage() {
       .select().single();
     if (error || !data) {
       setSessionBusy(false);
+      setRecPhase("idle");
       alert(`Errore creazione sessione: ${error?.message}`);
       return;
     }
@@ -386,6 +390,7 @@ export default function AdminPage() {
       setRecPhase("recording");
     } catch (err) {
       setRecError(`Microfono non disponibile: ${(err as Error).message}`);
+      setRecPhase("idle");
     }
   };
 
@@ -1080,6 +1085,15 @@ export default function AdminPage() {
                             border: "none", background: "rgba(255,255,255,0.07)",
                             color: "rgba(255,255,255,0.5)", cursor: "pointer",
                           }}>↺ Riregistra</button>
+                        </div>
+                      )}
+
+                      {/* Fase preparing — sessione in creazione, attendi */}
+                      {recPhase === "preparing" && (
+                        <div style={{ textAlign: "center", padding: "14px 0" }}>
+                          <p style={{ fontSize: "0.82rem", color: "rgba(255,255,255,0.5)" }}>
+                            ⏳ Inizializzazione...
+                          </p>
                         </div>
                       )}
 
