@@ -327,9 +327,60 @@ export default function AdminPage() {
     setLocalEvent(updated);
     setSession(data);
     sessionRef.current = data;
-    setVoteCount(0); setAvgScore(null);
+    setVoteCount(0); setAvgScore(null); setLiveScores([]); setLiveTrimmed(null);
+    setRecPhase("idle"); setAudioBlob(null); setPreviewUrl(null); setRecError(null);
     await loadHistory(updated.sessionIds);
     setSessionBusy(false);
+  };
+
+  // Chiama il poeta E avvia subito la registrazione
+  const callAndRecord = async (poet: Poet) => {
+    if (!localEvent) return;
+    setSessionBusy(true);
+    const { data, error } = await supabase
+      .from("slam_sessions")
+      .insert({ poet_name: poet.name, poem_title: poet.poem, voting_open: false })
+      .select().single();
+    if (error || !data) {
+      setSessionBusy(false);
+      alert(`Errore creazione sessione: ${error?.message}`);
+      return;
+    }
+    const updated: LocalEvent = {
+      ...localEvent,
+      poetQueue: localEvent.poetQueue.filter((p) => !(p.name === poet.name && p.poem === poet.poem)),
+      sessionIds: [...localEvent.sessionIds, data.id],
+    };
+    setLocalEvent(updated);
+    setSession(data);
+    sessionRef.current = data;
+    setVoteCount(0); setAvgScore(null); setLiveScores([]); setLiveTrimmed(null);
+    await loadHistory(updated.sessionIds);
+    setSessionBusy(false);
+    // Avvia subito la registrazione
+    setRecPhase("idle"); setAudioBlob(null); setPreviewUrl(null); setRecError(null);
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const mimeType = MediaRecorder.isTypeSupported("audio/webm;codecs=opus")
+        ? "audio/webm;codecs=opus"
+        : MediaRecorder.isTypeSupported("audio/webm") ? "audio/webm" : "audio/mp4";
+      chunksRef.current = [];
+      const mr = new MediaRecorder(stream, { mimeType });
+      mr.ondataavailable = (e) => { if (e.data.size > 0) chunksRef.current.push(e.data); };
+      mr.onstop = () => {
+        const blob = new Blob(chunksRef.current, { type: mimeType });
+        setAudioBlob(blob);
+        setPreviewUrl(URL.createObjectURL(blob));
+        setRecPhase("preview");
+        stream.getTracks().forEach((t) => t.stop());
+      };
+      mr.start(100);
+      mediaRecRef.current = mr;
+      setRecPhase("recording");
+    } catch (err) {
+      setRecError(`Microfono non disponibile: ${(err as Error).message}`);
+      setTab("live"); // forza il tab live se necessario
+    }
   };
 
   const toggleVoting = async (open: boolean) => {
@@ -906,17 +957,23 @@ export default function AdminPage() {
                             </div>
                           </div>
                           <button
-                            onClick={() => callPoet(poet)}
+                            onClick={() => callAndRecord(poet)}
                             disabled={sessionBusy}
                             style={{
                               padding: "8px 15px", borderRadius: 9, border: "none", cursor: "pointer",
-                              background: `linear-gradient(135deg, ${BLUE}, ${BLUE_MID})`,
+                              background: `linear-gradient(135deg, #C0392B, #E74C3C)`,
                               color: "white", fontWeight: 800, fontSize: "0.78rem",
-                              boxShadow: `0 3px 10px ${BLUE}44`,
+                              boxShadow: "0 3px 10px rgba(192,57,43,0.5)",
                               opacity: sessionBusy ? 0.5 : 1,
+                              display: "flex", alignItems: "center", gap: 5,
                             }}
                           >
-                            🎤 Chiama
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                              <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
+                              <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+                              <line x1="12" y1="19" x2="12" y2="23" />
+                            </svg>
+                            Registra
                           </button>
                         </div>
                       ))}
