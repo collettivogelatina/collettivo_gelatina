@@ -118,6 +118,8 @@ export default function AdminPage() {
   const [sessionBusy, setSessionBusy] = useState(false);
   const [voteCount, setVoteCount]     = useState(0);
   const [avgScore, setAvgScore]       = useState<number | null>(null);
+  const [liveScores, setLiveScores]   = useState<number[]>([]);
+  const [liveTrimmed, setLiveTrimmed] = useState<number | null>(null);
   const [history, setHistory]         = useState<HistoryEntry[]>([]);
 
   // ── Prova ──
@@ -157,14 +159,17 @@ export default function AdminPage() {
 
   const loadVoteStats = useCallback(async (sessionId: string) => {
     const { data } = await supabase
-      .from("slam_votes")
-      .select("score")
-      .eq("session_id", sessionId);
+      .from("slam_votes").select("score").eq("session_id", sessionId);
     if (data && data.length > 0) {
-      const avg = data.reduce((s: number, r: { score: number }) => s + Number(r.score), 0) / data.length;
-      setAvgScore(Math.round(avg * 10) / 10);
-      setVoteCount(data.length);
+      const scores = data.map((r: { score: number }) => Number(r.score));
+      setLiveScores(scores);
+      const tm = trimmedMean(scores);
+      setLiveTrimmed(tm);
+      setAvgScore(tm);
+      setVoteCount(scores.length);
     } else {
+      setLiveScores([]);
+      setLiveTrimmed(null);
       setAvgScore(null);
       setVoteCount(0);
     }
@@ -178,16 +183,13 @@ export default function AdminPage() {
       .in("id", sessionIds)
       .order("created_at", { ascending: true });
     if (!sessions) return;
-
     const results: HistoryEntry[] = await Promise.all(
       sessions.map(async (s) => {
         const { data: votes } = await supabase
           .from("slam_votes").select("score").eq("session_id", s.id);
-        const count = votes?.length ?? 0;
-        const avg = count > 0
-          ? votes!.reduce((acc: number, v: { score: number }) => acc + Number(v.score), 0) / count
-          : 0;
-        return { id: s.id, poet: s.poet_name, poem: s.poem_title, avg: Math.round(avg * 10) / 10, count };
+        const scores = (votes ?? []).map((v: { score: number }) => Number(v.score));
+        const tm = trimmedMean(scores) ?? 0;
+        return { id: s.id, poet: s.poet_name, poem: s.poem_title, avg: tm, count: scores.length };
       })
     );
     setHistory(results.filter((r) => r.count > 0));
@@ -207,8 +209,14 @@ export default function AdminPage() {
   }, [locked, loadSession, loadHistory]);
 
   useEffect(() => {
-    if (session?.id) loadVoteStats(session.id);
+    if (session?.id) { setLiveScores([]); setLiveTrimmed(null); loadVoteStats(session.id); }
   }, [session?.id, loadVoteStats]);
+
+  // Carica i voti prova quando cambia la sessione prova
+  useEffect(() => {
+    if (provaSession?.id) loadProvaScores(provaSession.id);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [provaSession?.id]);
 
   // Realtime
   useEffect(() => {
@@ -887,22 +895,49 @@ export default function AdminPage() {
                     </div>
 
                     {voteCount > 0 && (
-                      <div style={{
-                        marginBottom: 16, padding: "12px 16px",
-                        background: "rgba(255,255,255,0.04)", borderRadius: 12,
-                        display: "flex", alignItems: "center", justifyContent: "space-between",
-                      }}>
-                        <span style={{ fontSize: "0.78rem", color: "rgba(255,255,255,0.4)" }}>
-                          {voteCount} {voteCount === 1 ? "voto" : "voti"} ricevuti
-                        </span>
-                        {avgScore !== null && (
-                          <span style={{
-                            fontSize: "1.9rem", fontWeight: 900,
-                            fontFamily: "'Space Mono', monospace", color: scoreColor(avgScore),
-                          }}>
-                            {avgScore.toFixed(1)}
-                          </span>
-                        )}
+                      <div style={{ marginBottom: 16 }}>
+                        {/* Trimmed mean */}
+                        <div style={{
+                          padding: "14px 16px", background: "rgba(255,255,255,0.04)",
+                          borderRadius: 12, display: "flex", alignItems: "center",
+                          justifyContent: "space-between", marginBottom: 10,
+                        }}>
+                          <div>
+                            <p style={{ fontSize: "0.68rem", color: "rgba(255,255,255,0.32)",
+                              fontFamily: "'Space Mono', monospace", marginBottom: 3 }}>
+                              Media Trimmed · {voteCount} vot{voteCount === 1 ? "o" : "i"}
+                              {voteCount >= 3 && " (–max –min)"}
+                            </p>
+                          </div>
+                          {liveTrimmed !== null && (
+                            <span style={{
+                              fontSize: "2.2rem", fontWeight: 900,
+                              fontFamily: "'Space Mono', monospace", color: scoreColor(liveTrimmed),
+                            }}>
+                              {liveTrimmed.toFixed(1)}
+                            </span>
+                          )}
+                        </div>
+                        {/* Voti individuali */}
+                        <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                          {[...liveScores].sort((a, b) => b - a).map((s, i) => {
+                            const sorted = [...liveScores].sort((a, b) => a - b);
+                            const isMin = liveScores.length >= 3 && s === sorted[0];
+                            const isMax = liveScores.length >= 3 && s === sorted[sorted.length - 1];
+                            return (
+                              <span key={i} style={{
+                                padding: "4px 10px", borderRadius: 7,
+                                fontFamily: "'Space Mono', monospace",
+                                fontSize: "0.85rem", fontWeight: 700,
+                                background: (isMin || isMax) ? "rgba(255,255,255,0.04)" : "rgba(75,68,223,0.2)",
+                                color: (isMin || isMax) ? "rgba(255,255,255,0.22)" : scoreColor(s),
+                                textDecoration: (isMin || isMax) ? "line-through" : "none",
+                              }}>
+                                {s.toFixed(1)}
+                              </span>
+                            );
+                          })}
+                        </div>
                       </div>
                     )}
 
