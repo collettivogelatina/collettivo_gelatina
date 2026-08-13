@@ -17,7 +17,7 @@ const GREEN       = "#2A8A5A";
 const RED         = "#E63946";
 const STORAGE_KEY = "gelatina_admin_event_v2";
 
-type Tab = "serata" | "poeti" | "live";
+type Tab = "serata" | "poeti" | "live" | "prova";
 
 interface Poet { name: string; poem: string; }
 
@@ -66,6 +66,19 @@ function scoreColor(s: number): string {
   return BLUE;
 }
 
+/** Trimmed mean: rimuove il valore più alto e il più basso, fa la media del resto */
+function trimmedMean(scores: number[]): number | null {
+  if (scores.length === 0) return null;
+  if (scores.length <= 2) {
+    const avg = scores.reduce((a, b) => a + b, 0) / scores.length;
+    return Math.round(avg * 10) / 10;
+  }
+  const sorted = [...scores].sort((a, b) => a - b);
+  const trimmed = sorted.slice(1, sorted.length - 1);
+  const avg = trimmed.reduce((a, b) => a + b, 0) / trimmed.length;
+  return Math.round(avg * 10) / 10;
+}
+
 const inputStyle: React.CSSProperties = {
   background: "rgba(255,255,255,0.08)",
   border: "1.5px solid rgba(255,255,255,0.12)",
@@ -107,8 +120,16 @@ export default function AdminPage() {
   const [avgScore, setAvgScore]       = useState<number | null>(null);
   const [history, setHistory]         = useState<HistoryEntry[]>([]);
 
+  // ── Prova ──
+  const [provaSession, setProvaSession]   = useState<SlamSession | null>(null);
+  const [provaScores, setProvaScores]     = useState<number[]>([]);
+  const [provaBusy, setProvaBusy]         = useState(false);
+  const [provaTrimmed, setProvaTrimmed]   = useState<number | null>(null);
+  const provaSessionRef = useRef<SlamSession | null>(null);
+
   const channelRef  = useRef<RealtimeChannel | null>(null);
   const sessionRef  = useRef<SlamSession | null>(null);
+
 
   // ── Aggiorna localStorage e stato insieme ──
   const setLocalEvent = (evt: LocalEvent | null) => {
@@ -197,14 +218,26 @@ export default function AdminPage() {
         const ids = localEvent?.sessionIds;
         if (ids?.length) { loadSession(ids); loadHistory(ids); }
       })
-      .on("postgres_changes", { event: "*", schema: "public", table: "slam_votes" }, (payload) => {
-        const sid = (payload.new as { session_id?: string })?.session_id ?? sessionRef.current?.id;
-        if (sid) loadVoteStats(sid);
+      .on("postgres_changes", { event: "*", schema: "public", table: "slam_votes" }, async (payload) => {
+        const sid = (payload.new as { session_id?: string })?.session_id;
+
+        // Aggiorna stats live normali
+        if (sid && (sid === sessionRef.current?.id)) loadVoteStats(sid);
+
+        // Aggiorna stats prova
+        if (sid && sid === provaSessionRef.current?.id) {
+          const { data } = await supabase
+            .from("slam_votes").select("score").eq("session_id", sid);
+          const scores = (data ?? []).map((r: { score: number }) => Number(r.score));
+          setProvaScores(scores);
+          setProvaTrimmed(trimmedMean(scores));
+        }
       })
       .subscribe();
     channelRef.current = ch;
     return () => { supabase.removeChannel(ch); };
   }, [locked, localEvent?.sessionIds, loadSession, loadHistory, loadVoteStats]);
+
 
   // ── Auth ──────────────────────────────────────────────────────────────────
 
@@ -284,6 +317,54 @@ export default function AdminPage() {
     setSessionBusy(true);
     await supabase.from("slam_sessions").update({ voting_open: open }).eq("id", session.id);
     setSessionBusy(false);
+  };
+
+  // ── Prova handlers ────────────────────────────────────────────────────────
+
+  const loadProvaScores = async (sessionId: string) => {
+    const { data } = await supabase
+      .from("slam_votes").select("score").eq("session_id", sessionId);
+    const scores = (data ?? []).map((r: { score: number }) => Number(r.score));
+    setProvaScores(scores);
+    setProvaTrimmed(trimmedMean(scores));
+  };
+
+  const createProvaSession = async () => {
+    setProvaBusy(true);
+    // Chiudi e disattiva eventuale sessione prova precedente
+    if (provaSession) {
+      await supabase.from("slam_sessions")
+        .update({ voting_open: false })
+        .eq("id", provaSession.id);
+    }
+    const { data } = await supabase
+      .from("slam_sessions")
+      .insert({ poet_name: "🧪 Poeta di Prova", poem_title: "Sessione test — non conteggiata", voting_open: false })
+      .select().single();
+    if (data) {
+      setProvaSession(data);
+      provaSessionRef.current = data;
+      setProvaScores([]);
+      setProvaTrimmed(null);
+    }
+    setProvaBusy(false);
+  };
+
+  const toggleProvaVoting = async (open: boolean) => {
+    if (!provaSession) return;
+    setProvaBusy(true);
+    await supabase.from("slam_sessions").update({ voting_open: open }).eq("id", provaSession.id);
+    setProvaSession(s => s ? { ...s, voting_open: open } : s);
+    setProvaBusy(false);
+  };
+
+  const resetProvaVotes = async () => {
+    if (!provaSession) return;
+    setProvaBusy(true);
+    await supabase.from("slam_votes").delete().eq("session_id", provaSession.id);
+    setProvaScores([]);
+    setProvaTrimmed(null);
+    setProvaBusy(false);
   };
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -420,6 +501,7 @@ export default function AdminPage() {
             { id: "serata" as Tab, label: "🎪 Serata" },
             { id: "poeti"  as Tab, label: "🎤 Poeti"  },
             { id: "live"   as Tab, label: "🔴 Live"   },
+            { id: "prova"  as Tab, label: "🧪 Prova"  },
           ] as { id: Tab; label: string }[]).map((t) => (
             <button
               key={t.id}
@@ -899,6 +981,234 @@ export default function AdminPage() {
                     </div>
                   </div>
                 )}
+              </>
+            )}
+          </div>
+        )}
+
+        {/* ══════════════════════════════════════════
+            TAB: PROVA
+        ══════════════════════════════════════════ */}
+        {tab === "prova" && (
+          <div style={{ animation: "fadeIn 0.3s ease" }}>
+
+            {/* Intestazione */}
+            <div style={{
+              marginBottom: 20, padding: "14px 18px",
+              background: "rgba(255,200,0,0.08)", border: "1.5px solid rgba(255,200,0,0.2)",
+              borderRadius: 14, fontSize: "0.82rem", color: "rgba(255,220,80,0.85)",
+              fontFamily: "'Space Mono', monospace", lineHeight: 1.7,
+            }}>
+              🧪 <strong>Modalità Prova</strong> — visibile solo a te.<br />
+              <span style={{ fontSize: "0.72rem", opacity: 0.7 }}>
+                Usa questa sessione per testare il voto dal tuo telefono o da un&apos;altra scheda.
+              </span>
+            </div>
+
+            {/* Crea sessione prova */}
+            {!provaSession ? (
+              <button
+                onClick={createProvaSession}
+                disabled={provaBusy}
+                style={{
+                  width: "100%", padding: "16px 0", borderRadius: 14, border: "none",
+                  background: `linear-gradient(135deg, ${BLUE}, ${BLUE_MID})`,
+                  color: "white", fontWeight: 900, fontSize: "1rem", cursor: "pointer",
+                  boxShadow: `0 6px 20px ${BLUE}44`,
+                  opacity: provaBusy ? 0.6 : 1,
+                  marginBottom: 20,
+                }}
+              >
+                {provaBusy ? "..." : "✚ Crea sessione di prova"}
+              </button>
+            ) : (
+              <>
+                {/* Stato sessione */}
+                <div style={{
+                  ...cardStyle,
+                  border: provaSession.voting_open
+                    ? "1.5px solid rgba(42,138,90,0.45)"
+                    : "1.5px solid rgba(255,255,255,0.09)",
+                  transition: "border-color 0.3s",
+                }}>
+                  <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12, marginBottom: 16 }}>
+                    <div>
+                      <p style={{
+                        fontSize: "0.58rem", letterSpacing: "0.42em", textTransform: "uppercase",
+                        color: "rgba(255,255,255,0.28)", fontFamily: "'Space Mono', monospace", marginBottom: 7,
+                      }}>Sessione attiva</p>
+                      <p style={{ fontSize: "1.1rem", fontWeight: 900 }}>🧪 Poeta di Prova</p>
+                      <p style={{ fontSize: "0.78rem", color: "rgba(255,255,255,0.35)", fontStyle: "italic" }}>
+                        Sessione test — non conteggiata
+                      </p>
+                    </div>
+                    {provaSession.voting_open ? (
+                      <div style={{
+                        display: "flex", alignItems: "center", gap: 6, flexShrink: 0,
+                        background: "rgba(42,138,90,0.2)", border: "1px solid rgba(42,138,90,0.5)",
+                        borderRadius: 100, padding: "5px 12px",
+                      }}>
+                        <span style={{
+                          width: 7, height: 7, borderRadius: "50%", background: "#3DC878",
+                          boxShadow: "0 0 8px #3DC878", display: "inline-block",
+                          animation: "pulse 1.5s infinite",
+                        }} />
+                        <span style={{ fontSize: "0.7rem", fontWeight: 800, color: "#3DC878" }}>LIVE</span>
+                      </div>
+                    ) : (
+                      <div style={{ flexShrink: 0, background: "rgba(255,255,255,0.07)", borderRadius: 100, padding: "5px 12px" }}>
+                        <span style={{ fontSize: "0.7rem", fontWeight: 800, color: "rgba(255,255,255,0.35)" }}>IN PAUSA</span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Controlli voto */}
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 16 }}>
+                    <button
+                      onClick={() => toggleProvaVoting(true)}
+                      disabled={provaBusy || provaSession.voting_open}
+                      style={{
+                        padding: "14px 0", borderRadius: 12, fontWeight: 900, fontSize: "0.95rem",
+                        cursor: provaSession.voting_open ? "not-allowed" : "pointer",
+                        border: "none", transition: "all 0.2s",
+                        background: provaSession.voting_open ? "rgba(42,138,90,0.15)" : GREEN,
+                        color: "white", opacity: provaSession.voting_open ? 0.4 : 1,
+                        boxShadow: provaSession.voting_open ? "none" : "0 4px 14px rgba(42,138,90,0.4)",
+                      }}
+                    >🟢 Apri Voto</button>
+                    <button
+                      onClick={() => toggleProvaVoting(false)}
+                      disabled={provaBusy || !provaSession.voting_open}
+                      style={{
+                        padding: "14px 0", borderRadius: 12, fontWeight: 900, fontSize: "0.95rem",
+                        cursor: !provaSession.voting_open ? "not-allowed" : "pointer",
+                        border: "none", transition: "all 0.2s",
+                        background: !provaSession.voting_open ? "rgba(230,57,70,0.15)" : RED,
+                        color: "white", opacity: !provaSession.voting_open ? 0.4 : 1,
+                        boxShadow: !provaSession.voting_open ? "none" : "0 4px 14px rgba(230,57,70,0.4)",
+                      }}
+                    >🔴 Chiudi Voto</button>
+                  </div>
+
+                  {/* Link per testare come utente */}
+                  <a
+                    href="/vota-live"
+                    target="_blank"
+                    style={{
+                      display: "block", textAlign: "center", padding: "11px 0",
+                      background: "rgba(255,255,255,0.07)", borderRadius: 10,
+                      color: "rgba(255,255,255,0.6)", textDecoration: "none",
+                      fontSize: "0.82rem", fontWeight: 700,
+                      fontFamily: "'Space Mono', monospace",
+                    }}
+                  >
+                    → Apri /vota-live in nuova scheda per testare
+                  </a>
+                </div>
+
+                {/* Risultati live */}
+                <div style={cardStyle}>
+                  <p style={{
+                    fontSize: "0.6rem", fontWeight: 700, letterSpacing: "0.38em",
+                    textTransform: "uppercase", color: "rgba(255,255,255,0.3)",
+                    fontFamily: "'Space Mono', monospace", marginBottom: 16,
+                  }}>Risultati in tempo reale</p>
+
+                  {provaScores.length === 0 ? (
+                    <p style={{ color: "rgba(255,255,255,0.3)", fontSize: "0.85rem", textAlign: "center", padding: "20px 0" }}>
+                      Nessun voto ancora ricevuto.
+                    </p>
+                  ) : (
+                    <>
+                      {/* Trimmed mean */}
+                      <div style={{
+                        textAlign: "center", marginBottom: 20,
+                        padding: "20px", background: "rgba(255,255,255,0.04)", borderRadius: 14,
+                      }}>
+                        <p style={{
+                          fontSize: "0.6rem", fontWeight: 700, letterSpacing: "0.38em",
+                          textTransform: "uppercase", color: "rgba(255,255,255,0.3)",
+                          fontFamily: "'Space Mono', monospace", marginBottom: 8,
+                        }}>
+                          Media Trimmed · {provaScores.length} vot{provaScores.length === 1 ? "o" : "i"}
+                          {provaScores.length >= 3 && " (–max –min)"}
+                        </p>
+                        <span style={{
+                          fontSize: "3.2rem", fontWeight: 900,
+                          fontFamily: "'Space Mono', monospace",
+                          color: provaTrimmed !== null ? scoreColor(provaTrimmed) : "white",
+                        }}>
+                          {provaTrimmed !== null ? provaTrimmed.toFixed(1) : "—"}
+                        </span>
+                      </div>
+
+                      {/* Lista voti individuali */}
+                      <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                        {[...provaScores]
+                          .sort((a, b) => b - a)
+                          .map((s, i) => {
+                            const sorted = [...provaScores].sort((a, b) => a - b);
+                            const isMin = provaScores.length >= 3 && s === sorted[0];
+                            const isMax = provaScores.length >= 3 && s === sorted[sorted.length - 1];
+                            return (
+                              <span
+                                key={i}
+                                style={{
+                                  padding: "5px 12px", borderRadius: 8,
+                                  fontFamily: "'Space Mono', monospace",
+                                  fontSize: "0.9rem", fontWeight: 700,
+                                  background: (isMin || isMax)
+                                    ? "rgba(255,255,255,0.05)"
+                                    : "rgba(75,68,223,0.2)",
+                                  color: (isMin || isMax)
+                                    ? "rgba(255,255,255,0.25)"
+                                    : scoreColor(s),
+                                  textDecoration: (isMin || isMax) ? "line-through" : "none",
+                                }}
+                              >
+                                {s.toFixed(1)}
+                              </span>
+                            );
+                          })}
+                      </div>
+                      {provaScores.length >= 3 && (
+                        <p style={{
+                          fontSize: "0.68rem", color: "rgba(255,255,255,0.2)",
+                          fontFamily: "'Space Mono', monospace", marginTop: 10,
+                        }}>
+                          I valori barrati sono esclusi dalla media
+                        </p>
+                      )}
+                    </>
+                  )}
+                </div>
+
+                {/* Azioni */}
+                <div style={{ display: "flex", gap: 10 }}>
+                  <button
+                    onClick={resetProvaVotes}
+                    disabled={provaBusy || provaScores.length === 0}
+                    style={{
+                      flex: 1, padding: "12px 0", borderRadius: 12, border: "none",
+                      background: "rgba(230,57,70,0.14)", color: RED,
+                      fontWeight: 800, fontSize: "0.85rem", cursor: "pointer",
+                      opacity: provaScores.length === 0 ? 0.4 : 1,
+                    }}
+                  >
+                    🗑 Azzera voti
+                  </button>
+                  <button
+                    onClick={createProvaSession}
+                    disabled={provaBusy}
+                    style={{
+                      flex: 1, padding: "12px 0", borderRadius: 12, border: "none",
+                      background: "rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.6)",
+                      fontWeight: 800, fontSize: "0.85rem", cursor: "pointer",
+                    }}
+                  >
+                    ↺ Nuova sessione
+                  </button>
+                </div>
               </>
             )}
           </div>
