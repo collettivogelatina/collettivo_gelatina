@@ -43,8 +43,10 @@ interface HistoryEntry {
   id: string;
   poet: string;
   poem: string;
-  avg: number;
-  count: number;
+  voting_open: boolean;
+  audio_url: string | null;
+  scores: number[];
+  trimmed: number | null;
 }
 
 // ── localStorage helpers ──────────────────────────────────────────────────────
@@ -191,7 +193,7 @@ export default function AdminPage() {
     if (sessionIds.length === 0) { setHistory([]); return; }
     const { data: sessions } = await supabase
       .from("slam_sessions")
-      .select("id, poet_name, poem_title")
+      .select("id, poet_name, poem_title, voting_open, audio_url")
       .in("id", sessionIds)
       .order("created_at", { ascending: true });
     if (!sessions) return;
@@ -200,11 +202,14 @@ export default function AdminPage() {
         const { data: votes } = await supabase
           .from("slam_votes").select("score").eq("session_id", s.id);
         const scores = (votes ?? []).map((v: { score: number }) => Number(v.score));
-        const tm = trimmedMean(scores) ?? 0;
-        return { id: s.id, poet: s.poet_name, poem: s.poem_title, avg: tm, count: scores.length };
+        return {
+          id: s.id, poet: s.poet_name, poem: s.poem_title,
+          voting_open: s.voting_open, audio_url: s.audio_url,
+          scores, trimmed: trimmedMean(scores),
+        };
       })
     );
-    setHistory(results.filter((r) => r.count > 0));
+    setHistory(results); // mostra tutte, anche senza voti
   }, []);
 
   // ── Effects ──────────────────────────────────────────────────────────────
@@ -240,7 +245,7 @@ export default function AdminPage() {
         const ids = localEventRef.current?.sessionIds;
         if (ids?.length) loadHistory(ids);
       })
-      // UPDATE: patch in-place, MAI setSession(null)
+      // UPDATE: patch in-place session + history entry
       .on("postgres_changes", { event: "UPDATE", schema: "public", table: "slam_sessions" }, (payload) => {
         const upd = payload.new as { id: string; voting_open: boolean; audio_url: string | null };
         if (sessionRef.current?.id === upd.id) {
@@ -248,20 +253,29 @@ export default function AdminPage() {
           sessionRef.current = merged;
           setSession(merged);
         }
-        const ids = localEventRef.current?.sessionIds;
-        if (ids?.length) loadHistory(ids);
+        // Aggiorna anche l'entry nel palco
+        setHistory(prev => prev.map(h =>
+          h.id === upd.id ? { ...h, voting_open: upd.voting_open, audio_url: upd.audio_url } : h
+        ));
       })
-      // VOTES: aggiorna stats live o prova
+      // VOTES: aggiorna stats live, prova e palco
       .on("postgres_changes", { event: "*", schema: "public", table: "slam_votes" }, async (payload) => {
         const sid = (payload.new as { session_id?: string })?.session_id;
-        if (sid && sid === sessionRef.current?.id) loadVoteStats(sid);
-        if (sid && sid === provaSessionRef.current?.id) {
+        if (!sid) return;
+        if (sid === sessionRef.current?.id) loadVoteStats(sid);
+        if (sid === provaSessionRef.current?.id) {
           const { data } = await supabase
             .from("slam_votes").select("score").eq("session_id", sid);
           const scores = (data ?? []).map((r: { score: number }) => Number(r.score));
-          setProvaScores(scores);
-          setProvaTrimmed(trimmedMean(scores));
+          setProvaScores(scores); setProvaTrimmed(trimmedMean(scores));
         }
+        // Aggiorna entry nel palco (anche per sessioni precedenti)
+        const { data: allVotes } = await supabase
+          .from("slam_votes").select("score").eq("session_id", sid);
+        const updScores = (allVotes ?? []).map((r: { score: number }) => Number(r.score));
+        setHistory(prev => prev.map(h =>
+          h.id === sid ? { ...h, scores: updScores, trimmed: trimmedMean(updScores) } : h
+        ));
       })
       .subscribe();
     channelRef.current = ch;
@@ -409,6 +423,17 @@ export default function AdminPage() {
     setSessionBusy(true);
     await supabase.from("slam_sessions").update({ voting_open: open }).eq("id", session.id);
     setSessionBusy(false);
+  };
+
+  const toggleAnySession = async (sessionId: string, open: boolean) => {
+    await supabase.from("slam_sessions").update({ voting_open: open }).eq("id", sessionId);
+    // Patch ottimistico (il realtime lo confermerà)
+    setHistory(prev => prev.map(h => h.id === sessionId ? { ...h, voting_open: open } : h));
+    if (sessionRef.current?.id === sessionId) {
+      const merged = { ...sessionRef.current, voting_open: open };
+      sessionRef.current = merged;
+      setSession(merged);
+    }
   };
 
   // ── Registrazione audio ─────────────────────────────────────────────────────
@@ -1269,44 +1294,94 @@ export default function AdminPage() {
                   </div>
                 )}
 
-                {/* Storico serata */}
-                {history.length > 0 && (
+                {/* ── PALCO — tutte le sessioni con audio ── */}
+                {history.filter(h => h.audio_url).length > 0 && (
                   <div style={{
-                    background: "rgba(255,255,255,0.04)",
+                    background: "rgba(255,255,255,0.03)",
                     border: "1px solid rgba(255,255,255,0.07)",
-                    borderRadius: 20, padding: "18px 22px",
+                    borderRadius: 20, padding: "18px 20px",
                   }}>
                     <p style={{
                       fontSize: "0.6rem", fontWeight: 700, letterSpacing: "0.38em",
                       textTransform: "uppercase", color: "rgba(255,255,255,0.26)",
                       fontFamily: "'Space Mono', monospace", marginBottom: 14,
-                    }}>Risultati serata</p>
-                    <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                      {history.map((h, i) => (
-                        <div key={i} style={{
-                          display: "flex", alignItems: "center", justifyContent: "space-between",
-                          padding: "10px 14px",
-                          background: "rgba(255,255,255,0.04)", borderRadius: 10,
-                        }}>
-                          <div>
-                            <p style={{ fontWeight: 800, fontSize: "0.9rem" }}>{h.poet}</p>
-                            {h.poem && (
-                              <p style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.32)", fontStyle: "italic" }}>
-                                &ldquo;{h.poem}&rdquo;
-                              </p>
-                            )}
-                            <p style={{ fontSize: "0.7rem", color: "rgba(255,255,255,0.22)", marginTop: 2 }}>
-                              {h.count} {h.count === 1 ? "voto" : "voti"}
-                            </p>
-                          </div>
-                          <span style={{
-                            fontSize: "1.6rem", fontWeight: 900,
-                            fontFamily: "'Space Mono', monospace", color: scoreColor(h.avg),
+                    }}>🎭 Palco · {history.filter(h => h.audio_url).length} registrazion{history.filter(h => h.audio_url).length === 1 ? "e" : "i"}</p>
+                    <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+                      {history.filter(h => h.audio_url).map((h) => {
+                        const isLive = h.id === session?.id;
+                        const sorted = [...h.scores].sort((a,b)=>a-b);
+                        return (
+                          <div key={h.id} style={{
+                            background: isLive ? "rgba(75,68,223,0.1)" : "rgba(255,255,255,0.04)",
+                            border: isLive ? `1px solid ${BLUE_MID}55` : "1px solid rgba(255,255,255,0.07)",
+                            borderRadius: 14, padding: "14px 16px",
                           }}>
-                            {h.avg.toFixed(1)}
-                          </span>
-                        </div>
-                      ))}
+                            {/* Header poeta */}
+                            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
+                              <div>
+                                <p style={{ fontWeight: 800, fontSize: "0.9rem" }}>{h.poet}</p>
+                                {h.poem && <p style={{ fontSize: "0.72rem", color: "rgba(255,255,255,0.32)", fontStyle: "italic" }}>&ldquo;{h.poem}&rdquo;</p>}
+                              </div>
+                              {isLive && (
+                                <span style={{
+                                  fontSize: "0.62rem", fontWeight: 800, color: BLUE_LIGHT,
+                                  background: `${BLUE}33`, borderRadius: 100,
+                                  padding: "3px 10px", fontFamily: "'Space Mono', monospace",
+                                }}>LIVE</span>
+                              )}
+                            </div>
+                            {/* Player */}
+                            <audio src={h.audio_url!} controls style={{ width: "100%", borderRadius: 8, marginBottom: 10 }} />
+                            {/* Vote stats */}
+                            {h.scores.length > 0 && (
+                              <div style={{ marginBottom: 10 }}>
+                                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
+                                  <span style={{ fontSize: "0.62rem", color: "rgba(255,255,255,0.3)", fontFamily: "'Space Mono', monospace" }}>
+                                    {h.scores.length} vot{h.scores.length === 1 ? "o" : "i"}{h.scores.length >= 3 ? " · trimmed" : ""}
+                                  </span>
+                                  {h.trimmed !== null && (
+                                    <span style={{ fontSize: "1.5rem", fontWeight: 900, fontFamily: "'Space Mono', monospace", color: scoreColor(h.trimmed) }}>
+                                      {h.trimmed.toFixed(1)}
+                                    </span>
+                                  )}
+                                </div>
+                                <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
+                                  {[...h.scores].sort((a,b)=>b-a).map((s,i) => {
+                                    const isMin = h.scores.length>=3 && s===sorted[0];
+                                    const isMax = h.scores.length>=3 && s===sorted[sorted.length-1];
+                                    return (
+                                      <span key={i} style={{
+                                        padding: "2px 8px", borderRadius: 6, fontSize: "0.78rem", fontWeight: 700,
+                                        fontFamily: "'Space Mono', monospace",
+                                        background: (isMin||isMax) ? "rgba(255,255,255,0.04)" : "rgba(75,68,223,0.2)",
+                                        color: (isMin||isMax) ? "rgba(255,255,255,0.2)" : scoreColor(s),
+                                        textDecoration: (isMin||isMax) ? "line-through" : "none",
+                                      }}>{s.toFixed(1)}</span>
+                                    );
+                                  })}
+                                </div>
+                              </div>
+                            )}
+                            {/* Toggle voto */}
+                            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
+                              <button onClick={() => toggleAnySession(h.id, true)} disabled={h.voting_open}
+                                style={{
+                                  padding: "9px 0", borderRadius: 10, border: "none", cursor: h.voting_open ? "not-allowed" : "pointer",
+                                  background: h.voting_open ? "rgba(42,138,90,0.15)" : GREEN,
+                                  color: "white", fontWeight: 800, fontSize: "0.8rem",
+                                  opacity: h.voting_open ? 0.45 : 1,
+                                }}>🟢 Apri Voto</button>
+                              <button onClick={() => toggleAnySession(h.id, false)} disabled={!h.voting_open}
+                                style={{
+                                  padding: "9px 0", borderRadius: 10, border: "none", cursor: !h.voting_open ? "not-allowed" : "pointer",
+                                  background: !h.voting_open ? "rgba(230,57,70,0.15)" : RED,
+                                  color: "white", fontWeight: 800, fontSize: "0.8rem",
+                                  opacity: !h.voting_open ? 0.45 : 1,
+                                }}>🔴 Chiudi Voto</button>
+                            </div>
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
                 )}
