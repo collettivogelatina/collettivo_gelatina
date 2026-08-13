@@ -336,6 +336,14 @@ export default function AdminPage() {
   // Chiama il poeta E avvia subito la registrazione
   const callAndRecord = async (poet: Poet) => {
     if (!localEvent) return;
+
+    // Ferma la registrazione precedente se attiva
+    if (mediaRecRef.current && mediaRecRef.current.state !== "inactive") {
+      mediaRecRef.current.stop();
+    }
+    if (previewUrl) URL.revokeObjectURL(previewUrl);
+    setRecPhase("idle"); setAudioBlob(null); setPreviewUrl(null); setRecError(null);
+
     setSessionBusy(true);
     const { data, error } = await supabase
       .from("slam_sessions")
@@ -358,7 +366,6 @@ export default function AdminPage() {
     await loadHistory(updated.sessionIds);
     setSessionBusy(false);
     // Avvia subito la registrazione
-    setRecPhase("idle"); setAudioBlob(null); setPreviewUrl(null); setRecError(null);
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       const mimeType = MediaRecorder.isTypeSupported("audio/webm;codecs=opus")
@@ -379,7 +386,6 @@ export default function AdminPage() {
       setRecPhase("recording");
     } catch (err) {
       setRecError(`Microfono non disponibile: ${(err as Error).message}`);
-      setTab("live"); // forza il tab live se necessario
     }
   };
 
@@ -936,8 +942,22 @@ export default function AdminPage() {
                       textTransform: "uppercase", color: "rgba(255,255,255,0.32)",
                       fontFamily: "'Space Mono', monospace", marginBottom: 16,
                     }}>Prossimi in scena</p>
+                    {/* Avviso se c'è una registrazione in corso */}
+                    {(recPhase !== "idle" || (session && !session.audio_url)) && (
+                      <p style={{
+                        fontSize: "0.68rem", color: "rgba(255,100,80,0.85)",
+                        fontFamily: "'Space Mono', monospace",
+                        padding: "6px 10px", marginBottom: 8,
+                        background: "rgba(255,80,60,0.1)", borderRadius: 8,
+                        border: "1px solid rgba(255,80,60,0.2)",
+                      }}>
+                        ⏸️ Completa la registrazione in corso prima di passare al prossimo poeta
+                      </p>
+                    )}
                     <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                      {localEvent.poetQueue.map((poet, i) => (
+                      {localEvent.poetQueue.map((poet, i) => {
+                        const isRecording = recPhase !== "idle" || (session !== null && !session.audio_url);
+                        return (
                         <div key={i} style={{
                           display: "flex", alignItems: "center", justifyContent: "space-between",
                           background: "rgba(255,255,255,0.04)", borderRadius: 12, padding: "12px 14px",
@@ -958,25 +978,29 @@ export default function AdminPage() {
                           </div>
                           <button
                             onClick={() => callAndRecord(poet)}
-                            disabled={sessionBusy}
+                            disabled={sessionBusy || isRecording}
                             style={{
-                              padding: "8px 15px", borderRadius: 9, border: "none", cursor: "pointer",
-                              background: `linear-gradient(135deg, #C0392B, #E74C3C)`,
-                              color: "white", fontWeight: 800, fontSize: "0.78rem",
-                              boxShadow: "0 3px 10px rgba(192,57,43,0.5)",
+                              padding: "8px 15px", borderRadius: 9, border: "none",
+                              cursor: (sessionBusy || isRecording) ? "not-allowed" : "pointer",
+                              background: isRecording
+                                ? "rgba(255,255,255,0.07)"
+                                : `linear-gradient(135deg, #C0392B, #E74C3C)`,
+                              color: isRecording ? "rgba(255,255,255,0.3)" : "white",
+                              fontWeight: 800, fontSize: "0.78rem",
+                              boxShadow: isRecording ? "none" : "0 3px 10px rgba(192,57,43,0.5)",
                               opacity: sessionBusy ? 0.5 : 1,
                               display: "flex", alignItems: "center", gap: 5,
                             }}
                           >
-                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                               <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
                               <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
                               <line x1="12" y1="19" x2="12" y2="23" />
                             </svg>
-                            Registra
+                            {isRecording ? "In attesa..." : "Registra"}
                           </button>
                         </div>
-                      ))}
+                      )})}
                     </div>
                   </div>
                 )}
