@@ -422,6 +422,8 @@ export default function AdminPage() {
     if (!session) return;
     setSessionBusy(true);
     await supabase.from("slam_sessions").update({ voting_open: open }).eq("id", session.id);
+    // Aggiorna ottimisticamente anche il palco
+    setHistory(prev => prev.map(h => h.id === session.id ? { ...h, voting_open: open } : h));
     setSessionBusy(false);
   };
 
