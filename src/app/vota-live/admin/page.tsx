@@ -345,7 +345,7 @@ export default function AdminPage() {
     // Rimuovi dalla coda e salva l'ID della sessione
     const updated: LocalEvent = {
       ...localEvent,
-      poetQueue: localEvent.poetQueue.filter((p) => !(p.name === poet.name && p.poem === poet.poem)),
+      poetQueue: localEvent.poetQueue,
       sessionIds: [...localEvent.sessionIds, data.id],
     };
     setLocalEvent(updated);
@@ -384,7 +384,7 @@ export default function AdminPage() {
     }
     const updated: LocalEvent = {
       ...localEvent,
-      poetQueue: localEvent.poetQueue.filter((p) => !(p.name === poet.name && p.poem === poet.poem)),
+      poetQueue: localEvent.poetQueue,
       sessionIds: [...localEvent.sessionIds, data.id],
     };
     setLocalEvent(updated);
@@ -999,6 +999,22 @@ export default function AdminPage() {
                     <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                       {localEvent.poetQueue.map((poet, i) => {
                         const isRecording = recPhase !== "idle" || (session !== null && !session.audio_url);
+                        const historyEntry = history.find(h => h.poet === poet.name && h.poem === poet.poem);
+                        const isLiveSession = session?.poet_name === poet.name && session?.poem_title === poet.poem;
+                        
+                        let statusBadge = "⏳ In attesa";
+                        let statusColor = "rgba(255,255,255,0.3)";
+                        let isDoneOrLive = false;
+                        if (historyEntry && historyEntry.audio_url) {
+                          statusBadge = "✅ Sul palco";
+                          statusColor = "#3DC878";
+                          isDoneOrLive = true;
+                        } else if (isLiveSession) {
+                          statusBadge = "🔴 In registrazione";
+                          statusColor = "#FF5555";
+                          isDoneOrLive = true;
+                        }
+
                         return (
                         <div key={i} style={{
                           display: "flex", alignItems: "center", justifyContent: "space-between",
@@ -1010,7 +1026,12 @@ export default function AdminPage() {
                               fontFamily: "'Space Mono', monospace",
                             }}>{i + 1}.</span>
                             <div>
-                              <p style={{ fontWeight: 800, fontSize: "0.9rem" }}>{poet.name}</p>
+                              <p style={{ fontWeight: 800, fontSize: "0.9rem" }}>
+                                {poet.name}
+                                <span style={{ marginLeft: 8, fontSize: "0.65rem", padding: "2px 6px", borderRadius: 4, background: "rgba(255,255,255,0.05)", color: statusColor, border: `1px solid ${statusColor}44` }}>
+                                  {statusBadge}
+                                </span>
+                              </p>
                               {poet.poem && (
                                 <p style={{ fontSize: "0.73rem", color: "rgba(255,255,255,0.35)", fontStyle: "italic" }}>
                                   &ldquo;{poet.poem}&rdquo;
@@ -1020,16 +1041,16 @@ export default function AdminPage() {
                           </div>
                           <button
                             onClick={() => callAndRecord(poet)}
-                            disabled={sessionBusy || isRecording}
+                            disabled={sessionBusy || isRecording || isDoneOrLive}
                             style={{
                               padding: "8px 15px", borderRadius: 9, border: "none",
-                              cursor: (sessionBusy || isRecording) ? "not-allowed" : "pointer",
-                              background: isRecording
+                              cursor: (sessionBusy || isRecording || isDoneOrLive) ? "not-allowed" : "pointer",
+                              background: (isRecording || isDoneOrLive)
                                 ? "rgba(255,255,255,0.07)"
                                 : `linear-gradient(135deg, #C0392B, #E74C3C)`,
-                              color: isRecording ? "rgba(255,255,255,0.3)" : "white",
+                              color: (isRecording || isDoneOrLive) ? "rgba(255,255,255,0.3)" : "white",
                               fontWeight: 800, fontSize: "0.78rem",
-                              boxShadow: isRecording ? "none" : "0 3px 10px rgba(192,57,43,0.5)",
+                              boxShadow: (isRecording || isDoneOrLive) ? "none" : "0 3px 10px rgba(192,57,43,0.5)",
                               opacity: sessionBusy ? 0.5 : 1,
                               display: "flex", alignItems: "center", gap: 5,
                             }}
@@ -1039,7 +1060,7 @@ export default function AdminPage() {
                               <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
                               <line x1="12" y1="19" x2="12" y2="23" />
                             </svg>
-                            {isRecording ? "In attesa..." : "Registra"}
+                            {isDoneOrLive ? "Registrato" : isRecording ? "In attesa..." : "Registra"}
                           </button>
                         </div>
                       )})}

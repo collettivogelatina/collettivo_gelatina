@@ -8,7 +8,6 @@ const supabase = createClient(
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlkYmJmc2VxcHp6cnR4anZlaGVyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY1MzY4ODEsImV4cCI6MjEwMjExMjg4MX0.vPfChCcKXttPNoO0gcZAjiPF_XqO0VnWS1BPruMhw7A"
 );
 
-const ADMIN_KEY = "gelatina2025";
 const BLUE      = "#4B44DF";
 const BLUE_MID  = "#7A74FF";
 const BLUE_LIGHT = "#B8B3FF";
@@ -48,135 +47,309 @@ function scoreColor(s: number): string {
   return BLUE;
 }
 
-export default function VotaLive() {
-  const [isAdmin, setIsAdmin]         = useState(false);
-  const [session, setSession]         = useState<SlamSession | null>(null);
-  const [loading, setLoading]         = useState(true);
-  const [score, setScore]             = useState(7.0);
-  const [voted, setVoted]             = useState(false);
-  const [voteCount, setVoteCount]     = useState(0);
-  const [avgScore, setAvgScore]       = useState<number | null>(null);
-  const [submitting, setSubmitting]   = useState(false);
-  const [voteError, setVoteError]     = useState("");
-  const [poetName, setPoetName]       = useState("");
-  const [poemTitle, setPoemTitle]     = useState("");
-  const [adminBusy, setAdminBusy]     = useState(false);
-  const channelRef = useRef<RealtimeChannel | null>(null);
-  const sessionRef = useRef<SlamSession | null>(null);
+function SessionCard({
+  session,
+  userScore,
+  isVoted,
+  voteCount,
+  avgScore,
+  onVote
+}: {
+  session: SlamSession;
+  userScore: number;
+  isVoted: boolean;
+  voteCount: number;
+  avgScore: number | null;
+  onVote: (sessionId: string, score: number) => Promise<void>;
+}) {
+  const [localScore, setLocalScore] = useState(userScore);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    setIsAdmin(params.get("admin") === ADMIN_KEY);
-  }, []);
+    setLocalScore(userScore);
+  }, [userScore]);
 
-  const loadVoteStats = useCallback(async (sessionId: string) => {
+  const handleSubmit = async () => {
+    setSubmitting(true);
+    setError("");
+    try {
+      await onVote(session.id, localScore);
+    } catch (err: any) {
+      setError(err.message || "Errore nell'invio del voto.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <div style={{
+      background: "rgba(255,255,255,0.05)",
+      border: "1.5px solid rgba(255,255,255,0.08)",
+      borderRadius: 20, padding: "20px 24px", marginBottom: 20, textAlign: "center"
+    }}>
+      <p style={{ fontSize: "1.5rem", fontWeight: 900, marginBottom: session.poem_title ? 4 : 0 }}>
+        {session.poet_name}
+      </p>
+      {session.poem_title && (
+        <p style={{ fontSize: "0.88rem", color: "rgba(255,255,255,0.42)", fontStyle: "italic", marginBottom: 16 }}>
+          &ldquo;{session.poem_title}&rdquo;
+        </p>
+      )}
+
+      {session.audio_url && (
+        <div style={{
+          background: "rgba(255,255,255,0.04)",
+          border: "1.5px solid rgba(75,68,223,0.3)",
+          borderRadius: 18, padding: "16px 20px", marginBottom: 20,
+        }}>
+          <p style={{
+            fontSize: "0.6rem", fontWeight: 700, letterSpacing: "0.4em",
+            textTransform: "uppercase", color: "rgba(255,255,255,0.35)",
+            fontFamily: "'Space Mono', monospace", marginBottom: 12,
+          }}>🎙️ Ascolta la poesia</p>
+          <audio
+            src={session.audio_url}
+            controls
+            style={{ width: "100%", borderRadius: 10 }}
+          />
+        </div>
+      )}
+
+      {session.voting_open && !isVoted && (
+        <div style={{ background: `linear-gradient(135deg, rgba(75,68,223,0.18), rgba(122,116,255,0.10))`,
+          border: `1.5px solid ${BLUE_MID}66`, borderRadius: 24, padding: "32px 28px", textAlign: "center" }}>
+          <div style={{ display: "inline-flex", alignItems: "center", gap: 7,
+            background: "rgba(42,138,90,0.18)", border: "1px solid rgba(42,138,90,0.45)",
+            borderRadius: 100, padding: "5px 16px", marginBottom: 28 }}>
+            <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#3DC878",
+              boxShadow: "0 0 10px #3DC878", display: "inline-block", animation: "pulse 1.5s infinite" }} />
+            <span style={{ fontSize: "0.72rem", fontWeight: 800, color: "#3DC878", letterSpacing: "0.06em" }}>
+              VOTO APERTO
+            </span>
+          </div>
+
+          <div style={{ fontSize: "5.5rem", fontWeight: 900, lineHeight: 1,
+            color: scoreColor(localScore), marginBottom: 4,
+            fontFamily: "'Space Mono', monospace", transition: "color 0.2s" }}>
+            {localScore.toFixed(1)}
+          </div>
+          <p style={{ fontSize: "1rem", fontWeight: 700, marginBottom: 28,
+            color: scoreColor(localScore), transition: "color 0.2s" }}>
+            {scoreLabel(localScore)}
+          </p>
+
+          <div style={{ marginBottom: 28 }}>
+            <input type="range" min={1} max={10} step={0.1} value={localScore}
+              onChange={e => setLocalScore(parseFloat(e.target.value))}
+              style={{ accentColor: scoreColor(localScore) }} />
+            <div style={{ display: "flex", justifyContent: "space-between",
+              fontSize: "0.7rem", color: "rgba(255,255,255,0.28)",
+              fontFamily: "'Space Mono', monospace", marginTop: 6 }}>
+              <span>1.0</span><span>5.0</span><span>10.0</span>
+            </div>
+          </div>
+
+          <button onClick={handleSubmit} disabled={submitting}
+            style={{ width: "100%", padding: "16px 0", borderRadius: 14,
+              background: `linear-gradient(135deg, ${BLUE} 0%, ${BLUE_MID} 100%)`,
+              color: "white", fontWeight: 900, fontSize: "1.05rem",
+              border: "none", cursor: "pointer",
+              boxShadow: `0 8px 24px ${BLUE}55`,
+              opacity: submitting ? 0.65 : 1,
+              transition: "opacity 0.2s, transform 0.15s",
+              transform: submitting ? "scale(0.98)" : "scale(1)" }}>
+            {submitting ? "Invio..." : `🤚  Vota  ${localScore.toFixed(1)}`}
+          </button>
+          {error && <p style={{ color: "#FF9999", fontSize: "0.82rem", marginTop: 10 }}>{error}</p>}
+        </div>
+      )}
+
+      {session.voting_open && isVoted && (
+        <div style={{ background: "rgba(42,138,90,0.10)", border: "1.5px solid rgba(42,138,90,0.32)",
+          borderRadius: 24, padding: "36px 28px", textAlign: "center" }}>
+          <div style={{ fontSize: "3rem", marginBottom: 12 }}>✅</div>
+          <p style={{ fontSize: "1.1rem", fontWeight: 900, color: "#3DC878", marginBottom: 4 }}>
+            Voto registrato!
+          </p>
+          <p style={{ color: "rgba(255,255,255,0.45)", fontSize: "0.9rem" }}>
+            Hai votato <strong style={{ color: "white" }}>{userScore.toFixed(1)}</strong> per {session.poet_name}
+          </p>
+          {avgScore !== null && (
+            <div style={{ marginTop: 24, padding: "16px 20px",
+              background: "rgba(255,255,255,0.05)", borderRadius: 14 }}>
+              <p style={{ fontSize: "0.62rem", letterSpacing: "0.38em", color: "rgba(255,255,255,0.32)",
+                fontFamily: "'Space Mono', monospace", marginBottom: 6, textTransform: "uppercase" }}>
+                Media live — {voteCount} {voteCount === 1 ? "voto" : "voti"}
+              </p>
+              <p style={{ fontSize: "2.8rem", fontWeight: 900, color: scoreColor(avgScore),
+                fontFamily: "'Space Mono', monospace" }}>
+                {avgScore.toFixed(1)}
+              </p>
+            </div>
+          )}
+        </div>
+      )}
+
+      {!session.voting_open && (
+        <div style={{ background: "rgba(255,255,255,0.04)", border: "1.5px solid rgba(255,255,255,0.07)",
+          borderRadius: 24, padding: "44px 28px", textAlign: "center" }}>
+          <div style={{ fontSize: "2.8rem", marginBottom: 14 }}>⏳</div>
+          <p style={{ fontSize: "1rem", fontWeight: 700, color: "rgba(255,255,255,0.5)", marginBottom: 4 }}>
+            {session.audio_url ? "Voto chiuso" : "In attesa del segnale..."}
+          </p>
+          <p style={{ fontSize: "0.85rem", color: "rgba(255,255,255,0.28)" }}>
+            {session.audio_url ? "Il televoto è stato chiuso." : "Il voto si aprirà al termine della poesia."}
+          </p>
+          {avgScore !== null && voteCount > 0 && (
+            <div style={{ marginTop: 28, padding: "16px 20px",
+              background: "rgba(255,255,255,0.04)", borderRadius: 14,
+              border: "1px solid rgba(255,255,255,0.06)" }}>
+              <p style={{ fontSize: "0.62rem", letterSpacing: "0.38em", color: "rgba(255,255,255,0.28)",
+                fontFamily: "'Space Mono', monospace", marginBottom: 6, textTransform: "uppercase" }}>
+                Risultato — {voteCount} {voteCount === 1 ? "voto" : "voti"}
+              </p>
+              <p style={{ fontSize: "2.4rem", fontWeight: 900, color: scoreColor(avgScore),
+                fontFamily: "'Space Mono', monospace" }}>
+                {avgScore.toFixed(1)}
+              </p>
+            </div>
+          )}
+        </div>
+      )}
+
+      {session.voting_open && (
+        <p style={{ textAlign: "center", marginTop: 14,
+          fontSize: "0.72rem", color: "rgba(255,255,255,0.22)",
+          fontFamily: "'Space Mono', monospace" }}>
+          {voteCount} {voteCount === 1 ? "voto" : "voti"} ricevuti
+        </p>
+      )}
+    </div>
+  );
+}
+
+export default function VotaLive() {
+  const [sessions, setSessions] = useState<SlamSession[]>([]);
+  const [currentSession, setCurrentSession] = useState<SlamSession | null>(null);
+  const [loading, setLoading] = useState(true);
+  
+  const [myVotes, setMyVotes] = useState<Map<string, { score: number, voted: boolean }>>(new Map());
+  const [stats, setStats] = useState<Map<string, { count: number, avg: number | null }>>(new Map());
+
+  const channelRef = useRef<RealtimeChannel | null>(null);
+
+  const loadVoteStats = useCallback(async (sessionIds: string[]) => {
+    if (sessionIds.length === 0) return;
     const { data } = await supabase
       .from("slam_votes")
-      .select("score")
-      .eq("session_id", sessionId);
-    if (data && data.length > 0) {
-      const avg = data.reduce((s: number, r: { score: number }) => s + Number(r.score), 0) / data.length;
-      setAvgScore(Math.round(avg * 10) / 10);
-      setVoteCount(data.length);
-    } else {
-      setAvgScore(null);
-      setVoteCount(0);
+      .select("session_id, score")
+      .in("session_id", sessionIds);
+
+    const newStats = new Map<string, { count: number, avg: number | null }>();
+    if (data) {
+      sessionIds.forEach(id => {
+        const sessionVotes = data.filter(v => v.session_id === id).map(v => Number(v.score));
+        if (sessionVotes.length > 0) {
+          let trimmed = sessionVotes;
+          if (sessionVotes.length >= 3) {
+            const sorted = [...sessionVotes].sort((a,b) => a-b);
+            trimmed = sorted.slice(1, sorted.length - 1);
+          }
+          const avg = trimmed.reduce((a,b) => a+b, 0) / trimmed.length;
+          newStats.set(id, { count: sessionVotes.length, avg: Math.round(avg * 10) / 10 });
+        } else {
+          newStats.set(id, { count: 0, avg: null });
+        }
+      });
     }
+    setStats(prev => {
+      const copy = new Map(prev);
+      newStats.forEach((val, key) => copy.set(key, val));
+      return copy;
+    });
   }, []);
 
-  const checkAlreadyVoted = useCallback(async (sessionId: string) => {
+  const loadMyVotes = useCallback(async (sessionIds: string[]) => {
+    if (sessionIds.length === 0) return;
     const fp = getFingerprint();
     const { data } = await supabase
       .from("slam_votes")
-      .select("id, score")
-      .eq("session_id", sessionId)
-      .eq("fingerprint", fp)
-      .maybeSingle();
-    if (data) {
-      setVoted(true);
-      setScore(Number(data.score));
-    }
+      .select("session_id, score")
+      .in("session_id", sessionIds)
+      .eq("fingerprint", fp);
+
+    setMyVotes(prev => {
+      const copy = new Map(prev);
+      if (data) {
+        data.forEach(v => {
+          copy.set(v.session_id, { score: Number(v.score), voted: true });
+        });
+      }
+      return copy;
+    });
   }, []);
 
-  const loadSession = useCallback(async () => {
+  const loadSessions = useCallback(async () => {
     const { data } = await supabase
       .from("slam_sessions")
       .select("*")
-      .order("created_at", { ascending: false })
-      .limit(1)
-      .maybeSingle();
-    setSession(data ?? null);
-    sessionRef.current = data ?? null;
+      .order("created_at", { ascending: true });
+      
+    if (data) {
+      const audioSessions = data.filter(s => s.audio_url !== null);
+      setSessions(audioSessions);
+      
+      const withoutAudio = data.filter(s => s.audio_url === null);
+      setCurrentSession(withoutAudio.length > 0 ? withoutAudio[withoutAudio.length - 1] : null);
+      
+      const allIds = data.map(s => s.id);
+      loadVoteStats(allIds);
+      loadMyVotes(allIds);
+    }
     setLoading(false);
-  }, []);
+  }, [loadVoteStats, loadMyVotes]);
 
   useEffect(() => {
-    loadSession();
+    loadSessions();
 
     const ch = supabase
       .channel("slam_realtime")
       .on("postgres_changes", { event: "*", schema: "public", table: "slam_sessions" }, () => {
-        loadSession();
+        loadSessions();
       })
       .on("postgres_changes", { event: "*", schema: "public", table: "slam_votes" }, (payload) => {
-        const sid = (payload.new as { session_id?: string })?.session_id ?? sessionRef.current?.id;
-        if (sid) loadVoteStats(sid);
+        const sid = (payload.new as { session_id?: string })?.session_id;
+        if (sid) {
+          loadVoteStats([sid]);
+        }
       })
       .subscribe();
 
     channelRef.current = ch;
     return () => { supabase.removeChannel(ch); };
-  }, [loadSession, loadVoteStats]);
+  }, [loadSessions, loadVoteStats]);
 
-  useEffect(() => {
-    if (session?.id) {
-      loadVoteStats(session.id);
-      checkAlreadyVoted(session.id);
-    }
-    if (!session?.voting_open) {
-      setVoted(false);
-    }
-  }, [session?.id, session?.voting_open, loadVoteStats, checkAlreadyVoted]);
+  const handleVote = async (sessionId: string, score: number) => {
+    const session = [...sessions, currentSession].find(s => s?.id === sessionId);
+    if (!session || !session.voting_open) return;
 
-  const submitVote = async () => {
-    if (!session || !session.voting_open || voted) return;
-    setSubmitting(true);
-    setVoteError("");
     const fp = getFingerprint();
     const { error } = await supabase.from("slam_votes").upsert(
-      { session_id: session.id, fingerprint: fp, score },
+      { session_id: sessionId, fingerprint: fp, score },
       { onConflict: "session_id,fingerprint" }
     );
+
     if (error) {
-      setVoteError("Errore nell'invio del voto. Riprova.");
+      throw new Error("Errore nell'invio del voto. Riprova.");
     } else {
-      setVoted(true);
-      await loadVoteStats(session.id);
+      setMyVotes(prev => {
+        const copy = new Map(prev);
+        copy.set(sessionId, { score, voted: true });
+        return copy;
+      });
+      await loadVoteStats([sessionId]);
     }
-    setSubmitting(false);
-  };
-
-  const adminNewSession = async () => {
-    if (!poetName.trim()) return;
-    setAdminBusy(true);
-    await supabase.from("slam_sessions").insert({
-      poet_name: poetName.trim(),
-      poem_title: poemTitle.trim(),
-      voting_open: false,
-    });
-    setPoetName("");
-    setPoemTitle("");
-    setAdminBusy(false);
-  };
-
-  const adminToggleVoting = async (open: boolean) => {
-    if (!session) return;
-    setAdminBusy(true);
-    await supabase
-      .from("slam_sessions")
-      .update({ voting_open: open })
-      .eq("id", session.id);
-    setAdminBusy(false);
   };
 
   return (
@@ -207,8 +380,6 @@ export default function VotaLive() {
         background:`radial-gradient(circle, ${BLUE_LIGHT}20 0%, transparent 70%)`, pointerEvents:"none" }} />
 
       <div style={{ maxWidth:640, margin:"0 auto", padding:"40px 20px 60px", position:"relative", zIndex:1 }}>
-
-        {/* Back */}
         <Link href="/" style={{
           display:"inline-flex", alignItems:"center", gap:6,
           color:"rgba(255,255,255,0.4)", fontSize:"0.72rem",
@@ -219,7 +390,6 @@ export default function VotaLive() {
           ← Torna al sito
         </Link>
 
-        {/* Header */}
         <div style={{ textAlign:"center", marginBottom:40, animation:"fadeIn 0.6s ease" }}>
           <div style={{
             display:"inline-flex", alignItems:"center", justifyContent:"center",
@@ -239,60 +409,6 @@ export default function VotaLive() {
           </p>
         </div>
 
-        {/* ── ADMIN PANEL ── */}
-        {isAdmin && (
-          <div style={{
-            background:"rgba(255,255,255,0.06)", border:`1.5px solid ${BLUE_MID}55`,
-            borderRadius:20, padding:"20px 24px", marginBottom:28,
-          }}>
-            <p style={{
-              fontSize:"0.62rem", fontWeight:700, letterSpacing:"0.35em",
-              textTransform:"uppercase", color:BLUE_LIGHT,
-              fontFamily:"'Space Mono', monospace", marginBottom:14,
-            }}>🎛️ Pannello Organizzatore</p>
-
-            <div style={{ display:"flex", flexDirection:"column", gap:10, marginBottom:14 }}>
-              <input value={poetName} onChange={e => setPoetName(e.target.value)}
-                placeholder="Nome del poeta *"
-                style={{ background:"rgba(255,255,255,0.08)", border:"1.5px solid rgba(255,255,255,0.12)",
-                  borderRadius:10, padding:"10px 14px", color:"white",
-                  fontSize:"0.9rem", fontFamily:"'Nunito', sans-serif", outline:"none" }} />
-              <input value={poemTitle} onChange={e => setPoemTitle(e.target.value)}
-                placeholder="Titolo della poesia (opzionale)"
-                style={{ background:"rgba(255,255,255,0.08)", border:"1.5px solid rgba(255,255,255,0.12)",
-                  borderRadius:10, padding:"10px 14px", color:"white",
-                  fontSize:"0.9rem", fontFamily:"'Nunito', sans-serif", outline:"none" }} />
-              <button onClick={adminNewSession} disabled={adminBusy || !poetName.trim()}
-                style={{ background:"rgba(255,255,255,0.10)", border:"1.5px solid rgba(255,255,255,0.18)",
-                  borderRadius:10, padding:"10px 18px", color:"white",
-                  fontSize:"0.85rem", fontWeight:700, cursor:"pointer",
-                  opacity: adminBusy || !poetName.trim() ? 0.45 : 1 }}>
-                ✚ Crea nuova sessione
-              </button>
-            </div>
-
-            {session && (
-              <div style={{ display:"flex", gap:10 }}>
-                <button onClick={() => adminToggleVoting(true)} disabled={adminBusy || session.voting_open}
-                  style={{ flex:1, padding:"11px 0", borderRadius:10, fontWeight:900,
-                    fontSize:"0.88rem", cursor:"pointer", border:"none",
-                    background: session.voting_open ? "rgba(42,138,90,0.3)" : "#2A8A5A",
-                    color:"white", opacity: session.voting_open ? 0.5 : 1 }}>
-                  🟢 Apri Voto
-                </button>
-                <button onClick={() => adminToggleVoting(false)} disabled={adminBusy || !session.voting_open}
-                  style={{ flex:1, padding:"11px 0", borderRadius:10, fontWeight:900,
-                    fontSize:"0.88rem", cursor:"pointer", border:"none",
-                    background: !session.voting_open ? "rgba(230,57,70,0.3)" : "#E63946",
-                    color:"white", opacity: !session.voting_open ? 0.5 : 1 }}>
-                  🔴 Chiudi Voto
-                </button>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* ── MAIN STATE ── */}
         {loading ? (
           <div style={{ textAlign:"center", padding:"60px 0" }}>
             <div style={{ width:48, height:48, borderRadius:"50%", margin:"0 auto 16px",
@@ -300,165 +416,50 @@ export default function VotaLive() {
               animation:"spin 1s linear infinite" }} />
             <p style={{ color:"rgba(255,255,255,0.4)", fontSize:"0.9rem" }}>Connessione in corso...</p>
           </div>
-        ) : !session ? (
-          <div style={{ textAlign:"center", padding:"60px 20px", animation:"fadeIn 0.5s ease" }}>
-            <div style={{ fontSize:"3.5rem", marginBottom:16 }}>🎙️</div>
-            <p style={{ color:"rgba(255,255,255,0.55)", fontSize:"1rem", lineHeight:1.7 }}>
-              Nessuna serata in corso al momento.<br />Torna quando lo slam è live!
-            </p>
-          </div>
         ) : (
           <div style={{ animation:"fadeIn 0.5s ease" }}>
-            {/* Carta poeta */}
-            <div style={{ background:"rgba(255,255,255,0.05)", border:"1.5px solid rgba(255,255,255,0.08)",
-              borderRadius:20, padding:"20px 24px", marginBottom:20, textAlign:"center" }}>
-              <p style={{ fontSize:"0.6rem", fontWeight:700, letterSpacing:"0.45em",
-                textTransform:"uppercase", color:"rgba(255,255,255,0.3)",
-                fontFamily:"'Space Mono', monospace", marginBottom:8 }}>In scena adesso</p>
-              <p style={{ fontSize:"1.5rem", fontWeight:900, marginBottom: session.poem_title ? 4 : 0 }}>
-                {session.poet_name}
-              </p>
-              {session.poem_title && (
-                <p style={{ fontSize:"0.88rem", color:"rgba(255,255,255,0.42)", fontStyle:"italic" }}>
-                  &ldquo;{session.poem_title}&rdquo;
-                </p>
-              )}
-            </div>
-
-            {/* Audio player — compare appena l'admin invia la registrazione */}
-            {session.audio_url && (
-              <div style={{
-                background: "rgba(255,255,255,0.04)",
-                border: "1.5px solid rgba(75,68,223,0.3)",
-                borderRadius: 18, padding: "20px 22px", marginBottom: 20,
-              }}>
-                <p style={{
-                  fontSize: "0.6rem", fontWeight: 700, letterSpacing: "0.4em",
-                  textTransform: "uppercase", color: "rgba(255,255,255,0.35)",
-                  fontFamily: "'Space Mono', monospace", marginBottom: 12,
-                }}>🎙️ Ascolta la poesia</p>
-                <audio
-                  src={session.audio_url}
-                  controls
-                  style={{ width: "100%", borderRadius: 10 }}
+            {currentSession && (
+              <>
+                <p style={{ fontSize: "0.6rem", fontWeight: 700, letterSpacing: "0.45em",
+                  textTransform: "uppercase", color: "rgba(255,255,255,0.3)",
+                  fontFamily: "'Space Mono', monospace", marginBottom: 16, textAlign: "center" }}>In scena adesso</p>
+                <SessionCard 
+                  session={currentSession}
+                  userScore={myVotes.get(currentSession.id)?.score ?? 7.0}
+                  isVoted={myVotes.get(currentSession.id)?.voted ?? false}
+                  voteCount={stats.get(currentSession.id)?.count ?? 0}
+                  avgScore={stats.get(currentSession.id)?.avg ?? null}
+                  onVote={handleVote}
                 />
-              </div>
+              </>
             )}
 
-            {/* VOTO APERTO — non ancora votato */}
-            {session.voting_open && !voted && (
-              <div style={{ background:`linear-gradient(135deg, rgba(75,68,223,0.18), rgba(122,116,255,0.10))`,
-                border:`1.5px solid ${BLUE_MID}66`, borderRadius:24, padding:"32px 28px", textAlign:"center" }}>
-                <div style={{ display:"inline-flex", alignItems:"center", gap:7,
-                  background:"rgba(42,138,90,0.18)", border:"1px solid rgba(42,138,90,0.45)",
-                  borderRadius:100, padding:"5px 16px", marginBottom:28 }}>
-                  <span style={{ width:8, height:8, borderRadius:"50%", background:"#3DC878",
-                    boxShadow:"0 0 10px #3DC878", display:"inline-block", animation:"pulse 1.5s infinite" }} />
-                  <span style={{ fontSize:"0.72rem", fontWeight:800, color:"#3DC878", letterSpacing:"0.06em" }}>
-                    VOTO APERTO
-                  </span>
-                </div>
-
-                <div style={{ fontSize:"5.5rem", fontWeight:900, lineHeight:1,
-                  color: scoreColor(score), marginBottom:4,
-                  fontFamily:"'Space Mono', monospace", transition:"color 0.2s" }}>
-                  {score.toFixed(1)}
-                </div>
-                <p style={{ fontSize:"1rem", fontWeight:700, marginBottom:28,
-                  color: scoreColor(score), transition:"color 0.2s" }}>
-                  {scoreLabel(score)}
-                </p>
-
-                <div style={{ marginBottom:28 }}>
-                  <input type="range" min={1} max={10} step={0.1} value={score}
-                    onChange={e => setScore(parseFloat(e.target.value))}
-                    style={{ accentColor: scoreColor(score) }} />
-                  <div style={{ display:"flex", justifyContent:"space-between",
-                    fontSize:"0.7rem", color:"rgba(255,255,255,0.28)",
-                    fontFamily:"'Space Mono', monospace", marginTop:6 }}>
-                    <span>1.0</span><span>5.0</span><span>10.0</span>
-                  </div>
-                </div>
-
-                <button onClick={submitVote} disabled={submitting}
-                  style={{ width:"100%", padding:"16px 0", borderRadius:14,
-                    background:`linear-gradient(135deg, ${BLUE} 0%, ${BLUE_MID} 100%)`,
-                    color:"white", fontWeight:900, fontSize:"1.05rem",
-                    border:"none", cursor:"pointer",
-                    boxShadow:`0 8px 24px ${BLUE}55`,
-                    opacity: submitting ? 0.65 : 1,
-                    transition:"opacity 0.2s, transform 0.15s",
-                    transform: submitting ? "scale(0.98)" : "scale(1)" }}>
-                  {submitting ? "Invio..." : `🤚  Vota  ${score.toFixed(1)}`}
-                </button>
-                {voteError && <p style={{ color:"#FF9999", fontSize:"0.82rem", marginTop:10 }}>{voteError}</p>}
+            {sessions.length > 0 && (
+              <div style={{ marginTop: 40 }}>
+                <p style={{ fontSize: "0.6rem", fontWeight: 700, letterSpacing: "0.45em",
+                  textTransform: "uppercase", color: "rgba(255,255,255,0.3)",
+                  fontFamily: "'Space Mono', monospace", marginBottom: 16, textAlign: "center" }}>Già esibiti</p>
+                {sessions.map(s => (
+                  <SessionCard 
+                    key={s.id}
+                    session={s}
+                    userScore={myVotes.get(s.id)?.score ?? 7.0}
+                    isVoted={myVotes.get(s.id)?.voted ?? false}
+                    voteCount={stats.get(s.id)?.count ?? 0}
+                    avgScore={stats.get(s.id)?.avg ?? null}
+                    onVote={handleVote}
+                  />
+                ))}
               </div>
             )}
-
-            {/* VOTO INVIATO */}
-            {session.voting_open && voted && (
-              <div style={{ background:"rgba(42,138,90,0.10)", border:"1.5px solid rgba(42,138,90,0.32)",
-                borderRadius:24, padding:"36px 28px", textAlign:"center" }}>
-                <div style={{ fontSize:"3rem", marginBottom:12 }}>✅</div>
-                <p style={{ fontSize:"1.1rem", fontWeight:900, color:"#3DC878", marginBottom:4 }}>
-                  Voto registrato!
+            
+            {!currentSession && sessions.length === 0 && (
+              <div style={{ textAlign:"center", padding:"60px 20px", animation:"fadeIn 0.5s ease" }}>
+                <div style={{ fontSize:"3.5rem", marginBottom:16 }}>🎙️</div>
+                <p style={{ color:"rgba(255,255,255,0.55)", fontSize:"1rem", lineHeight:1.7 }}>
+                  Nessuna serata in corso al momento.<br />Torna quando lo slam è live!
                 </p>
-                <p style={{ color:"rgba(255,255,255,0.45)", fontSize:"0.9rem" }}>
-                  Hai votato <strong style={{ color:"white" }}>{score.toFixed(1)}</strong> per {session.poet_name}
-                </p>
-                {avgScore !== null && (
-                  <div style={{ marginTop:24, padding:"16px 20px",
-                    background:"rgba(255,255,255,0.05)", borderRadius:14 }}>
-                    <p style={{ fontSize:"0.62rem", letterSpacing:"0.38em", color:"rgba(255,255,255,0.32)",
-                      fontFamily:"'Space Mono', monospace", marginBottom:6, textTransform:"uppercase" }}>
-                      Media live — {voteCount} {voteCount === 1 ? "voto" : "voti"}
-                    </p>
-                    <p style={{ fontSize:"2.8rem", fontWeight:900, color:scoreColor(avgScore),
-                      fontFamily:"'Space Mono', monospace" }}>
-                      {avgScore.toFixed(1)}
-                    </p>
-                  </div>
-                )}
               </div>
-            )}
-
-            {/* VOTO CHIUSO */}
-            {!session.voting_open && (
-              <div style={{ background:"rgba(255,255,255,0.04)", border:"1.5px solid rgba(255,255,255,0.07)",
-                borderRadius:24, padding:"44px 28px", textAlign:"center" }}>
-                <div style={{ fontSize:"2.8rem", marginBottom:14 }}>⏳</div>
-                <p style={{ fontSize:"1rem", fontWeight:700, color:"rgba(255,255,255,0.5)", marginBottom:4 }}>
-                  In attesa del segnale...
-                </p>
-                <p style={{ fontSize:"0.85rem", color:"rgba(255,255,255,0.28)" }}>
-                  Il voto si aprirà al termine della poesia
-                </p>
-                {avgScore !== null && voteCount > 0 && (
-                  <div style={{ marginTop:28, padding:"16px 20px",
-                    background:"rgba(255,255,255,0.04)", borderRadius:14,
-                    border:"1px solid rgba(255,255,255,0.06)" }}>
-                    <p style={{ fontSize:"0.62rem", letterSpacing:"0.38em", color:"rgba(255,255,255,0.28)",
-                      fontFamily:"'Space Mono', monospace", marginBottom:6, textTransform:"uppercase" }}>
-                      Ultimo risultato — {voteCount} {voteCount === 1 ? "voto" : "voti"}
-                    </p>
-                    <p style={{ fontSize:"2.4rem", fontWeight:900, color:scoreColor(avgScore),
-                      fontFamily:"'Space Mono', monospace" }}>
-                      {avgScore.toFixed(1)}
-                    </p>
-                    <p style={{ fontSize:"0.78rem", color:"rgba(255,255,255,0.3)", marginTop:4 }}>
-                      {session.poet_name}
-                    </p>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {session.voting_open && (
-              <p style={{ textAlign:"center", marginTop:14,
-                fontSize:"0.72rem", color:"rgba(255,255,255,0.22)",
-                fontFamily:"'Space Mono', monospace" }}>
-                {voteCount} {voteCount === 1 ? "voto" : "voti"} ricevuti
-              </p>
             )}
           </div>
         )}
