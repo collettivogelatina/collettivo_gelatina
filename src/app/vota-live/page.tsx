@@ -98,17 +98,17 @@ function SessionCard({
       )}
 
       <div style={{ padding: "16px", background: "rgba(255,255,255,0.03)", borderRadius: 12 }}>
-        <div style={{ fontSize: "4.5rem", fontWeight: 900, lineHeight: 1, color: scoreColor(!session.audio_url ? 7.0 : localScore), marginBottom: 16, transition: "color 0.2s" }}>
-          {!session.audio_url ? "7.0" : localScore.toFixed(1)}
+        <div style={{ fontSize: "4.5rem", fontWeight: 900, lineHeight: 1, color: scoreColor(!session.audio_url ? 1.0 : localScore), marginBottom: 16, transition: "color 0.2s" }}>
+          {!session.audio_url ? "1.0" : localScore.toFixed(1)}
         </div>
         <input 
           type="range" min={1} max={10} step={0.1} 
-          value={!session.audio_url ? 7.0 : localScore}
+          value={!session.audio_url ? 1.0 : localScore}
           onChange={e => setLocalScore(parseFloat(e.target.value))}
           disabled={!session.audio_url || !session.voting_open || isVoted}
           style={{ 
             width: "100%", 
-            accentColor: scoreColor(!session.audio_url ? 7.0 : localScore), 
+            accentColor: scoreColor(!session.audio_url ? 1.0 : localScore), 
             marginBottom: (!session.audio_url || !session.voting_open || isVoted) ? 0 : 24, 
             cursor: (!session.audio_url || !session.voting_open || isVoted) ? "default" : "pointer",
             opacity: (!session.audio_url || !session.voting_open) ? 0.4 : 1
@@ -309,7 +309,7 @@ export default function VotaLive() {
                 {manche1.map((s, i) => (
                   <SessionCard 
                     key={s.id} session={s} index={i + 1}
-                    userScore={myVotes.get(s.id)?.score ?? 7.0}
+                    userScore={myVotes.get(s.id)?.score ?? 1.0}
                     isVoted={myVotes.get(s.id)?.voted ?? false}
                     voteCount={stats.get(s.id)?.count ?? 0}
                     avgScore={stats.get(s.id)?.avg ?? null}
@@ -329,7 +329,7 @@ export default function VotaLive() {
                 {manche2.map((s, i) => (
                   <SessionCard 
                     key={s.id} session={s} index={i + 1}
-                    userScore={myVotes.get(s.id)?.score ?? 7.0}
+                    userScore={myVotes.get(s.id)?.score ?? 1.0}
                     isVoted={myVotes.get(s.id)?.voted ?? false}
                     voteCount={stats.get(s.id)?.count ?? 0}
                     avgScore={stats.get(s.id)?.avg ?? null}
