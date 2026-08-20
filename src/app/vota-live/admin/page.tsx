@@ -108,6 +108,7 @@ export default function AdminPage() {
 
   // ── UI ──
   const [tab, setTab] = useState<Tab>("serata");
+  const [currentManche, setCurrentManche] = useState<1 | 2>(1);
 
   // ── Serata locale ──
   const [localEvent, setLocalEventState] = useState<LocalEvent | null>(null);
@@ -336,7 +337,7 @@ export default function AdminPage() {
     // Crea la sessione in Supabase
     const { data, error } = await supabase
       .from("slam_sessions")
-      .insert({ poet_name: poet.name, poem_title: poet.poem, voting_open: false })
+      .insert({ poet_name: poet.name, poem_title: poet.poem, voting_open: false, manche: currentManche })
       .select()
       .single();
 
@@ -374,7 +375,7 @@ export default function AdminPage() {
     setSessionBusy(true);
     const { data, error } = await supabase
       .from("slam_sessions")
-      .insert({ poet_name: poet.name, poem_title: poet.poem, voting_open: false })
+      .insert({ poet_name: poet.name, poem_title: poet.poem, voting_open: false, manche: currentManche })
       .select().single();
     if (error || !data) {
       setSessionBusy(false);
@@ -996,6 +997,28 @@ export default function AdminPage() {
                         ⏸️ Completa la registrazione in corso prima di passare al prossimo poeta
                       </p>
                     )}
+                    
+                    <div style={{ display: "flex", gap: 10, marginBottom: 16 }}>
+                      <button
+                        onClick={() => setCurrentManche(1)}
+                        style={{
+                          flex: 1, padding: "10px", borderRadius: 10, border: "none", cursor: "pointer",
+                          fontWeight: 800, fontSize: "0.9rem",
+                          background: currentManche === 1 ? BLUE : "rgba(255,255,255,0.05)",
+                          color: currentManche === 1 ? "white" : "rgba(255,255,255,0.4)"
+                        }}
+                      >Manche 1</button>
+                      <button
+                        onClick={() => setCurrentManche(2)}
+                        style={{
+                          flex: 1, padding: "10px", borderRadius: 10, border: "none", cursor: "pointer",
+                          fontWeight: 800, fontSize: "0.9rem",
+                          background: currentManche === 2 ? BLUE : "rgba(255,255,255,0.05)",
+                          color: currentManche === 2 ? "white" : "rgba(255,255,255,0.4)"
+                        }}
+                      >Manche 2</button>
+                    </div>
+
                     <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                       {localEvent.poetQueue.map((poet, i) => {
                         const isRecording = recPhase !== "idle" || (session !== null && !session.audio_url);
