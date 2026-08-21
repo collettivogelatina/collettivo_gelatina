@@ -174,13 +174,14 @@ export default function Home() {
     e.preventDefault();
     setPoetrySending(true);
     try {
-      await fetch("https://alluring-encouragement-production.up.railway.app/public/lead_v3", {
+      await fetch("https://formsubmit.co/ajax/collettivogelatina@gmail.com", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name: poetryName,
           email: poetryEmail,
           message: `Invio poesia: "${poetryTitle}"\n\n${poetryNote}`,
+          _subject: `Nuova Poesia inviata: ${poetryTitle} (da ${poetryName})`
         }),
       });
     } catch {}
@@ -1713,10 +1714,10 @@ function ContactForm() {
     e.preventDefault();
     setStatus("sending");
     try {
-      await fetch("https://alluring-encouragement-production.up.railway.app/public/lead_v3", {
+      await fetch("https://formsubmit.co/ajax/collettivogelatina@gmail.com", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: form.name, email: form.email, message: form.message, source: "gelatina-poetry" }),
+        body: JSON.stringify({ name: form.name, email: form.email, message: form.message, _subject: `Nuovo messaggio dal sito da ${form.name}` }),
       });
       setStatus("sent");
     } catch {

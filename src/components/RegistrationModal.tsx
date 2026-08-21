@@ -34,14 +34,14 @@ export default function RegistrationModal({ isOpen, onClose, eventTitle }: Regis
     try {
       const validEmail = contact.includes("@") ? contact : "collettivogelatina@gmail.com";
       
-      await fetch("https://alluring-encouragement-production.up.railway.app/public/lead_v3", {
+      await fetch("https://formsubmit.co/ajax/collettivogelatina@gmail.com", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 
           name: name, 
           email: validEmail, 
           message: message, 
-          source: "gelatina-poetry" 
+          _subject: `Nuova iscrizione: ${name} (${role})` 
         }),
       });
       setStatus("sent");
