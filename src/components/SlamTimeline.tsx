@@ -108,7 +108,7 @@ function CoverFloat({ src }: { src: string }) {
   );
 }
 
-function Card({ ev, hovered, isFirst }: { ev: TEvent; hovered: boolean; isFirst: boolean }) {
+function Card({ ev, hovered, isFirst, onRegister }: { ev: TEvent; hovered: boolean; isFirst: boolean; onRegister?: (title: string) => void }) {
   const [tagBg, tagColor] = TAG_COLORS[ev.tag] ?? [LAVENDER, BLUE];
   const compact = ev.past && !hovered && !ev.founding;
   const coverSrc = EVENT_COVERS[ev.id];
@@ -154,9 +154,15 @@ function Card({ ev, hovered, isFirst }: { ev: TEvent; hovered: boolean; isFirst:
         </p>
         {(hovered || isFirst) && !ev.past && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'flex-start', marginTop: 6 }}>
-            <a
-              href={`mailto:collettivogelatina@gmail.com?subject=Iscrizione%20${encodeURIComponent(ev.title)}`}
-              onClick={(e) => e.stopPropagation()}
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                if (onRegister) {
+                  onRegister(ev.title);
+                } else {
+                  window.location.href = `mailto:collettivogelatina@gmail.com?subject=Iscrizione%20${encodeURIComponent(ev.title)}`;
+                }
+              }}
               style={{
                 padding: "6px 12px",
                 borderRadius: 99,
@@ -175,7 +181,7 @@ function Card({ ev, hovered, isFirst }: { ev: TEvent; hovered: boolean; isFirst:
               }}
             >
               🔥 Iscriviti
-            </a>
+            </button>
             <button
               onClick={(e) => {
                 e.stopPropagation();
@@ -225,7 +231,7 @@ function Card({ ev, hovered, isFirst }: { ev: TEvent; hovered: boolean; isFirst:
   );
 }
 
-export default function SlamTimeline() {
+export default function SlamTimeline({ onRegister }: { onRegister?: (title: string) => void }) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [hovered, setHovered] = useState<number | null>(null);
   const firstUpcoming = TIMELINE.findIndex(e => !e.past);
@@ -393,7 +399,7 @@ export default function SlamTimeline() {
                       pointerEvents: "none",
                     }}
                   >
-                    <Card ev={ev} hovered={isHov} isFirst={isFirst} />
+                    <Card ev={ev} hovered={isHov} isFirst={isFirst} onRegister={onRegister} />
                     <div
                       style={{
                         width: 1,
@@ -427,7 +433,7 @@ export default function SlamTimeline() {
                           "linear-gradient(to bottom,rgba(75,68,223,0.28),rgba(75,68,223,0))",
                       }}
                     />
-                    <Card ev={ev} hovered={isHov} isFirst={isFirst} />
+                    <Card ev={ev} hovered={isHov} isFirst={isFirst} onRegister={onRegister} />
                   </div>
                 )}
               </div>

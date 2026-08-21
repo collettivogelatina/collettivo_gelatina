@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import VoiceMic from "@/components/VoiceMic";
 import SlamTimeline from "@/components/SlamTimeline";
+import RegistrationModal from "@/components/RegistrationModal";
 
 const BLUE = "#4B44DF";
 const BLUE_MID = "#7A74FF";
@@ -144,6 +145,13 @@ const members = [
 export default function Home() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [regModalOpen, setRegModalOpen] = useState(false);
+  const [regEventTitle, setRegEventTitle] = useState("");
+
+  const openRegModal = (title: string) => {
+    setRegEventTitle(title);
+    setRegModalOpen(true);
+  };
   const [gelatinFormat, setGelatinFormat] = useState<"pdf" | "cartaceo">("pdf");
   const [poetryName, setPoetryName] = useState("");
   const [poetryEmail, setPoetryEmail] = useState("");
@@ -499,8 +507,8 @@ export default function Home() {
             </a>
           </div>
 
-          <a
-            href="mailto:collettivogelatina@gmail.com?subject=Iscrizione%20Slam%203%20Settembre"
+          <button
+            onClick={() => openRegModal("Slam del 3 Settembre (Hotel Tirreno)")}
             className="mt-6 font-black text-sm px-9 py-4 rounded-full transition-all hover:scale-105 shadow-2xl"
             style={{ 
               background: "#E63946", 
@@ -510,7 +518,7 @@ export default function Home() {
             }}
           >
             🔥 Iscriviti allo Slam del 3 Settembre (Poeta o Pubblico)
-          </a>
+          </button>
 
           <div className="mt-16 text-white/30 text-xs tracking-[0.4em] uppercase animate-bounce">
             ↓ scorri
@@ -601,7 +609,7 @@ export default function Home() {
             </p>
           </div>
 
-          <SlamTimeline />
+          <SlamTimeline onRegister={openRegModal} />
 
           {/* ── LIPS badge ── */}
           <div
@@ -1655,6 +1663,12 @@ export default function Home() {
           Open Mic
         </span>
       </a>
+
+      <RegistrationModal 
+        isOpen={regModalOpen} 
+        onClose={() => setRegModalOpen(false)} 
+        eventTitle={regEventTitle} 
+      />
     </div>
   );
 }
