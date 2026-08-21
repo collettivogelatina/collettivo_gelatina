@@ -34,6 +34,7 @@ interface SlamSession {
   poem_title: string;
   voting_open: boolean;
   audio_url: string | null;
+  manche?: number;
   created_at: string;
 }
 
@@ -45,6 +46,7 @@ interface HistoryEntry {
   poem: string;
   voting_open: boolean;
   audio_url: string | null;
+  manche: number;
   scores: number[];
   trimmed: number | null;
 }
@@ -194,7 +196,7 @@ export default function AdminPage() {
     if (sessionIds.length === 0) { setHistory([]); return; }
     const { data: sessions } = await supabase
       .from("slam_sessions")
-      .select("id, poet_name, poem_title, voting_open, audio_url")
+      .select("id, poet_name, poem_title, voting_open, audio_url, manche")
       .in("id", sessionIds)
       .order("created_at", { ascending: true });
     if (!sessions) return;
@@ -205,7 +207,7 @@ export default function AdminPage() {
         const scores = (votes ?? []).map((v: { score: number }) => Number(v.score));
         return {
           id: s.id, poet: s.poet_name, poem: s.poem_title,
-          voting_open: s.voting_open, audio_url: s.audio_url,
+          voting_open: s.voting_open, audio_url: s.audio_url, manche: s.manche ?? 1,
           scores, trimmed: trimmedMean(scores),
         };
       })
@@ -1022,8 +1024,14 @@ export default function AdminPage() {
                     <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                       {localEvent.poetQueue.map((poet, i) => {
                         const isRecording = recPhase !== "idle" || (session !== null && !session.audio_url);
-                        const historyEntry = history.find(h => h.poet === poet.name && h.poem === poet.poem);
-                        const isLiveSession = session?.poet_name === poet.name && session?.poem_title === poet.poem;
+                        const historyEntry = history.find(h => 
+                          h.poet === poet.name && 
+                          h.poem === poet.poem && 
+                          (h.manche ?? 1) === currentManche
+                        );
+                        const isLiveSession = session?.poet_name === poet.name && 
+                          session?.poem_title === poet.poem &&
+                          (session?.manche ?? 1) === currentManche;
                         
                         let statusBadge = "⏳ In attesa";
                         let statusColor = "rgba(255,255,255,0.3)";
