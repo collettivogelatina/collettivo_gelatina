@@ -20,29 +20,26 @@ export default function RegistrationModal({ isOpen, onClose, eventTitle }: Regis
     e.preventDefault();
     setStatus("sending");
     
-    let message = `Nuova iscrizione per l'evento: ${eventTitle}\n\n`;
-    message += `Nome: ${name}\n`;
-    message += `Partecipazione: ${role}\n`;
-    
-    if (role === "Pubblico") {
-      message += `Numero di persone: ${peopleCount}\n`;
-    }
-    if (contact) {
-      message += `Contatto: ${contact}\n`;
-    }
-
     try {
       const validEmail = contact.includes("@") ? contact : "collettivogelatina@gmail.com";
+      const ruoloEsteso = role === "Poeta" ? "Poeta (Slam)" : role;
       
+      const payload: any = {
+        "Nome e Cognome": name,
+        "Email/Contatto": contact || "Nessuno",
+        "Ruolo": ruoloEsteso,
+        "Evento": eventTitle,
+        _subject: `Nuova iscrizione: ${name} - ${ruoloEsteso}` 
+      };
+
+      if (role === "Pubblico") {
+        payload["Numero di Persone"] = peopleCount;
+      }
+
       await fetch("https://formsubmit.co/ajax/collettivogelatina@gmail.com", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ 
-          name: name, 
-          email: validEmail, 
-          message: message, 
-          _subject: `Nuova iscrizione: ${name} (${role})` 
-        }),
+        body: JSON.stringify(payload),
       });
       setStatus("sent");
     } catch {
