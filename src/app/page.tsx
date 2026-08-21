@@ -492,12 +492,25 @@ export default function Home() {
             </a>
             <a
               href="#gelatino"
-              className="font-black text-sm px-9 py-3.5 rounded-full border-2 border-white text-white transition-all hover:bg-white hover:scale-105"
+              className="font-black text-sm px-9 py-3.5 rounded-full border-2 border-white text-white transition-all hover:bg-white hover:text-[#4B44DF] hover:scale-105"
               style={{ color: "white" }}
             >
               Scopri Gelatino
             </a>
           </div>
+
+          <a
+            href="mailto:collettivogelatina@gmail.com?subject=Iscrizione%20Slam%203%20Settembre"
+            className="mt-6 font-black text-sm px-9 py-4 rounded-full transition-all hover:scale-105 shadow-2xl"
+            style={{ 
+              background: "#E63946", 
+              color: "white", 
+              boxShadow: "0 4px 20px rgba(230,57,70,0.6)",
+              animation: "pulse 2s infinite" 
+            }}
+          >
+            🔥 Iscriviti allo Slam del 3 Settembre (Poeta o Pubblico)
+          </a>
 
           <div className="mt-16 text-white/30 text-xs tracking-[0.4em] uppercase animate-bounce">
             ↓ scorri

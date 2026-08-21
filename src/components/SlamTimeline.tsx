@@ -153,35 +153,58 @@ function Card({ ev, hovered, isFirst }: { ev: TEvent; hovered: boolean; isFirst:
           {ev.title}
         </p>
         {(hovered || isFirst) && !ev.past && (
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              const text = `🎤 Prossimo slam di Gelatina: ${ev.title} — ${ev.label}`;
-              const url = "https://www.collettivogelatina.it";
-              if (navigator.share) {
-                navigator.share({ title: ev.title, text, url });
-              } else {
-                navigator.clipboard.writeText(`${text}\n${url}`);
-                alert("Link copiato!");
-              }
-            }}
-            style={{
-              marginTop: 6,
-              padding: "4px 10px",
-              borderRadius: 99,
-              border: "1.5px solid #4B44DF",
-              background: "transparent",
-              color: "#4B44DF",
-              fontSize: 9,
-              fontWeight: 900,
-              cursor: "pointer",
-              pointerEvents: "auto",
-              fontFamily: "'Space Mono', monospace",
-              letterSpacing: "0.08em",
-            }}
-          >
-            ↗ Condividi
-          </button>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'flex-start', marginTop: 6 }}>
+            <a
+              href={`mailto:collettivogelatina@gmail.com?subject=Iscrizione%20${encodeURIComponent(ev.title)}`}
+              onClick={(e) => e.stopPropagation()}
+              style={{
+                padding: "6px 12px",
+                borderRadius: 99,
+                background: "#E63946",
+                color: "white",
+                fontSize: 10,
+                fontWeight: 900,
+                cursor: "pointer",
+                pointerEvents: "auto",
+                fontFamily: "'Space Mono', monospace",
+                letterSpacing: "0.08em",
+                textDecoration: "none",
+                display: "inline-block",
+                boxShadow: "0 2px 10px rgba(230,57,70,0.5)",
+                animation: "pulse 2s infinite"
+              }}
+            >
+              🔥 Iscriviti
+            </a>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                const text = `🎤 Prossimo slam di Gelatina: ${ev.title} — ${ev.label}`;
+                const url = "https://www.collettivogelatina.it";
+                if (navigator.share) {
+                  navigator.share({ title: ev.title, text, url });
+                } else {
+                  navigator.clipboard.writeText(`${text}\n${url}`);
+                  alert("Link copiato!");
+                }
+              }}
+              style={{
+                padding: "4px 10px",
+                borderRadius: 99,
+                border: "1.5px solid #4B44DF",
+                background: "transparent",
+                color: "#4B44DF",
+                fontSize: 9,
+                fontWeight: 900,
+                cursor: "pointer",
+                pointerEvents: "auto",
+                fontFamily: "'Space Mono', monospace",
+                letterSpacing: "0.08em",
+              }}
+            >
+              ↗ Condividi
+            </button>
+          </div>
         )}
         <span
           style={{
