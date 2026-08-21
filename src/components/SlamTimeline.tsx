@@ -185,8 +185,8 @@ function Card({ ev, hovered, isFirst, onRegister }: { ev: TEvent; hovered: boole
             <button
               onClick={(e) => {
                 e.stopPropagation();
-                const text = `🎤 Prossimo slam di Gelatina: ${ev.title} — ${ev.label}`;
-                const url = "https://www.collettivogelatina.it";
+                const text = `🔥 Partecipa al prossimo Poetry Slam di Gelatina (${ev.title})! Iscriviti come Poeta, Open Mic o Pubblico.`;
+                const url = `https://www.collettivogelatina.it/?iscriviti=3-settembre`;
                 if (navigator.share) {
                   navigator.share({ title: ev.title, text, url });
                 } else {

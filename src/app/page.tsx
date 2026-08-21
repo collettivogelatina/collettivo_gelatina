@@ -152,6 +152,15 @@ export default function Home() {
     setRegEventTitle(title);
     setRegModalOpen(true);
   };
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("iscriviti")) {
+        openRegModal("Slam del 3 Settembre (Hotel Tirreno)");
+      }
+    }
+  }, []);
   const [gelatinFormat, setGelatinFormat] = useState<"pdf" | "cartaceo">("pdf");
   const [poetryName, setPoetryName] = useState("");
   const [poetryEmail, setPoetryEmail] = useState("");
@@ -507,18 +516,35 @@ export default function Home() {
             </a>
           </div>
 
-          <button
-            onClick={() => openRegModal("Slam del 3 Settembre (Hotel Tirreno)")}
-            className="mt-6 font-black text-sm px-9 py-4 rounded-full transition-all hover:scale-105 shadow-2xl"
-            style={{ 
-              background: "#E63946", 
-              color: "white", 
-              boxShadow: "0 4px 20px rgba(230,57,70,0.6)",
-              animation: "pulse 2s infinite" 
-            }}
-          >
-            🔥 Iscriviti allo Slam del 3 Settembre (Poeta o Pubblico)
-          </button>
+          <div className="mt-6 flex flex-col items-center gap-3">
+            <button
+              onClick={() => openRegModal("Slam del 3 Settembre (Hotel Tirreno)")}
+              className="font-black text-sm px-9 py-4 rounded-full transition-all hover:scale-105 shadow-2xl"
+              style={{ 
+                background: "#E63946", 
+                color: "white", 
+                boxShadow: "0 4px 20px rgba(230,57,70,0.6)",
+                animation: "pulse 2s infinite" 
+              }}
+            >
+              🔥 Iscriviti allo Slam del 3 Settembre (Poeta o Pubblico)
+            </button>
+            <button
+              onClick={() => {
+                const text = "🔥 Partecipa al prossimo Poetry Slam di Gelatina (3 Settembre)! Iscriviti come Poeta, Open Mic o Pubblico.";
+                const url = "https://www.collettivogelatina.it/?iscriviti=3-settembre";
+                if (navigator.share) {
+                  navigator.share({ title: "Gelatina Poetry Slam", text, url });
+                } else {
+                  navigator.clipboard.writeText(`${text}\n${url}`);
+                  alert("Link di iscrizione copiato!");
+                }
+              }}
+              className="text-xs font-bold px-4 py-2 rounded-full border border-white/40 text-white hover:bg-white/10 transition"
+            >
+              ↗ Condividi modulo di iscrizione
+            </button>
+          </div>
 
           <div className="mt-16 text-white/30 text-xs tracking-[0.4em] uppercase animate-bounce">
             ↓ scorri
