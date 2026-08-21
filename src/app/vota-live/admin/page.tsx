@@ -427,6 +427,10 @@ export default function AdminPage() {
     await supabase.from("slam_sessions").update({ voting_open: open }).eq("id", session.id);
     // Aggiorna ottimisticamente anche il palco
     setHistory(prev => prev.map(h => h.id === session.id ? { ...h, voting_open: open } : h));
+    setSession(s => s ? { ...s, voting_open: open } : s);
+    if (sessionRef.current) {
+      sessionRef.current = { ...sessionRef.current, voting_open: open };
+    }
     setSessionBusy(false);
   };
 
@@ -495,7 +499,7 @@ export default function AdminPage() {
     const { data: { publicUrl } } = supabase.storage.from("slam-recordings").getPublicUrl(path);
     const { error: dbErr } = await supabase
       .from("slam_sessions")
-      .update({ audio_url: publicUrl })
+      .update({ audio_url: publicUrl, voting_open: true })
       .eq("id", session.id);
     if (dbErr) {
       setRecError(`Errore salvataggio: ${dbErr.message}`);
@@ -503,8 +507,8 @@ export default function AdminPage() {
       return;
     }
     // Aggiorna lo stato locale
-    setSession((s) => s ? { ...s, audio_url: publicUrl } : s);
-    sessionRef.current = sessionRef.current ? { ...sessionRef.current, audio_url: publicUrl } : null;
+    setSession((s) => s ? { ...s, audio_url: publicUrl, voting_open: true } : s);
+    sessionRef.current = sessionRef.current ? { ...sessionRef.current, audio_url: publicUrl, voting_open: true } : null;
     if (previewUrl) URL.revokeObjectURL(previewUrl);
     setRecPhase("idle");
     setAudioBlob(null);
