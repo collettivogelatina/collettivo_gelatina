@@ -188,7 +188,7 @@ function Card({ ev, hovered, isFirst, onRegister }: { ev: TEvent; hovered: boole
                 const text = `🔥 Iscriviti allo Slam del 3 Settembre come poeta o pubblico!`;
                 const url = `https://www.collettivogelatina.it/?iscriviti=3-settembre`;
                 if (navigator.share) {
-                  navigator.share({ title: ev.title, text, url });
+                  navigator.share({ title: "Iscriviti allo slam del 3 settembre come poeta (slam o openmic) e pubblico", text, url });
                 } else {
                   navigator.clipboard.writeText(`${text}\n${url}`);
                   alert("Link copiato!");
