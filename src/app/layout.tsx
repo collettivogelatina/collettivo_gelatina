@@ -3,9 +3,31 @@ import "./globals.css";
 import CookieBanner from "@/components/CookieBanner";
 
 export const metadata: Metadata = {
-  title: "Gelatina — Spoken Word · Latina",
+  title: "Iscriviti allo Slam del 3 Settembre come poeta o pubblico",
   description:
-    "Gelatina è un collettivo di poesia che organizza poetry slam a Latina e dintorni. Scopri Gelatino, la raccolta mensile di poesie da gustare con lentezza.",
+    "Gelatina torna sul palco. Sali a leggere le tue poesie, prova l'Open Mic o goditi la serata come pubblico. Clicca qui per iscriverti!",
+  openGraph: {
+    title: "Iscriviti allo Slam del 3 Settembre come poeta o pubblico",
+    description: "Gelatina torna sul palco. Sali a leggere le tue poesie, prova l'Open Mic o goditi la serata come pubblico. Clicca qui per iscriverti!",
+    url: "https://www.collettivogelatina.it",
+    siteName: "Gelatina Poetry Slam",
+    images: [
+      {
+        url: "https://www.collettivogelatina.it/og-microphone.jpg",
+        width: 1200,
+        height: 675,
+        alt: "Gelatina Poetry Slam Microphone",
+      },
+    ],
+    locale: "it_IT",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Iscriviti allo Slam del 3 Settembre come poeta o pubblico",
+    description: "Gelatina torna sul palco. Sali a leggere le tue poesie, prova l'Open Mic o goditi la serata come pubblico. Clicca qui per iscriverti!",
+    images: ["https://www.collettivogelatina.it/og-microphone.jpg"],
+  },
 };
 
 export default function RootLayout({

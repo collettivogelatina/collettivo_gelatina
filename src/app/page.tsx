@@ -531,7 +531,7 @@ export default function Home() {
             </button>
             <button
               onClick={() => {
-                const text = "🔥 Partecipa al prossimo Poetry Slam di Gelatina (3 Settembre)! Iscriviti come Poeta, Open Mic o Pubblico.";
+                const text = "🔥 Iscriviti allo Slam del 3 Settembre come poeta o pubblico!";
                 const url = "https://www.collettivogelatina.it/?iscriviti=3-settembre";
                 if (navigator.share) {
                   navigator.share({ title: "Gelatina Poetry Slam", text, url });
@@ -540,9 +540,15 @@ export default function Home() {
                   alert("Link di iscrizione copiato!");
                 }
               }}
-              className="text-xs font-bold px-4 py-2 rounded-full border border-white/40 text-white hover:bg-white/10 transition"
+              className="mt-2 text-sm font-black px-6 py-3 rounded-full transition-all hover:scale-105 shadow-lg"
+              style={{
+                background: "rgba(255,255,255,0.15)",
+                backdropFilter: "blur(10px)",
+                border: "1.5px solid rgba(255,255,255,0.6)",
+                color: "white"
+              }}
             >
-              ↗ Condividi modulo di iscrizione
+              ↗️ Condividi Link d'Iscrizione
             </button>
           </div>
 
