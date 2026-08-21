@@ -12,6 +12,15 @@ const DARK = "#1C1A4A";
 
 const events = [
   {
+    date: "3 Settembre",
+    title: "Poetry Slam",
+    venue: "Hotel Tirreno",
+    time: "19:30",
+    description:
+      "Una nuova serata di Poetry Slam. Le voci, le parole, il palco.",
+    tag: "SLAM",
+  },
+  {
     date: "5 Luglio 2025",
     title: "Slam al Chiostro",
     venue: "Chiostro di San Domenico",
