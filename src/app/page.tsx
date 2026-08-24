@@ -161,6 +161,9 @@ export default function Home() {
       if (params.get("iscriviti")) {
         openRegModal("Slam del 3 Settembre (Hotel Tirreno)");
       }
+      if (params.get("invia-poesia")) {
+        setGelatinoModalOpen(true);
+      }
     }
   }, []);
   const [gelatinFormat, setGelatinFormat] = useState<"pdf" | "cartaceo">("pdf");
@@ -1146,13 +1149,34 @@ export default function Home() {
                     </div>
                   </div>
 
-                  <div className="mt-8">
+                  <div className="mt-8 flex flex-col sm:flex-row gap-3">
                     <button
                       onClick={() => setGelatinoModalOpen(true)}
                       className="w-full sm:w-auto font-black text-sm px-9 py-4 rounded-full transition-all hover:scale-105 shadow-xl"
                       style={{ background: "white", color: BLUE }}
                     >
                       🖋️ Invia la tua poesia con allegato →
+                    </button>
+                    <button
+                      onClick={() => {
+                        const text = "🖋️ Invia la tua poesia per il prossimo numero di Gelatino!";
+                        const url = "https://www.collettivogelatina.it/?invia-poesia=gelatino";
+                        if (navigator.share) {
+                          navigator.share({ title: "Invia poesia a Gelatino", text, url });
+                        } else {
+                          navigator.clipboard.writeText(`${text}\n${url}`);
+                          alert("Link copiato!");
+                        }
+                      }}
+                      className="w-full sm:w-auto font-black text-sm px-6 py-4 rounded-full transition-all hover:scale-105 shadow-lg"
+                      style={{
+                        background: "rgba(255,255,255,0.15)",
+                        backdropFilter: "blur(10px)",
+                        border: "1.5px solid rgba(255,255,255,0.6)",
+                        color: "white"
+                      }}
+                    >
+                      ↗️ Condividi Modulo
                     </button>
                   </div>
                 </div>
