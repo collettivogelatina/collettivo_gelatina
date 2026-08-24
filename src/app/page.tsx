@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import VoiceMic from "@/components/VoiceMic";
 import SlamTimeline from "@/components/SlamTimeline";
 import RegistrationModal from "@/components/RegistrationModal";
+import GelatinoModal from "@/components/GelatinoModal";
 
 const BLUE = "#4B44DF";
 const BLUE_MID = "#7A74FF";
@@ -146,6 +147,7 @@ export default function Home() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [regModalOpen, setRegModalOpen] = useState(false);
+  const [gelatinoModalOpen, setGelatinoModalOpen] = useState(false);
   const [regEventTitle, setRegEventTitle] = useState("");
 
   const openRegModal = (title: string) => {
@@ -162,32 +164,7 @@ export default function Home() {
     }
   }, []);
   const [gelatinFormat, setGelatinFormat] = useState<"pdf" | "cartaceo">("pdf");
-  const [poetryName, setPoetryName] = useState("");
-  const [poetryEmail, setPoetryEmail] = useState("");
-  const [poetryTitle, setPoetryTitle] = useState("");
-  const [poetryNote, setPoetryNote] = useState("");
-  const [poetrySending, setPoetrySending] = useState(false);
-  const [poetryDone, setPoetryDone] = useState(false);
-  const [privacyAccepted, setPrivacyAccepted] = useState(false);
 
-  const handlePoetrySubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setPoetrySending(true);
-    try {
-      await fetch("https://formsubmit.co/ajax/collettivogelatina@gmail.com", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: poetryName,
-          email: poetryEmail,
-          message: `Invio poesia: "${poetryTitle}"\n\n${poetryNote}`,
-          _subject: `Nuova Poesia inviata: ${poetryTitle} (da ${poetryName})`
-        }),
-      });
-    } catch {}
-    setPoetryDone(true);
-    setPoetrySending(false);
-  };
 
 
   useEffect(() => {
@@ -1169,102 +1146,15 @@ export default function Home() {
                     </div>
                   </div>
 
-                  {!poetryDone ? (
-                    <form onSubmit={handlePoetrySubmit} className="grid sm:grid-cols-2 gap-3">
-                      <input
-                        required
-                        type="text"
-                        placeholder="Il tuo nome"
-                        value={poetryName}
-                        onChange={e => setPoetryName(e.target.value)}
-                        className="px-4 py-3 rounded-2xl text-sm font-semibold outline-none border-2 border-transparent focus:border-white/50 transition-all"
-                        style={{ background: "rgba(255,255,255,0.15)", color: "white" }}
-                      />
-                      <input
-                        required
-                        type="email"
-                        placeholder="La tua email"
-                        value={poetryEmail}
-                        onChange={e => setPoetryEmail(e.target.value)}
-                        className="px-4 py-3 rounded-2xl text-sm font-semibold outline-none border-2 border-transparent focus:border-white/50 transition-all"
-                        style={{ background: "rgba(255,255,255,0.15)", color: "white" }}
-                      />
-                      <input
-                        required
-                        type="text"
-                        placeholder="Titolo della poesia"
-                        value={poetryTitle}
-                        onChange={e => setPoetryTitle(e.target.value)}
-                        className="sm:col-span-2 px-4 py-3 rounded-2xl text-sm font-semibold outline-none border-2 border-transparent focus:border-white/50 transition-all"
-                        style={{ background: "rgba(255,255,255,0.15)", color: "white" }}
-                      />
-                      <textarea
-                        rows={3}
-                        placeholder="Una nota (facoltativa) — presentati, racconta la poesia..."
-                        value={poetryNote}
-                        onChange={e => setPoetryNote(e.target.value)}
-                        className="sm:col-span-2 px-4 py-3 rounded-2xl text-sm font-semibold outline-none border-2 border-transparent focus:border-white/50 transition-all resize-none"
-                        style={{ background: "rgba(255,255,255,0.15)", color: "white" }}
-                      />
-                      <div className="sm:col-span-2 flex items-start gap-2.5 my-1">
-                        <input
-                          required
-                          type="checkbox"
-                          id="privacy-check"
-                          checked={privacyAccepted}
-                          onChange={e => setPrivacyAccepted(e.target.checked)}
-                          className="mt-1 w-4 h-4 rounded accent-[#4B44DF] cursor-pointer"
-                        />
-                        <label htmlFor="privacy-check" className="text-xs text-white/80 leading-snug select-none cursor-pointer">
-                          Accetto la{" "}
-                          <a
-                            href="/privacy"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="underline font-bold text-white hover:text-[#B8B3FF] transition-colors"
-                          >
-                            Privacy Policy
-                          </a>{" "}
-                          e acconsento al trattamento dei miei dati personali.
-                        </label>
-                      </div>
-                      <div className="sm:col-span-2">
-                        <div
-                          className="p-4 rounded-2xl text-sm mb-4"
-                          style={{ background: "rgba(255,255,255,0.12)", color: "rgba(255,255,255,0.85)" }}
-                        >
-                          📎 Dopo aver inviato questo modulo, allega il tuo file{" "}
-                          <strong className="text-white">PDF o DOC</strong> a{" "}
-                          <strong className="text-white">collettivogelatina@gmail.com</strong>{" "}
-                          con oggetto:{" "}
-                          <em className="text-white">Invio Poesia — [titolo]</em>
-                        </div>
-                        <button
-                          type="submit"
-                          disabled={poetrySending}
-                          className="w-full font-black text-sm py-4 rounded-2xl transition-all hover:scale-[1.02] disabled:opacity-60"
-                          style={{ background: "white", color: BLUE }}
-                        >
-                          {poetrySending ? "Invio in corso..." : "Invia la tua candidatura →"}
-                        </button>
-                      </div>
-                    </form>
-                  ) : (
-                    <div className="text-center py-4">
-                      <p className="text-4xl mb-4">✨</p>
-                      <p className="font-black text-xl text-white mb-2">Candidatura ricevuta!</p>
-                      <p className="text-sm mb-6" style={{ color: "rgba(255,255,255,0.78)" }}>
-                        Ci hai lasciato i tuoi dati. Ora mandaci il file con la poesia.
-                      </p>
-                      <a
-                        href={`mailto:collettivogelatina@gmail.com?subject=Invio%20Poesia%20%E2%80%94%20${encodeURIComponent(poetryTitle)}&body=Ciao%2C%20sono%20${encodeURIComponent(poetryName)}.%20In%20allegato%20la%20mia%20poesia.`}
-                        className="inline-block font-black text-sm px-8 py-4 rounded-full transition-all hover:scale-105"
-                        style={{ background: "white", color: BLUE }}
-                      >
-                        Allega il file via email →
-                      </a>
-                    </div>
-                  )}
+                  <div className="mt-8">
+                    <button
+                      onClick={() => setGelatinoModalOpen(true)}
+                      className="w-full sm:w-auto font-black text-sm px-9 py-4 rounded-full transition-all hover:scale-105 shadow-xl"
+                      style={{ background: "white", color: BLUE }}
+                    >
+                      🖋️ Invia la tua poesia con allegato →
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -1701,6 +1591,11 @@ export default function Home() {
         isOpen={regModalOpen} 
         onClose={() => setRegModalOpen(false)} 
         eventTitle={regEventTitle} 
+      />
+
+      <GelatinoModal
+        isOpen={gelatinoModalOpen}
+        onClose={() => setGelatinoModalOpen(false)}
       />
     </div>
   );

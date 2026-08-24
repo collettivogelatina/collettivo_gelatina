@@ -339,7 +339,7 @@ export default function AdminPage() {
     // Crea la sessione in Supabase
     const { data, error } = await supabase
       .from("slam_sessions")
-      .insert({ poet_name: poet.name, poem_title: poet.poem, voting_open: false, manche: currentManche })
+      .insert({ poet_name: poet.name, poem_title: poet.poem, voting_open: true, manche: currentManche })
       .select()
       .single();
 
@@ -377,7 +377,7 @@ export default function AdminPage() {
     setSessionBusy(true);
     const { data, error } = await supabase
       .from("slam_sessions")
-      .insert({ poet_name: poet.name, poem_title: poet.poem, voting_open: false, manche: currentManche })
+      .insert({ poet_name: poet.name, poem_title: poet.poem, voting_open: true, manche: currentManche })
       .select().single();
     if (error || !data) {
       setSessionBusy(false);

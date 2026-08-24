@@ -98,23 +98,23 @@ function SessionCard({
       )}
 
       <div style={{ padding: "16px", background: "rgba(255,255,255,0.03)", borderRadius: 12 }}>
-        <div style={{ fontSize: "4.5rem", fontWeight: 900, lineHeight: 1, color: scoreColor(!session.audio_url ? 1.0 : localScore), marginBottom: 16, transition: "color 0.2s" }}>
-          {!session.audio_url ? "1.0" : localScore.toFixed(1)}
+        <div style={{ fontSize: "4.5rem", fontWeight: 900, lineHeight: 1, color: scoreColor(localScore), marginBottom: 16, transition: "color 0.2s" }}>
+          {localScore.toFixed(1)}
         </div>
         <input 
           type="range" min={1} max={10} step={0.1} 
-          value={!session.audio_url ? 1.0 : localScore}
+          value={localScore}
           onChange={e => setLocalScore(parseFloat(e.target.value))}
-          disabled={!session.audio_url || !session.voting_open || isVoted}
+          disabled={!session.voting_open || isVoted}
           style={{ 
             width: "100%", 
-            accentColor: scoreColor(!session.audio_url ? 1.0 : localScore), 
-            marginBottom: (!session.audio_url || !session.voting_open || isVoted) ? 0 : 24, 
-            cursor: (!session.audio_url || !session.voting_open || isVoted) ? "default" : "pointer",
-            opacity: (!session.audio_url || !session.voting_open) ? 0.4 : 1
+            accentColor: scoreColor(localScore), 
+            marginBottom: (!session.voting_open || isVoted) ? 0 : 24, 
+            cursor: (!session.voting_open || isVoted) ? "default" : "pointer",
+            opacity: (!session.voting_open) ? 0.4 : 1
           }} 
         />
-        {session.audio_url && session.voting_open && !isVoted && (
+        {session.voting_open && !isVoted && (
           <button 
             onClick={handleSubmit} 
             disabled={submitting}
@@ -132,15 +132,7 @@ function SessionCard({
         {error && <p style={{ color: "#FF9999", fontSize: "0.85rem", marginTop: 10 }}>{error}</p>}
       </div>
 
-      {!session.audio_url && (
-        <div style={{ marginTop: 12 }}>
-          <p style={{ fontSize: "0.95rem", color: "rgba(255,255,255,0.4)", fontWeight: 600 }}>
-            ⏳ In attesa della registrazione
-          </p>
-        </div>
-      )}
-
-      {session.audio_url && session.voting_open && isVoted && (
+      {session.voting_open && isVoted && (
         <div style={{ marginTop: 12, padding: "16px", background: "rgba(42,138,90,0.1)", border: "1px solid rgba(42,138,90,0.3)", borderRadius: 12 }}>
           <p style={{ fontSize: "1.1rem", fontWeight: 800, color: "#3DC878", marginBottom: 8 }}>✅ Hai votato {userScore.toFixed(1)}</p>
           {avgScore !== null && (
@@ -149,7 +141,7 @@ function SessionCard({
         </div>
       )}
 
-      {session.audio_url && !session.voting_open && (
+      {!session.voting_open && (
         <div style={{ marginTop: 12, padding: "16px", background: "rgba(255,255,255,0.03)", borderRadius: 12 }}>
           <p style={{ fontSize: "1.1rem", fontWeight: 800, color: "rgba(255,255,255,0.5)", marginBottom: 8 }}>🔒 Votazione chiusa</p>
           {avgScore !== null && voteCount > 0 && (
