@@ -161,7 +161,7 @@ export default function ClientHome() {
       if (params.get("iscriviti")) {
         openRegModal("Slam del 3 Settembre (Hotel Tirreno)");
       }
-      if (params.get("invia-poesia") || window.location.pathname === "/invia-poesia") {
+      if (params.get("invia-poesia") || window.location.pathname.startsWith("/invia-poesia")) {
         setGelatinoModalOpen(true);
       }
     }
