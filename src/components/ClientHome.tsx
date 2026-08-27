@@ -161,7 +161,7 @@ export default function ClientHome() {
       if (params.get("iscriviti")) {
         openRegModal("Slam del 3 Settembre (Hotel Tirreno)");
       }
-      if (params.get("invia-poesia")) {
+      if (params.get("invia-poesia") || window.location.pathname === "/invia-poesia") {
         setGelatinoModalOpen(true);
       }
     }
@@ -1160,7 +1160,7 @@ export default function ClientHome() {
                     <button
                       onClick={() => {
                         const text = "🖋️ Invia la tua poesia per il prossimo numero di Gelatino!";
-                        const url = "https://www.collettivogelatina.it/?invia-poesia=gelatino";
+                        const url = "https://www.collettivogelatina.it/invia-poesia";
                         if (navigator.share) {
                           navigator.share({ title: "Invia poesia a Gelatino", text, url });
                         } else {
