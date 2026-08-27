@@ -82,7 +82,6 @@ export default function GelatinoModal({ isOpen, onClose }: GelatinoModalProps) {
                   type="text" 
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  disabled={status === "sending"}
                   className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:border-[#4B44DF] focus:ring-2 focus:ring-[#4B44DF]/20"
                   placeholder="Es. Mario Rossi"
                 />
@@ -96,7 +95,6 @@ export default function GelatinoModal({ isOpen, onClose }: GelatinoModalProps) {
                   type="email" 
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  disabled={status === "sending"}
                   className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:border-[#4B44DF] focus:ring-2 focus:ring-[#4B44DF]/20"
                   placeholder="Es. mario@email.it"
                 />
@@ -110,7 +108,6 @@ export default function GelatinoModal({ isOpen, onClose }: GelatinoModalProps) {
                   type="text" 
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
-                  disabled={status === "sending"}
                   className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:border-[#4B44DF] focus:ring-2 focus:ring-[#4B44DF]/20"
                   placeholder="Titolo"
                 />
@@ -124,7 +121,6 @@ export default function GelatinoModal({ isOpen, onClose }: GelatinoModalProps) {
                     name="attachment"
                     type="file" 
                     accept=".pdf,.doc,.docx"
-                    disabled={status === "sending"}
                     className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-bold file:bg-[#4B44DF]/10 file:text-[#4B44DF] hover:file:bg-[#4B44DF]/20 cursor-pointer"
                   />
                 </div>
