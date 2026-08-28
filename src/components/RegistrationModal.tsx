@@ -106,8 +106,8 @@ export default function RegistrationModal({ isOpen, onClose, eventTitle }: Regis
                 <option value="Pubblico">Come Pubblico</option>
                 <option value="Open Mic">Come Poeta (Open Mic)</option>
               </select>
-              <p className="text-xs text-[#E63946] mt-1 font-semibold">
-                ⚠️ I posti per partecipare alla gara Slam sono esauriti.
+              <p className="text-xs text-[#4B44DF] mt-1.5 font-bold">
+                Le iscrizioni sono aperte per partecipare come pubblico o leggere all'Open Mic!
               </p>
             </div>
 

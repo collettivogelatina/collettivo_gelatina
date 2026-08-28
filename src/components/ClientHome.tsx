@@ -508,14 +508,14 @@ export default function ClientHome() {
                 animation: "pulse 2s infinite" 
               }}
             >
-              🔥 Iscriviti allo Slam del 3 Settembre (Poeta o Pubblico)
+              🔥 Iscriviti per il 3 Settembre (Open Mic o Pubblico)
             </button>
             <button
               onClick={() => {
-                const text = "🔥 Iscriviti allo Slam del 3 Settembre come poeta o pubblico!";
+                const text = "🔥 Iscriviti allo Slam del 3 Settembre per l'Open Mic o come pubblico!";
                 const url = "https://www.collettivogelatina.it/?iscriviti=3-settembre";
                 if (navigator.share) {
-                  navigator.share({ title: "Iscriviti allo slam del 3 settembre come poeta (slam o openmic) e pubblico", text, url });
+                  navigator.share({ title: "Iscriviti allo slam del 3 settembre (Open Mic e Pubblico)", text, url });
                 } else {
                   navigator.clipboard.writeText(`${text}\n${url}`);
                   alert("Link di iscrizione copiato!");
