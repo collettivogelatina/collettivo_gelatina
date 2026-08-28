@@ -104,9 +104,11 @@ export default function RegistrationModal({ isOpen, onClose, eventTitle }: Regis
                 className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:border-[#4B44DF] focus:ring-2 focus:ring-[#4B44DF]/20 bg-white"
               >
                 <option value="Pubblico">Come Pubblico</option>
-                <option value="Poeta">Come Poeta (Slam)</option>
                 <option value="Open Mic">Come Poeta (Open Mic)</option>
               </select>
+              <p className="text-xs text-[#E63946] mt-1 font-semibold">
+                ⚠️ I posti per partecipare alla gara Slam sono esauriti.
+              </p>
             </div>
 
             {role === "Pubblico" && (
@@ -127,16 +129,16 @@ export default function RegistrationModal({ isOpen, onClose, eventTitle }: Regis
 
             <div>
               <label className="block text-xs font-bold text-[#4B44DF] uppercase tracking-widest mb-1">
-                Contatto (Email o Telefono) {role !== "Pubblico" && "*"}
+                Contatto (Email o Cellulare) *
               </label>
               <input 
-                required={role !== "Pubblico"}
+                required
                 type="text" 
                 value={contact}
                 onChange={(e) => setContact(e.target.value)}
                 disabled={status === "sending"}
                 className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:border-[#4B44DF] focus:ring-2 focus:ring-[#4B44DF]/20"
-                placeholder={role !== "Pubblico" ? "Opzionale" : "Obbligatorio per i poeti"}
+                placeholder="Es. mario@email.it oppure 3331234567"
               />
             </div>
             
