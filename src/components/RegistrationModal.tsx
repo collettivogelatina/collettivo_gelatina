@@ -104,7 +104,7 @@ export default function RegistrationModal({ isOpen, onClose, eventTitle }: Regis
                 className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:border-[#4B44DF] focus:ring-2 focus:ring-[#4B44DF]/20 bg-white"
               >
                 <option value="Pubblico">Come Pubblico</option>
-                <option value="Open Mic">Come Poeta (Open Mic)</option>
+                <option value="Open Mic">Come Open Mic</option>
               </select>
               <p className="text-xs text-[#4B44DF] mt-1.5 font-bold">
                 Le iscrizioni sono aperte per partecipare come pubblico o leggere all'Open Mic!
