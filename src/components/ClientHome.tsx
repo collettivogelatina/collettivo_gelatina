@@ -143,6 +143,17 @@ const members = [
   { name: "Joe P.",                role: "Poeta",       initial: "JP", gradient: ["#9895FF", "#D0CDFF"], size: 116, rot: -3, image: "/Joe_p.png" },
 ];
 
+const pressArticles = [
+  {
+    title: "Poetry Slam all'Hotel Tirreno, il collettivo Gelatina porta a Latina i Campionati Italiani di Poesia",
+    source: "Luna Notizie (Radioluna.it)",
+    url: "https://www.radioluna.it/news/2026/08/poetry-slam-allhotel-tirreno-il-collettivo-gelatina-porta-a-latina-i-campionati-italiani-di-poesia/",
+    date: "31 Agosto 2026",
+    excerpt: "Avranno tre minuti per conquistare il pubblico, i partecipanti in gara al Poetry Slam che il 3 settembre arriva all'Hotel Tirreno. Un microfono in mano, una poesia originale da recitare...",
+    image: "https://www.radioluna.it/news/wp-content/uploads/2026/08/WhatsApp-Image-2026-08-31-at-10.09.44-e1788164199908-1000x600.jpeg"
+  }
+];
+
 export default function ClientHome() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -1370,6 +1381,64 @@ export default function ClientHome() {
         </div>
       </section>
 
+      {/* ── PARLANO DI NOI ── */}
+      <section id="press" className="py-32 bg-white">
+        <div className="max-w-6xl mx-auto px-6">
+          <div className="text-center mb-16">
+            <p
+              className="text-xs tracking-[0.5em] uppercase mb-5 font-bold"
+              style={{ color: BLUE, fontFamily: "'Space Mono', monospace" }}
+            >
+              05 · Rassegna Stampa
+            </p>
+            <h2
+              className="font-black leading-tight mb-4"
+              style={{ fontSize: "clamp(2rem, 4.5vw, 3.5rem)", color: DARK }}
+            >
+              Parlano di <span style={{ color: BLUE }}>Noi</span>
+            </h2>
+            <p className="text-lg leading-relaxed max-w-xl mx-auto" style={{ color: "#4A4880" }}>
+              Le parole del collettivo sulle testate locali e nazionali.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {pressArticles.map((article, index) => (
+              <a 
+                key={index} 
+                href={article.url} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="group flex flex-col bg-white rounded-3xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-2"
+              >
+                <div className="relative h-48 w-full overflow-hidden bg-gray-100">
+                  <img 
+                    src={article.image} 
+                    alt={article.title}
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  />
+                  <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-[10px] font-black tracking-widest uppercase text-[#1C1A4A]">
+                    {article.source}
+                  </div>
+                </div>
+                <div className="p-6 flex flex-col flex-grow">
+                  <p className="text-xs font-bold text-gray-400 mb-2 uppercase tracking-wider">{article.date}</p>
+                  <h3 className="font-black text-lg mb-3 leading-snug line-clamp-3 text-[#1C1A4A] group-hover:text-[#4B44DF] transition-colors">
+                    {article.title}
+                  </h3>
+                  <p className="text-sm text-gray-500 leading-relaxed mb-4 line-clamp-3 flex-grow">
+                    {article.excerpt}
+                  </p>
+                  <div className="mt-auto flex items-center text-[#4B44DF] font-bold text-sm group-hover:translate-x-2 transition-transform">
+                    Leggi l'articolo <span className="ml-2">→</span>
+                  </div>
+                </div>
+              </a>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* ── CONTATTI ── */}
       <section id="contatti" className="py-32" style={{ background: "#FAFAFF" }}>
         <div className="max-w-4xl mx-auto px-6 text-center">
@@ -1377,7 +1446,7 @@ export default function ClientHome() {
             className="text-xs tracking-[0.5em] uppercase mb-5 font-bold"
             style={{ color: BLUE, fontFamily: "'Space Mono', monospace" }}
           >
-            05 · Contatti
+            06 · Contatti
           </p>
           <h2
             className="font-black mb-6 leading-tight"
