@@ -145,6 +145,14 @@ const members = [
 
 const pressArticles = [
   {
+    title: "LATINA | Sul mare arriva il Poetry Slam: tre minuti per conquistare il pubblico",
+    source: "Mondoreale",
+    url: "https://www.mondoreale.it/2026/08/latina-sul-mare-arriva-il-poetry-slam-tre-minuti-per-conquistare-il-pubblico/",
+    date: "31 Agosto 2026",
+    excerpt: "Tre minuti, un microfono, la propria voce e un testo originale. Giovedì 3 settembre all'Hotel Tirreno arriva un nuovo Poetry Slam organizzato dal Collettivo Gelatina...",
+    image: "https://www.mondoreale.it/wp-content/uploads/2026/08/Poetry-Slam-Caffe-Poeta-di-Latina-1-crop-16x9-1.jpg"
+  },
+  {
     title: "Poetry Slam all'Hotel Tirreno, il collettivo Gelatina porta a Latina i Campionati Italiani di Poesia",
     source: "Luna Notizie (Radioluna.it)",
     url: "https://www.radioluna.it/news/2026/08/poetry-slam-allhotel-tirreno-il-collettivo-gelatina-porta-a-latina-i-campionati-italiani-di-poesia/",
