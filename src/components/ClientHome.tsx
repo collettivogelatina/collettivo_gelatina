@@ -14,6 +14,15 @@ const DARK = "#1C1A4A";
 
 const events = [
   {
+    date: "28 Ottobre",
+    title: "Poetry Slam",
+    venue: "Bacco e Venere",
+    time: "19:30",
+    description:
+      "Mercoledì 28 Ottobre ore 19:30 da Bacco e Venere a Latina. Sali sul palco per lo slam o l'open mic, oppure ascolta tra il pubblico!",
+    tag: "SLAM",
+  },
+  {
     date: "3 Settembre",
     title: "Poetry Slam",
     venue: "Hotel Tirreno",
@@ -179,7 +188,7 @@ export default function ClientHome() {
     if (typeof window !== "undefined") {
       const params = new URLSearchParams(window.location.search);
       if (params.get("iscriviti")) {
-        openRegModal("Slam del 3 Settembre (Hotel Tirreno)");
+        openRegModal("Slam del 28 Ottobre (Bacco e Venere)");
       }
       if (params.get("invia-poesia") || window.location.pathname.startsWith("/invia-poesia")) {
         setGelatinoModalOpen(true);
@@ -519,7 +528,7 @@ export default function ClientHome() {
 
           <div className="mt-6 flex flex-col items-center gap-3">
             <button
-              onClick={() => openRegModal("Slam del 3 Settembre (Hotel Tirreno)")}
+              onClick={() => openRegModal("Slam del 28 Ottobre (Bacco e Venere)")}
               className="font-black text-sm px-9 py-4 rounded-full transition-all hover:scale-105 shadow-2xl"
               style={{ 
                 background: "#E63946", 
@@ -528,14 +537,14 @@ export default function ClientHome() {
                 animation: "pulse 2s infinite" 
               }}
             >
-              🔥 Iscriviti per il 3 Settembre (Open Mic o Pubblico)
+              🔥 Iscriviti per il 28 Ottobre (Open Mic o Pubblico)
             </button>
             <button
               onClick={() => {
-                const text = "🔥 Iscriviti allo Slam del 3 Settembre per l'Open Mic o come pubblico!";
-                const url = "https://www.collettivogelatina.it/?iscriviti=3-settembre";
+                const text = "🔥 Iscriviti allo Slam del 28 Ottobre per l'Open Mic o come pubblico!";
+                const url = "https://www.collettivogelatina.it/?iscriviti=28-ottobre";
                 if (navigator.share) {
-                  navigator.share({ title: "Iscriviti allo slam del 3 settembre (Open Mic e Pubblico)", text, url });
+                  navigator.share({ title: "Iscriviti allo slam del 28 ottobre (Open Mic e Pubblico)", text, url });
                 } else {
                   navigator.clipboard.writeText(`${text}\n${url}`);
                   alert("Link di iscrizione copiato!");
