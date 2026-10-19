@@ -150,7 +150,7 @@ const members = [
   { name: "Julia Vignapiano",      role: "Poeta",       initial: "JV", gradient: ["#7A74FF", "#A09BFF"], size: 118, rot: -2 },
   { name: "Flavio Riccardi",       role: "Poeta",       initial: "FR", gradient: ["#8A85FF", "#C8C4FF"], size: 120, rot:  5, image: "/flavio_riccardi.jpg", imagePosition: "center 30%" },
   { name: "Joe P.",                role: "Poeta",       initial: "JP", gradient: ["#9895FF", "#D0CDFF"], size: 116, rot: -3, image: "/Joe_p.png" },
-  { name: "Ida Grasso",            role: "Poeta",       initial: "IG", gradient: ["#7872FF", "#B8B3FF"], size: 118, rot:  4 },
+  { name: "Ida Grasso",            role: "Poeta",       initial: "IG", gradient: ["#7872FF", "#B8B3FF"], size: 118, rot:  4, image: "/ida_grasso.jpg" },
 ];
 
 const pressArticles = [
