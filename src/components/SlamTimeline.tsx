@@ -7,8 +7,8 @@ const BLUE_LIGHT= "#B8B3FF";
 const LAVENDER  = "#EDE9FF";
 const DARK      = "#1C1A4A";
 
-const ITEM_W      = 190;
-const CONTAINER_H = 400;
+const ITEM_W      = 205;
+const CONTAINER_H = 500;
 const PAD         = 600; // left/right padding so first/last items can center
 
 interface TEvent {
@@ -119,21 +119,21 @@ function Card({ ev, hovered, isFirst, onRegister, onTicketNotice }: { ev: TEvent
     <div style={{ display: "flex", alignItems: "flex-start", gap: 0 }}>
       <div
         style={{
-          background: compact ? "rgba(255,255,255,0.65)" : "white",
+          background: compact ? "rgba(255,255,255,0.75)" : "white",
           borderRadius: 14,
-          padding: compact ? "6px 10px" : "9px 11px",
-          width: showCover ? 130 : 166,
+          padding: compact ? "6px 10px" : "8px 10px",
+          width: showCover ? 130 : 184,
           textAlign: "center",
           boxShadow: isFirst
-            ? `0 4px 24px rgba(75,68,223,0.2)`
+            ? `0 6px 26px rgba(75,68,223,0.22), 0 2px 8px rgba(0,0,0,0.06)`
             : hovered
-            ? "0 3px 14px rgba(75,68,223,0.14)"
+            ? "0 4px 16px rgba(75,68,223,0.14)"
             : "none",
           border: isFirst
-            ? `1.5px solid ${BLUE_LIGHT}`
+            ? `1.5px solid ${BLUE_MID}`
             : compact
             ? "1px solid rgba(75,68,223,0.06)"
-            : "1px solid rgba(75,68,223,0.09)",
+            : "1px solid rgba(75,68,223,0.12)",
           opacity: compact && !ev.founding ? 0.72 : 1,
           transition: "all 0.22s ease",
           backdropFilter: compact ? "none" : undefined,
@@ -145,74 +145,79 @@ function Card({ ev, hovered, isFirst, onRegister, onTicketNotice }: { ev: TEvent
             color: ev.past ? "#9896CC" : BLUE,
             letterSpacing: "0.13em",
             fontFamily: "'Space Mono', monospace",
-            marginBottom: 3,
+            marginBottom: 2,
           }}
         >
           {ev.label}
         </p>
-        <p style={{ fontSize: compact ? 10 : 12, fontWeight: 900, color: DARK, marginBottom: (hovered || isFirst) ? 4 : 0 }}>
+        <p style={{ fontSize: compact ? 10 : 12, fontWeight: 900, color: DARK, marginBottom: (hovered || isFirst) ? 3 : 0, lineHeight: 1.2 }}>
           {ev.title}
         </p>
         {(hovered || isFirst) && !ev.past && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'flex-start', marginTop: 6 }}>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                if (onRegister) {
-                  onRegister(ev.title);
-                } else {
-                  window.location.href = `mailto:collettivogelatina@gmail.com?subject=Iscrizione%20${encodeURIComponent(ev.title)}`;
-                }
-              }}
-              style={{
-                padding: "6px 12px",
-                borderRadius: 99,
-                background: "#E63946",
-                color: "white",
-                fontSize: 10,
-                fontWeight: 900,
-                cursor: "pointer",
-                pointerEvents: "auto",
-                fontFamily: "'Space Mono', monospace",
-                letterSpacing: "0.08em",
-                textDecoration: "none",
-                display: "inline-block",
-                boxShadow: "0 2px 10px rgba(230,57,70,0.5)",
-                animation: "pulse 2s infinite"
-              }}
-            >
-              🎤 Iscriviti Open Mic
-            </button>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                const text = `🎤 Iscriviti all'Open Mic del 28 Ottobre da Bacco e Venere!`;
-                const url = `https://www.collettivogelatina.it/?iscriviti=28-ottobre`;
-                if (navigator.share) {
-                  navigator.share({ title: "Iscriviti all'Open Mic del 28 ottobre (Bacco e Venere)", text, url });
-                } else {
-                  navigator.clipboard.writeText(`${text}\n${url}`);
-                  alert("Link copiato!");
-                }
-              }}
-              style={{
-                padding: "4px 10px",
-                borderRadius: 99,
-                border: "1.5px solid #4B44DF",
-                background: "transparent",
-                color: "#4B44DF",
-                fontSize: 9,
-                fontWeight: 900,
-                cursor: "pointer",
-                pointerEvents: "auto",
-                fontFamily: "'Space Mono', monospace",
-                letterSpacing: "0.08em",
-              }}
-            >
-              ↗ Condividi
-            </button>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'center', marginTop: 4, width: '100%' }}>
+            {/* Row 1: Open Mic & Condividi */}
+            <div style={{ display: 'flex', gap: '4px', width: '100%', alignItems: 'center' }}>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (onRegister) {
+                    onRegister(ev.title);
+                  } else {
+                    window.location.href = `mailto:collettivogelatina@gmail.com?subject=Iscrizione%20${encodeURIComponent(ev.title)}`;
+                  }
+                }}
+                style={{
+                  flexGrow: 1,
+                  padding: "5px 8px",
+                  borderRadius: 99,
+                  background: "#E63946",
+                  color: "white",
+                  fontSize: 9,
+                  fontWeight: 900,
+                  cursor: "pointer",
+                  pointerEvents: "auto",
+                  fontFamily: "'Space Mono', monospace",
+                  letterSpacing: "0.04em",
+                  border: "none",
+                  boxShadow: "0 2px 8px rgba(230,57,70,0.4)",
+                  animation: "pulse 2s infinite",
+                  whiteSpace: "nowrap"
+                }}
+              >
+                🎤 Open Mic
+              </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  const text = `🎤 Iscriviti all'Open Mic del 28 Ottobre da Bacco e Venere!`;
+                  const url = `https://www.collettivogelatina.it/?iscriviti=28-ottobre`;
+                  if (navigator.share) {
+                    navigator.share({ title: "Iscriviti all'Open Mic del 28 ottobre (Bacco e Venere)", text, url });
+                  } else {
+                    navigator.clipboard.writeText(`${text}\n${url}`);
+                    alert("Link copiato!");
+                  }
+                }}
+                title="Condividi link d'iscrizione"
+                style={{
+                  padding: "4px 8px",
+                  borderRadius: 99,
+                  border: "1.5px solid #4B44DF",
+                  background: "transparent",
+                  color: "#4B44DF",
+                  fontSize: 9,
+                  fontWeight: 900,
+                  cursor: "pointer",
+                  pointerEvents: "auto",
+                  whiteSpace: "nowrap"
+                }}
+              >
+                ↗️
+              </button>
+            </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '3px', marginTop: 4, width: '100%' }}>
+            {/* Row 2: Dal Vivo & Streaming */}
+            <div style={{ display: 'flex', gap: '3px', width: '100%' }}>
               <button
                 onClick={(e) => {
                   e.stopPropagation();
@@ -220,7 +225,8 @@ function Card({ ev, hovered, isFirst, onRegister, onTicketNotice }: { ev: TEvent
                   else alert("Biglietti dal vivo in arrivo a breve!");
                 }}
                 style={{
-                  padding: "4px 8px",
+                  flex: 1,
+                  padding: "4px 3px",
                   borderRadius: 99,
                   background: "linear-gradient(135deg, #FF5E36 0%, #FF8A00 100%)",
                   color: "white",
@@ -229,11 +235,13 @@ function Card({ ev, hovered, isFirst, onRegister, onTicketNotice }: { ev: TEvent
                   cursor: "pointer",
                   pointerEvents: "auto",
                   border: "none",
-                  boxShadow: "0 2px 8px rgba(255,94,54,0.35)",
-                  whiteSpace: "nowrap"
+                  boxShadow: "0 2px 6px rgba(255,94,54,0.35)",
+                  whiteSpace: "nowrap",
+                  textAlign: "center"
                 }}
+                title="Biglietto dal vivo (In arrivo)"
               >
-                🎟️ Dal Vivo (In arrivo)
+                🎟️ Dal Vivo
               </button>
               <button
                 onClick={(e) => {
@@ -242,7 +250,8 @@ function Card({ ev, hovered, isFirst, onRegister, onTicketNotice }: { ev: TEvent
                   else alert("Streaming live in arrivo a breve!");
                 }}
                 style={{
-                  padding: "4px 8px",
+                  flex: 1,
+                  padding: "4px 3px",
                   borderRadius: 99,
                   background: "linear-gradient(135deg, #FF6B35 0%, #FFB03A 100%)",
                   color: "white",
@@ -251,13 +260,19 @@ function Card({ ev, hovered, isFirst, onRegister, onTicketNotice }: { ev: TEvent
                   cursor: "pointer",
                   pointerEvents: "auto",
                   border: "none",
-                  boxShadow: "0 2px 8px rgba(255,107,53,0.35)",
-                  whiteSpace: "nowrap"
+                  boxShadow: "0 2px 6px rgba(255,107,53,0.35)",
+                  whiteSpace: "nowrap",
+                  textAlign: "center"
                 }}
+                title="Streaming Live (In arrivo)"
               >
-                📡 Streaming (In arrivo)
+                📡 Streaming
               </button>
             </div>
+
+            <span style={{ fontSize: 7, fontWeight: 900, color: "#FF7A00", letterSpacing: "0.04em" }}>
+              ✦ In arrivo ✦
+            </span>
           </div>
         )}
         <span
@@ -374,7 +389,7 @@ export default function SlamTimeline({ onRegister, onTicketNotice }: { onRegiste
               : `linear-gradient(135deg,${BLUE_MID},${BLUE_LIGHT})`;
 
             // distance from pearl edge to card
-            const cardOffset = `calc(50% + ${pearlSize / 2}px + 16px)`;
+            const cardOffset = `calc(50% + ${pearlSize / 2}px + 6px)`;
 
             return (
               <div
@@ -451,9 +466,9 @@ export default function SlamTimeline({ onRegister, onTicketNotice }: { onRegiste
                     <div
                       style={{
                         width: 1,
-                        height: 16,
+                        height: 12,
                         background:
-                          "linear-gradient(to bottom,rgba(75,68,223,0),rgba(75,68,223,0.28))",
+                          "linear-gradient(to bottom,rgba(75,68,223,0),rgba(75,68,223,0.35))",
                       }}
                     />
                   </div>
@@ -476,9 +491,9 @@ export default function SlamTimeline({ onRegister, onTicketNotice }: { onRegiste
                     <div
                       style={{
                         width: 1,
-                        height: 16,
+                        height: 12,
                         background:
-                          "linear-gradient(to bottom,rgba(75,68,223,0.28),rgba(75,68,223,0))",
+                          "linear-gradient(to bottom,rgba(75,68,223,0.35),rgba(75,68,223,0))",
                       }}
                     />
                     <Card ev={ev} hovered={isHov} isFirst={isFirst} onRegister={onRegister} onTicketNotice={onTicketNotice} />
