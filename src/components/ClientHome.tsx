@@ -139,8 +139,9 @@ const members = [
   { name: "Aldo Sorrentino",       role: "Fondastorie", initial: "AS", gradient: ["#4B44DF", "#7A74FF"], size: 130, rot: -4 },
   { name: "Francesco Mastrostefano", role: "Fondastorie", initial: "FM", gradient: ["#6060F0", "#9895FF"], size: 124, rot:  3 },
   { name: "Julia Vignapiano",      role: "Poeta",       initial: "JV", gradient: ["#7A74FF", "#A09BFF"], size: 118, rot: -2 },
-  { name: "Flavio Riccardi",       role: "Poeta",       initial: "FR", gradient: ["#8A85FF", "#C8C4FF"], size: 120, rot:  5 },
+  { name: "Flavio Riccardi",       role: "Poeta",       initial: "FR", gradient: ["#8A85FF", "#C8C4FF"], size: 120, rot:  5, image: "/flavio_riccardi.jpg", imagePosition: "center 30%" },
   { name: "Joe P.",                role: "Poeta",       initial: "JP", gradient: ["#9895FF", "#D0CDFF"], size: 116, rot: -3, image: "/Joe_p.png" },
+  { name: "Ida Grasso",            role: "Poeta",       initial: "IG", gradient: ["#7872FF", "#B8B3FF"], size: 118, rot:  4 },
 ];
 
 const pressArticles = [
@@ -829,6 +830,7 @@ export default function ClientHome() {
                         src={m.image}
                         alt={m.name}
                         className="w-full h-full object-cover"
+                        style={m.imagePosition ? { objectPosition: m.imagePosition } : undefined}
                       />
                     ) : (
                       m.initial
