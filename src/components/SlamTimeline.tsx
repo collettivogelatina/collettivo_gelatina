@@ -109,7 +109,7 @@ function CoverFloat({ src }: { src: string }) {
   );
 }
 
-function Card({ ev, hovered, isFirst, onRegister }: { ev: TEvent; hovered: boolean; isFirst: boolean; onRegister?: (title: string) => void }) {
+function Card({ ev, hovered, isFirst, onRegister, onTicketNotice }: { ev: TEvent; hovered: boolean; isFirst: boolean; onRegister?: (title: string) => void; onTicketNotice?: (type: "live" | "stream") => void }) {
   const [tagBg, tagColor] = TAG_COLORS[ev.tag] ?? [LAVENDER, BLUE];
   const compact = ev.past && !hovered && !ev.founding;
   const coverSrc = EVENT_COVERS[ev.id];
@@ -122,7 +122,7 @@ function Card({ ev, hovered, isFirst, onRegister }: { ev: TEvent; hovered: boole
           background: compact ? "rgba(255,255,255,0.65)" : "white",
           borderRadius: 14,
           padding: compact ? "6px 10px" : "9px 11px",
-          width: showCover ? 130 : 156,
+          width: showCover ? 130 : 166,
           textAlign: "center",
           boxShadow: isFirst
             ? `0 4px 24px rgba(75,68,223,0.2)`
@@ -211,6 +211,53 @@ function Card({ ev, hovered, isFirst, onRegister }: { ev: TEvent; hovered: boole
             >
               ↗ Condividi
             </button>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '3px', marginTop: 4, width: '100%' }}>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (onTicketNotice) onTicketNotice("live");
+                  else alert("Biglietti dal vivo in arrivo a breve!");
+                }}
+                style={{
+                  padding: "4px 8px",
+                  borderRadius: 99,
+                  background: "linear-gradient(135deg, #FF5E36 0%, #FF8A00 100%)",
+                  color: "white",
+                  fontSize: 8,
+                  fontWeight: 900,
+                  cursor: "pointer",
+                  pointerEvents: "auto",
+                  border: "none",
+                  boxShadow: "0 2px 8px rgba(255,94,54,0.35)",
+                  whiteSpace: "nowrap"
+                }}
+              >
+                🎟️ Dal Vivo (In arrivo)
+              </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (onTicketNotice) onTicketNotice("stream");
+                  else alert("Streaming live in arrivo a breve!");
+                }}
+                style={{
+                  padding: "4px 8px",
+                  borderRadius: 99,
+                  background: "linear-gradient(135deg, #FF6B35 0%, #FFB03A 100%)",
+                  color: "white",
+                  fontSize: 8,
+                  fontWeight: 900,
+                  cursor: "pointer",
+                  pointerEvents: "auto",
+                  border: "none",
+                  boxShadow: "0 2px 8px rgba(255,107,53,0.35)",
+                  whiteSpace: "nowrap"
+                }}
+              >
+                📡 Streaming (In arrivo)
+              </button>
+            </div>
           </div>
         )}
         <span
@@ -232,7 +279,7 @@ function Card({ ev, hovered, isFirst, onRegister }: { ev: TEvent; hovered: boole
   );
 }
 
-export default function SlamTimeline({ onRegister }: { onRegister?: (title: string) => void }) {
+export default function SlamTimeline({ onRegister, onTicketNotice }: { onRegister?: (title: string) => void; onTicketNotice?: (type: "live" | "stream") => void }) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [hovered, setHovered] = useState<number | null>(null);
   const firstUpcoming = TIMELINE.findIndex(e => !e.past);
@@ -400,7 +447,7 @@ export default function SlamTimeline({ onRegister }: { onRegister?: (title: stri
                       pointerEvents: "none",
                     }}
                   >
-                    <Card ev={ev} hovered={isHov} isFirst={isFirst} onRegister={onRegister} />
+                    <Card ev={ev} hovered={isHov} isFirst={isFirst} onRegister={onRegister} onTicketNotice={onTicketNotice} />
                     <div
                       style={{
                         width: 1,
@@ -434,7 +481,7 @@ export default function SlamTimeline({ onRegister }: { onRegister?: (title: stri
                           "linear-gradient(to bottom,rgba(75,68,223,0.28),rgba(75,68,223,0))",
                       }}
                     />
-                    <Card ev={ev} hovered={isHov} isFirst={isFirst} onRegister={onRegister} />
+                    <Card ev={ev} hovered={isHov} isFirst={isFirst} onRegister={onRegister} onTicketNotice={onTicketNotice} />
                   </div>
                 )}
               </div>

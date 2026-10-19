@@ -4,6 +4,7 @@ import VoiceMic from "@/components/VoiceMic";
 import SlamTimeline from "@/components/SlamTimeline";
 import RegistrationModal from "@/components/RegistrationModal";
 import GelatinoModal from "@/components/GelatinoModal";
+import TicketNoticeModal from "@/components/TicketNoticeModal";
 
 const BLUE = "#4B44DF";
 const BLUE_MID = "#7A74FF";
@@ -177,6 +178,7 @@ export default function ClientHome() {
   const [scrolled, setScrolled] = useState(false);
   const [regModalOpen, setRegModalOpen] = useState(false);
   const [gelatinoModalOpen, setGelatinoModalOpen] = useState(false);
+  const [ticketModal, setTicketModal] = useState<{ open: boolean; type: "live" | "stream" | null }>({ open: false, type: null });
   const [regEventTitle, setRegEventTitle] = useState("");
 
   const openRegModal = (title: string) => {
@@ -526,40 +528,213 @@ export default function ClientHome() {
             </a>
           </div>
 
-          <div className="mt-6 flex flex-col items-center gap-3">
-            <button
-              onClick={() => openRegModal("Slam del 28 Ottobre (Bacco e Venere)")}
-              className="font-black text-sm px-9 py-4 rounded-full transition-all hover:scale-105 shadow-2xl"
-              style={{ 
-                background: "#E63946", 
-                color: "white", 
-                boxShadow: "0 4px 20px rgba(230,57,70,0.6)",
-                animation: "pulse 2s infinite" 
-              }}
-            >
-              🎤 Iscriviti all'Open Mic (28 Ottobre)
-            </button>
-            <button
-              onClick={() => {
-                const text = "🎤 Iscriviti all'Open Mic del 28 Ottobre da Bacco e Venere!";
-                const url = "https://www.collettivogelatina.it/?iscriviti=28-ottobre";
-                if (navigator.share) {
-                  navigator.share({ title: "Iscriviti all'Open Mic del 28 ottobre (Bacco e Venere)", text, url });
-                } else {
-                  navigator.clipboard.writeText(`${text}\n${url}`);
-                  alert("Link di iscrizione copiato!");
-                }
-              }}
-              className="mt-2 text-sm font-black px-6 py-3 rounded-full transition-all hover:scale-105 shadow-lg"
+          {/* ── PROSSIMO SLAM: 28 OTTOBRE CARD IN HERO ── */}
+          <div
+            className="mt-10 w-full max-w-3xl mx-auto rounded-3xl p-6 sm:p-8 backdrop-blur-xl relative overflow-hidden text-center"
+            style={{
+              background: "rgba(255, 255, 255, 0.12)",
+              border: "1.5px solid rgba(255, 255, 255, 0.3)",
+              boxShadow: "0 20px 50px rgba(0, 0, 0, 0.22)",
+            }}
+          >
+            {/* Header info evento */}
+            <div className="flex flex-wrap items-center justify-center gap-2 mb-3">
+              <span
+                className="text-xs font-black px-3.5 py-1 rounded-full uppercase tracking-wider text-white shadow-md flex items-center gap-1.5"
+                style={{ background: "#E63946", boxShadow: "0 2px 10px rgba(230,57,70,0.5)" }}
+              >
+                <span className="w-2 h-2 rounded-full bg-white animate-ping" />
+                Prossimo Slam · Mercoledì 28 Ottobre
+              </span>
+              <span
+                className="text-xs font-bold px-3 py-1 rounded-full text-white"
+                style={{ background: "rgba(255, 255, 255, 0.2)" }}
+              >
+                📍 Bacco e Venere · Latina · Ore 19:30
+              </span>
+            </div>
+
+            <h3 className="text-xl sm:text-2xl font-black text-white mb-2 leading-tight">
+              Poetry Slam &amp; Open Mic
+            </h3>
+            <p className="text-white/85 text-xs sm:text-sm max-w-xl mx-auto mb-6 leading-relaxed">
+              Sali sul palco a recitare i tuoi versi o goditi lo spettacolo tra il pubblico in sala o comodamente da casa con il voto live!
+            </p>
+
+            {/* SEZIONE PER I POETI (OPEN MIC) */}
+            <div
+              className="p-4 rounded-2xl mb-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left"
               style={{
-                background: "rgba(255,255,255,0.15)",
-                backdropFilter: "blur(10px)",
-                border: "1.5px solid rgba(255,255,255,0.6)",
-                color: "white"
+                background: "rgba(255, 255, 255, 0.1)",
+                border: "1px solid rgba(255, 255, 255, 0.2)",
               }}
             >
-              ↗️ Condividi Link d'Iscrizione
-            </button>
+              <div>
+                <div className="flex items-center justify-center sm:justify-start gap-2 mb-1">
+                  <span className="text-base">🎤</span>
+                  <span className="text-white font-black text-sm">Sei un poeta? Sali sul palco!</span>
+                </div>
+                <p className="text-xs text-white/75">
+                  Iscriviti all'Open Mic: 3 minuti, la tua voce, le tue parole.
+                </p>
+              </div>
+              <div className="flex items-center gap-2 flex-shrink-0 w-full sm:w-auto justify-center">
+                <button
+                  onClick={() => openRegModal("Slam del 28 Ottobre (Bacco e Venere)")}
+                  className="font-black text-xs sm:text-sm px-6 py-3 rounded-full transition-all hover:scale-105 shadow-xl cursor-pointer"
+                  style={{
+                    background: "#E63946",
+                    color: "white",
+                    boxShadow: "0 4px 18px rgba(230,57,70,0.6)",
+                    animation: "pulse 2s infinite",
+                  }}
+                >
+                  🎤 Iscriviti Open Mic
+                </button>
+                <button
+                  onClick={() => {
+                    const text = "🎤 Iscriviti all'Open Mic del 28 Ottobre da Bacco e Venere!";
+                    const url = "https://www.collettivogelatina.it/?iscriviti=28-ottobre";
+                    if (navigator.share) {
+                      navigator.share({ title: "Iscriviti all'Open Mic del 28 ottobre (Bacco e Venere)", text, url });
+                    } else {
+                      navigator.clipboard.writeText(`${text}\n${url}`);
+                      alert("Link di iscrizione copiato!");
+                    }
+                  }}
+                  title="Condividi link d'iscrizione"
+                  className="font-black text-xs px-3.5 py-3 rounded-full transition-all hover:scale-105 cursor-pointer"
+                  style={{
+                    background: "rgba(255, 255, 255, 0.18)",
+                    border: "1px solid rgba(255, 255, 255, 0.4)",
+                    color: "white",
+                  }}
+                >
+                  ↗️ Condividi
+                </button>
+              </div>
+            </div>
+
+            {/* DIVISORE PUBBLICO */}
+            <div className="flex items-center justify-center gap-3 mb-5">
+              <div className="h-[1px] flex-grow bg-white/20" />
+              <span
+                className="text-[11px] font-black uppercase tracking-[0.2em] text-white px-3 py-1 rounded-full shadow-sm"
+                style={{ background: "rgba(255, 255, 255, 0.16)", border: "1px solid rgba(255, 255, 255, 0.25)" }}
+              >
+                ✨ Partecipa come Pubblico
+              </span>
+              <div className="h-[1px] flex-grow bg-white/20" />
+            </div>
+
+            {/* LE DUE SEZIONI SPETTATORI */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-left">
+              {/* OPZIONE 1: BIGLIETTO DAL VIVO */}
+              <div
+                className="p-5 rounded-2xl flex flex-col justify-between transition-all duration-300 hover:border-orange-300/60 relative overflow-hidden group"
+                style={{
+                  background: "rgba(255, 255, 255, 0.14)",
+                  border: "1.5px solid rgba(255, 255, 255, 0.25)",
+                  backdropFilter: "blur(14px)",
+                  boxShadow: "0 8px 24px rgba(0, 0, 0, 0.1)",
+                }}
+              >
+                <div>
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="text-2xl">🎟️</span>
+                    <span
+                      className="text-[10px] font-black px-2.5 py-1 rounded-full uppercase tracking-wider flex items-center gap-1.5 shadow-sm"
+                      style={{
+                        background: "linear-gradient(135deg, rgba(255,140,0,0.3) 0%, rgba(255,94,54,0.4) 100%)",
+                        color: "#FFEAD4",
+                        border: "1px solid rgba(255,165,0,0.6)",
+                      }}
+                    >
+                      <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+                      In Arrivo
+                    </span>
+                  </div>
+                  <h4 className="text-white font-black text-base mb-1.5 flex items-center gap-1.5">
+                    Biglietto Dal Vivo
+                  </h4>
+                  <p className="text-white/80 text-xs leading-relaxed mb-4">
+                    Assisti in presenza all'energia dello slam a Bacco e Venere a Latina. Posto in sala e voto della giuria popolare!
+                  </p>
+                </div>
+
+                <div>
+                  <p className="text-[11px] text-orange-200/90 font-bold mb-2 flex items-center gap-1">
+                    <span>⏳</span> Prevendite attive a brevissimo
+                  </p>
+                  <button
+                    onClick={() => setTicketModal({ open: true, type: "live" })}
+                    className="w-full font-black text-xs sm:text-sm py-3.5 px-4 rounded-full transition-all duration-300 transform hover:scale-[1.03] active:scale-[0.98] shadow-lg flex items-center justify-center gap-2 cursor-pointer"
+                    style={{
+                      background: "linear-gradient(135deg, #FF5E36 0%, #FF8A00 50%, #FFA834 100%)",
+                      color: "#FFFFFF",
+                      boxShadow: "0 6px 20px rgba(255, 94, 54, 0.45), inset 0 1px 1px rgba(255, 255, 255, 0.4)",
+                      border: "1px solid rgba(255, 255, 255, 0.35)",
+                      textShadow: "0 1px 2px rgba(0,0,0,0.2)",
+                    }}
+                  >
+                    <span>🎟️</span> Compra Biglietto Dal Vivo
+                  </button>
+                </div>
+              </div>
+
+              {/* OPZIONE 2: STREAMING LIVE DA CASA */}
+              <div
+                className="p-5 rounded-2xl flex flex-col justify-between transition-all duration-300 hover:border-orange-300/60 relative overflow-hidden group"
+                style={{
+                  background: "rgba(255, 255, 255, 0.14)",
+                  border: "1.5px solid rgba(255, 255, 255, 0.25)",
+                  backdropFilter: "blur(14px)",
+                  boxShadow: "0 8px 24px rgba(0, 0, 0, 0.1)",
+                }}
+              >
+                <div>
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="text-2xl">📡</span>
+                    <span
+                      className="text-[10px] font-black px-2.5 py-1 rounded-full uppercase tracking-wider flex items-center gap-1.5 shadow-sm"
+                      style={{
+                        background: "linear-gradient(135deg, rgba(255,140,0,0.3) 0%, rgba(255,94,54,0.4) 100%)",
+                        color: "#FFEAD4",
+                        border: "1px solid rgba(255,165,0,0.6)",
+                      }}
+                    >
+                      <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+                      In Arrivo
+                    </span>
+                  </div>
+                  <h4 className="text-white font-black text-base mb-1.5 flex items-center gap-1.5">
+                    Streaming da Casa
+                  </h4>
+                  <p className="text-white/80 text-xs leading-relaxed mb-4">
+                    Non riesci a venire a Latina? Segui la diretta streaming video e vota i poeti in tempo reale con la nostra web app!
+                  </p>
+                </div>
+
+                <div>
+                  <p className="text-[11px] text-orange-200/90 font-bold mb-2 flex items-center gap-1">
+                    <span>⏳</span> Accesso streaming a brevissimo
+                  </p>
+                  <button
+                    onClick={() => setTicketModal({ open: true, type: "stream" })}
+                    className="w-full font-black text-xs sm:text-sm py-3.5 px-4 rounded-full transition-all duration-300 transform hover:scale-[1.03] active:scale-[0.98] shadow-lg flex items-center justify-center gap-2 cursor-pointer"
+                    style={{
+                      background: "linear-gradient(135deg, #FF6B35 0%, #FF9233 50%, #FFB03A 100%)",
+                      color: "#FFFFFF",
+                      boxShadow: "0 6px 20px rgba(255, 107, 53, 0.45), inset 0 1px 1px rgba(255, 255, 255, 0.4)",
+                      border: "1px solid rgba(255, 255, 255, 0.35)",
+                      textShadow: "0 1px 2px rgba(0,0,0,0.2)",
+                    }}
+                  >
+                    <span>📡</span> Segui in Streaming Live
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
 
           <div className="mt-16 text-white/30 text-xs tracking-[0.4em] uppercase animate-bounce">
@@ -651,7 +826,10 @@ export default function ClientHome() {
             </p>
           </div>
 
-          <SlamTimeline onRegister={openRegModal} />
+          <SlamTimeline 
+            onRegister={openRegModal} 
+            onTicketNotice={(type) => setTicketModal({ open: true, type })} 
+          />
 
           {/* ── LIPS badge ── */}
           <div
@@ -1708,6 +1886,12 @@ export default function ClientHome() {
       <GelatinoModal
         isOpen={gelatinoModalOpen}
         onClose={() => setGelatinoModalOpen(false)}
+      />
+
+      <TicketNoticeModal
+        isOpen={ticketModal.open}
+        onClose={() => setTicketModal({ open: false, type: null })}
+        type={ticketModal.type}
       />
     </div>
   );
