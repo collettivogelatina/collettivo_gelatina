@@ -8,10 +8,8 @@ interface RegistrationModalProps {
 }
 
 export default function RegistrationModal({ isOpen, onClose, eventTitle }: RegistrationModalProps) {
-  const [role, setRole] = useState<"Pubblico" | "Poeta" | "Open Mic">("Pubblico");
   const [name, setName] = useState("");
   const [contact, setContact] = useState("");
-  const [peopleCount, setPeopleCount] = useState("1");
   const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
 
   if (!isOpen) return null;
@@ -21,20 +19,13 @@ export default function RegistrationModal({ isOpen, onClose, eventTitle }: Regis
     setStatus("sending");
     
     try {
-      const validEmail = contact.includes("@") ? contact : "collettivogelatina@gmail.com";
-      const ruoloEsteso = role === "Poeta" ? "Poeta (Slam)" : role;
-      
       const payload: any = {
         "Nome e Cognome": name,
         "Email/Contatto": contact || "Nessuno",
-        "Ruolo": ruoloEsteso,
+        "Ruolo": "Open Mic",
         "Evento": eventTitle,
-        _subject: `Nuova iscrizione: ${name} - ${ruoloEsteso}` 
+        _subject: `Nuova iscrizione Open Mic: ${name} (${eventTitle})` 
       };
-
-      if (role === "Pubblico") {
-        payload["Numero di Persone"] = peopleCount;
-      }
 
       await fetch("https://formsubmit.co/ajax/collettivogelatina@gmail.com", {
         method: "POST",
@@ -65,14 +56,14 @@ export default function RegistrationModal({ isOpen, onClose, eventTitle }: Regis
           ✕
         </button>
         
-        <h2 className="text-2xl font-black text-[#1C1A4A] mb-1">Iscriviti</h2>
+        <h2 className="text-2xl font-black text-[#1C1A4A] mb-1">Iscrizione Open Mic</h2>
         <p className="text-sm font-semibold text-gray-500 mb-6">{eventTitle}</p>
         
         {status === "sent" ? (
           <div className="text-center py-10">
-            <div className="text-5xl mb-4">✨</div>
-            <h3 className="text-xl font-bold text-[#4B44DF] mb-2">Iscrizione Inviata!</h3>
-            <p className="text-gray-600">Grazie, abbiamo ricevuto la tua richiesta e ti contatteremo se necessario.</p>
+            <div className="text-5xl mb-4">🎤✨</div>
+            <h3 className="text-xl font-bold text-[#4B44DF] mb-2">Iscrizione Ricevuta!</h3>
+            <p className="text-gray-600">Grazie {name}, il tuo posto all'Open Mic è registrato. Ci vediamo sul palco!</p>
             <button 
               onClick={handleClose}
               className="mt-6 px-6 py-2 rounded-full font-bold bg-gray-100 text-gray-700 hover:bg-gray-200 transition"
@@ -96,36 +87,15 @@ export default function RegistrationModal({ isOpen, onClose, eventTitle }: Regis
             </div>
             
             <div>
-              <label className="block text-xs font-bold text-[#4B44DF] uppercase tracking-widest mb-1">Come vuoi partecipare?</label>
-              <select 
-                value={role}
-                onChange={(e) => setRole(e.target.value as any)}
-                disabled={status === "sending"}
-                className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:border-[#4B44DF] focus:ring-2 focus:ring-[#4B44DF]/20 bg-white"
-              >
-                <option value="Pubblico">Come Pubblico</option>
-                <option value="Open Mic">Come Open Mic</option>
-              </select>
+              <label className="block text-xs font-bold text-[#4B44DF] uppercase tracking-widest mb-1">Partecipazione</label>
+              <div className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 text-gray-800 font-bold flex items-center justify-between">
+                <span>🎤 Open Mic</span>
+                <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-[#4B44DF]/10 text-[#4B44DF]">Lettura versi</span>
+              </div>
               <p className="text-xs text-[#4B44DF] mt-1.5 font-bold">
-                Le iscrizioni sono aperte per partecipare come pubblico o leggere all'Open Mic!
+                Iscriviti per salire sul palco e leggere la tua poesia!
               </p>
             </div>
-
-            {role === "Pubblico" && (
-              <div>
-                <label className="block text-xs font-bold text-[#4B44DF] uppercase tracking-widest mb-1">Numero di persone *</label>
-                <input 
-                  required
-                  type="number" 
-                  min="1"
-                  max="20"
-                  value={peopleCount}
-                  onChange={(e) => setPeopleCount(e.target.value)}
-                  disabled={status === "sending"}
-                  className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:border-[#4B44DF] focus:ring-2 focus:ring-[#4B44DF]/20"
-                />
-              </div>
-            )}
 
             <div>
               <label className="block text-xs font-bold text-[#4B44DF] uppercase tracking-widest mb-1">
@@ -149,7 +119,7 @@ export default function RegistrationModal({ isOpen, onClose, eventTitle }: Regis
                 className="w-full font-black text-sm px-9 py-4 rounded-full transition-all hover:scale-105 shadow-xl disabled:opacity-50"
                 style={{ background: "#E63946", color: "white" }}
               >
-                {status === "sending" ? "Invio in corso..." : "🔥 Conferma Iscrizione"}
+                {status === "sending" ? "Invio in corso..." : "🎤 Conferma Iscrizione Open Mic"}
               </button>
               {status === "error" && (
                 <p className="text-red-500 text-xs mt-3 text-center font-bold">Errore di connessione. Riprova tra poco.</p>

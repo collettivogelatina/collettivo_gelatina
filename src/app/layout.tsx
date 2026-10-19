@@ -3,12 +3,12 @@ import "./globals.css";
 import CookieBanner from "@/components/CookieBanner";
 
 export const metadata: Metadata = {
-  title: "Iscriviti allo Slam del 28 Ottobre come poeta o pubblico",
+  title: "Iscriviti all'Open Mic del 28 Ottobre — Gelatina",
   description:
-    "Gelatina torna sul palco mercoledì 28 Ottobre da Bacco e Venere a Latina (ore 19:30). Sali a leggere le tue poesie, partecipa all'Open Mic o goditi la serata come pubblico. Clicca qui per iscriverti!",
+    "Gelatina torna sul palco mercoledì 28 Ottobre da Bacco e Venere a Latina (ore 19:30). Sali a leggere le tue poesie con l'Open Mic. Clicca qui per iscriverti!",
   openGraph: {
-    title: "Iscriviti allo Slam del 28 Ottobre come poeta o pubblico",
-    description: "Gelatina torna sul palco mercoledì 28 Ottobre da Bacco e Venere a Latina (ore 19:30). Sali a leggere le tue poesie, partecipa all'Open Mic o goditi la serata come pubblico. Clicca qui per iscriverti!",
+    title: "Iscriviti all'Open Mic del 28 Ottobre — Gelatina",
+    description: "Gelatina torna sul palco mercoledì 28 Ottobre da Bacco e Venere a Latina (ore 19:30). Sali a leggere le tue poesie con l'Open Mic. Clicca qui per iscriverti!",
     url: "https://www.collettivogelatina.it",
     siteName: "Gelatina Poetry Slam",
     images: [
@@ -24,8 +24,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Iscriviti allo Slam del 28 Ottobre come poeta o pubblico",
-    description: "Gelatina torna sul palco mercoledì 28 Ottobre da Bacco e Venere a Latina (ore 19:30). Sali a leggere le tue poesie, partecipa all'Open Mic o goditi la serata come pubblico. Clicca qui per iscriverti!",
+    title: "Iscriviti all'Open Mic del 28 Ottobre — Gelatina",
+    description: "Gelatina torna sul palco mercoledì 28 Ottobre da Bacco e Venere a Latina (ore 19:30). Sali a leggere le tue poesie con l'Open Mic. Clicca qui per iscriverti!",
     images: ["https://www.collettivogelatina.it/og-microphone.jpg"],
   },
 };

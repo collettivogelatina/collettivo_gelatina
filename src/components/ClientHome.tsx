@@ -19,7 +19,7 @@ const events = [
     venue: "Bacco e Venere",
     time: "19:30",
     description:
-      "Mercoledì 28 Ottobre ore 19:30 da Bacco e Venere a Latina. Sali sul palco per lo slam o l'open mic, oppure ascolta tra il pubblico!",
+      "Mercoledì 28 Ottobre ore 19:30 da Bacco e Venere a Latina. Sali sul palco con l'Open Mic!",
     tag: "SLAM",
   },
   {
@@ -537,14 +537,14 @@ export default function ClientHome() {
                 animation: "pulse 2s infinite" 
               }}
             >
-              🔥 Iscriviti per il 28 Ottobre (Open Mic o Pubblico)
+              🎤 Iscriviti all'Open Mic (28 Ottobre)
             </button>
             <button
               onClick={() => {
-                const text = "🔥 Iscriviti allo Slam del 28 Ottobre per l'Open Mic o come pubblico!";
+                const text = "🎤 Iscriviti all'Open Mic del 28 Ottobre da Bacco e Venere!";
                 const url = "https://www.collettivogelatina.it/?iscriviti=28-ottobre";
                 if (navigator.share) {
-                  navigator.share({ title: "Iscriviti allo slam del 28 ottobre (Open Mic e Pubblico)", text, url });
+                  navigator.share({ title: "Iscriviti all'Open Mic del 28 ottobre (Bacco e Venere)", text, url });
                 } else {
                   navigator.clipboard.writeText(`${text}\n${url}`);
                   alert("Link di iscrizione copiato!");

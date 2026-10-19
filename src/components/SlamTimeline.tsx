@@ -53,7 +53,7 @@ const TIMELINE: TEvent[] = [
   { id: 15, label: "11 Lug 2026",    title: "Estrella Pop Slam",      desc: "Poetry slam locale all'Estrella Pop. Le voci del territorio si sfidano a colpi di versi.",               tag: "SLAM",          past: true  },
   { id: 16, label: "16 Lug 2026",    title: "Sottoscala9",            desc: "Presentazione del libro ed open mic. Uno spazio aperto alle parole e alle nuove pubblicazioni.",           tag: "PRESENTAZIONE", past: true  },
   { id: 17, label: "3 Set 2026",    title: "Slam all'Hotel Tirreno", desc: "Poetry slam sul mare all'Hotel Tirreno. Versi, onde e microfoni accesi.",                               tag: "SLAM",          past: true  },
-  { id: 18, label: "28 Ott",        title: "Slam a Bacco e Venere",  desc: "Mercoledì 28 Ottobre ore 19:30 da Bacco e Venere a Latina. Poetry slam, open mic e pubblico!",            tag: "SLAM",          past: false },
+  { id: 18, label: "28 Ott",        title: "Slam a Bacco e Venere",  desc: "Mercoledì 28 Ottobre ore 19:30 da Bacco e Venere a Latina. Sali sul palco per l'Open Mic!",                 tag: "SLAM",          past: false },
 ];
 
 function CoverFloat({ src }: { src: string }) {
@@ -181,15 +181,15 @@ function Card({ ev, hovered, isFirst, onRegister }: { ev: TEvent; hovered: boole
                 animation: "pulse 2s infinite"
               }}
             >
-              🔥 Iscriviti
+              🎤 Iscriviti Open Mic
             </button>
             <button
               onClick={(e) => {
                 e.stopPropagation();
-                const text = `🔥 Iscriviti allo Slam del 28 Ottobre come poeta o pubblico!`;
+                const text = `🎤 Iscriviti all'Open Mic del 28 Ottobre da Bacco e Venere!`;
                 const url = `https://www.collettivogelatina.it/?iscriviti=28-ottobre`;
                 if (navigator.share) {
-                  navigator.share({ title: "Iscriviti allo slam del 28 ottobre come poeta (slam o openmic) e pubblico", text, url });
+                  navigator.share({ title: "Iscriviti all'Open Mic del 28 ottobre (Bacco e Venere)", text, url });
                 } else {
                   navigator.clipboard.writeText(`${text}\n${url}`);
                   alert("Link copiato!");
