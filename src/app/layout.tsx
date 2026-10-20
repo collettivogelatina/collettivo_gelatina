@@ -3,12 +3,12 @@ import "./globals.css";
 import CookieBanner from "@/components/CookieBanner";
 
 export const metadata: Metadata = {
-  title: "Iscriviti all'Open Mic del 28 Ottobre — Gelatina",
+  title: "Poetry Slam (28 Ottobre) & Streaming Live — Gelatina",
   description:
-    "Gelatina torna sul palco mercoledì 28 Ottobre da Bacco e Venere a Latina (ore 19:30). Sali a leggere le tue poesie con l'Open Mic. Clicca qui per iscriverti!",
+    "Gelatina torna mercoledì 28 Ottobre da Bacco e Venere a Latina (ore 19:30). Sali sul palco con l'Open Mic o segui la diretta Streaming Live con voto da casa!",
   openGraph: {
-    title: "Iscriviti all'Open Mic del 28 Ottobre — Gelatina",
-    description: "Gelatina torna sul palco mercoledì 28 Ottobre da Bacco e Venere a Latina (ore 19:30). Sali a leggere le tue poesie con l'Open Mic. Clicca qui per iscriverti!",
+    title: "Poetry Slam (28 Ottobre) & Streaming Live — Gelatina",
+    description: "Gelatina torna mercoledì 28 Ottobre da Bacco e Venere a Latina (ore 19:30). Sali sul palco con l'Open Mic o segui la diretta Streaming Live con voto da casa!",
     url: "https://www.collettivogelatina.it",
     siteName: "Gelatina Poetry Slam",
     images: [
@@ -16,7 +16,7 @@ export const metadata: Metadata = {
         url: "https://www.collettivogelatina.it/og-microphone.jpg",
         width: 1200,
         height: 675,
-        alt: "Gelatina Poetry Slam Microphone",
+        alt: "Microfono e Bocca Poetry Slam Gelatina",
       },
     ],
     locale: "it_IT",
@@ -24,8 +24,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Iscriviti all'Open Mic del 28 Ottobre — Gelatina",
-    description: "Gelatina torna sul palco mercoledì 28 Ottobre da Bacco e Venere a Latina (ore 19:30). Sali a leggere le tue poesie con l'Open Mic. Clicca qui per iscriverti!",
+    title: "Poetry Slam (28 Ottobre) & Streaming Live — Gelatina",
+    description: "Gelatina torna mercoledì 28 Ottobre da Bacco e Venere a Latina (ore 19:30). Sali sul palco con l'Open Mic o segui la diretta Streaming Live con voto da casa!",
     images: ["https://www.collettivogelatina.it/og-microphone.jpg"],
   },
 };

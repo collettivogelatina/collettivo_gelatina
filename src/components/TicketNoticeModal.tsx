@@ -4,9 +4,10 @@ interface TicketNoticeModalProps {
   isOpen: boolean;
   onClose: () => void;
   type: "live" | "stream" | null;
+  onOpenShare?: () => void;
 }
 
-export default function TicketNoticeModal({ isOpen, onClose, type }: TicketNoticeModalProps) {
+export default function TicketNoticeModal({ isOpen, onClose, type, onOpenShare }: TicketNoticeModalProps) {
   if (!isOpen || !type) return null;
 
   const isLive = type === "live";
@@ -100,18 +101,14 @@ export default function TicketNoticeModal({ isOpen, onClose, type }: TicketNotic
               </a>
               <button
                 onClick={() => {
-                  const text = "📡 Segui in Streaming Live il Poetry Slam del 28 Ottobre da Bacco e Venere a Latina! Acquista la prevendita qui:";
-                  const url = "https://iris.giun.one/live/poetry-slam-bacco-e-venere";
-                  if (navigator.share) {
-                    navigator.share({ title: "Streaming Live Poetry Slam 28 Ottobre (Bacco e Venere)", text, url });
-                  } else {
-                    navigator.clipboard.writeText(`${text}\n${url}`);
-                    alert("Link prevendita streaming copiato negli appunti!");
+                  onClose();
+                  if (onOpenShare) {
+                    onOpenShare();
                   }
                 }}
                 className="w-full text-xs font-bold py-2.5 px-4 rounded-full border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors flex items-center justify-center gap-2 cursor-pointer"
               >
-                <span>↗️</span> Condividi Link Prevendita
+                <span>↗️</span> Condividi con Immagine
               </button>
             </>
           )}
