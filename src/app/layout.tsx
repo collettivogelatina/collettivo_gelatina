@@ -3,12 +3,12 @@ import "./globals.css";
 import CookieBanner from "@/components/CookieBanner";
 
 export const metadata: Metadata = {
-  title: "Poetry Slam (28 Ottobre) & Streaming Live — Gelatina",
+  title: "Iscriviti all'Open Mic del 28 Ottobre — Gelatina",
   description:
-    "Gelatina torna mercoledì 28 Ottobre da Bacco e Venere a Latina (ore 19:30). Sali sul palco con l'Open Mic o segui la diretta Streaming Live con voto da casa!",
+    "Gelatina torna sul palco mercoledì 28 Ottobre da Bacco e Venere a Latina (ore 19:30). Sali a leggere le tue poesie con l'Open Mic. Clicca qui per iscriverti!",
   openGraph: {
-    title: "Poetry Slam (28 Ottobre) & Streaming Live — Gelatina",
-    description: "Gelatina torna mercoledì 28 Ottobre da Bacco e Venere a Latina (ore 19:30). Sali sul palco con l'Open Mic o segui la diretta Streaming Live con voto da casa!",
+    title: "Iscriviti all'Open Mic del 28 Ottobre — Gelatina",
+    description: "Gelatina torna sul palco mercoledì 28 Ottobre da Bacco e Venere a Latina (ore 19:30). Sali a leggere le tue poesie con l'Open Mic. Clicca qui per iscriverti!",
     url: "https://www.collettivogelatina.it",
     siteName: "Gelatina Poetry Slam",
     images: [
@@ -16,7 +16,7 @@ export const metadata: Metadata = {
         url: "https://www.collettivogelatina.it/og-microphone.jpg",
         width: 1200,
         height: 675,
-        alt: "Microfono e Bocca Poetry Slam Gelatina",
+        alt: "Gelatina Poetry Slam Microphone",
       },
     ],
     locale: "it_IT",
@@ -24,8 +24,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Poetry Slam (28 Ottobre) & Streaming Live — Gelatina",
-    description: "Gelatina torna mercoledì 28 Ottobre da Bacco e Venere a Latina (ore 19:30). Sali sul palco con l'Open Mic o segui la diretta Streaming Live con voto da casa!",
+    title: "Iscriviti all'Open Mic del 28 Ottobre — Gelatina",
+    description: "Gelatina torna sul palco mercoledì 28 Ottobre da Bacco e Venere a Latina (ore 19:30). Sali a leggere le tue poesie con l'Open Mic. Clicca qui per iscriverti!",
     images: ["https://www.collettivogelatina.it/og-microphone.jpg"],
   },
 };

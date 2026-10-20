@@ -5,7 +5,6 @@ import SlamTimeline from "@/components/SlamTimeline";
 import RegistrationModal from "@/components/RegistrationModal";
 import GelatinoModal from "@/components/GelatinoModal";
 import TicketNoticeModal from "@/components/TicketNoticeModal";
-import ShareModal from "@/components/ShareModal";
 
 const BLUE = "#4B44DF";
 const BLUE_MID = "#7A74FF";
@@ -180,7 +179,6 @@ export default function ClientHome() {
   const [regModalOpen, setRegModalOpen] = useState(false);
   const [gelatinoModalOpen, setGelatinoModalOpen] = useState(false);
   const [ticketModal, setTicketModal] = useState<{ open: boolean; type: "live" | "stream" | null }>({ open: false, type: null });
-  const [shareModalOpen, setShareModalOpen] = useState(false);
   const [regEventTitle, setRegEventTitle] = useState("");
 
   const openRegModal = (title: string) => {
@@ -738,8 +736,17 @@ export default function ClientHome() {
                   </a>
 
                   <button
-                    onClick={() => setShareModalOpen(true)}
-                    className="mt-2.5 w-full text-xs font-bold py-2.5 px-4 rounded-full transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2 cursor-pointer shadow-md"
+                    onClick={() => {
+                      const text = "📡 Segui in Streaming Live il Poetry Slam del 28 Ottobre da Bacco e Venere a Latina! Acquista la prevendita qui:";
+                      const url = "https://iris.giun.one/live/poetry-slam-bacco-e-venere";
+                      if (navigator.share) {
+                        navigator.share({ title: "Streaming Live Poetry Slam 28 Ottobre (Bacco e Venere)", text, url });
+                      } else {
+                        navigator.clipboard.writeText(`${text}\n${url}`);
+                        alert("Link prevendita streaming copiato negli appunti!");
+                      }
+                    }}
+                    className="mt-2.5 w-full text-xs font-bold py-2.5 px-4 rounded-full transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2 cursor-pointer"
                     style={{
                       background: "rgba(255, 255, 255, 0.18)",
                       border: "1px solid rgba(255, 255, 255, 0.35)",
@@ -747,7 +754,7 @@ export default function ClientHome() {
                       backdropFilter: "blur(8px)",
                     }}
                   >
-                    <span>↗️</span> Condividi con Immagine
+                    <span>↗️</span> Condividi Link Streaming
                   </button>
                 </div>
               </div>
@@ -1909,12 +1916,6 @@ export default function ClientHome() {
         isOpen={ticketModal.open}
         onClose={() => setTicketModal({ open: false, type: null })}
         type={ticketModal.type}
-        onOpenShare={() => setShareModalOpen(true)}
-      />
-
-      <ShareModal
-        isOpen={shareModalOpen}
-        onClose={() => setShareModalOpen(false)}
       />
     </div>
   );
