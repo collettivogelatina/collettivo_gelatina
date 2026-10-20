@@ -243,12 +243,11 @@ function Card({ ev, hovered, isFirst, onRegister, onTicketNotice }: { ev: TEvent
               >
                 🎟️ Dal Vivo
               </button>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  if (onTicketNotice) onTicketNotice("stream");
-                  else alert("Streaming live in arrivo a breve!");
-                }}
+              <a
+                href="https://iris.giun.one/live/poetry-slam-bacco-e-venere"
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(e) => e.stopPropagation()}
                 style={{
                   flex: 1,
                   padding: "4px 3px",
@@ -262,16 +261,18 @@ function Card({ ev, hovered, isFirst, onRegister, onTicketNotice }: { ev: TEvent
                   border: "none",
                   boxShadow: "0 2px 6px rgba(255,107,53,0.35)",
                   whiteSpace: "nowrap",
-                  textAlign: "center"
+                  textAlign: "center",
+                  textDecoration: "none",
+                  display: "inline-block"
                 }}
-                title="Streaming Live (In arrivo)"
+                title="Acquista prevendita Streaming Live su Iris"
               >
                 📡 Streaming
-              </button>
+              </a>
             </div>
 
-            <span style={{ fontSize: 7, fontWeight: 900, color: "#FF7A00", letterSpacing: "0.04em" }}>
-              ✦ In arrivo ✦
+            <span style={{ fontSize: 7, fontWeight: 900, color: "#10B981", letterSpacing: "0.04em" }}>
+              ✦ Streaming attivo su Iris ✦
             </span>
           </div>
         )}

@@ -698,13 +698,13 @@ export default function ClientHome() {
                     <span
                       className="text-[10px] font-black px-2.5 py-1 rounded-full uppercase tracking-wider flex items-center gap-1.5 shadow-sm"
                       style={{
-                        background: "linear-gradient(135deg, rgba(255,140,0,0.3) 0%, rgba(255,94,54,0.4) 100%)",
-                        color: "#FFEAD4",
-                        border: "1px solid rgba(255,165,0,0.6)",
+                        background: "linear-gradient(135deg, rgba(34,197,94,0.25) 0%, rgba(16,185,129,0.35) 100%)",
+                        color: "#DCFCE7",
+                        border: "1px solid rgba(74,222,128,0.6)",
                       }}
                     >
-                      <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
-                      In Arrivo
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                      Prevendita Attiva
                     </span>
                   </div>
                   <h4 className="text-white font-black text-base mb-1.5 flex items-center gap-1.5">
@@ -716,12 +716,14 @@ export default function ClientHome() {
                 </div>
 
                 <div>
-                  <p className="text-[11px] text-orange-200/90 font-bold mb-2 flex items-center gap-1">
-                    <span>⏳</span> Accesso streaming a brevissimo
+                  <p className="text-[11px] text-emerald-200/90 font-bold mb-2 flex items-center gap-1">
+                    <span>⚡</span> Prevendita attiva su Iris
                   </p>
-                  <button
-                    onClick={() => setTicketModal({ open: true, type: "stream" })}
-                    className="w-full font-black text-xs sm:text-sm py-3.5 px-4 rounded-full transition-all duration-300 transform hover:scale-[1.03] active:scale-[0.98] shadow-lg flex items-center justify-center gap-2 cursor-pointer"
+                  <a
+                    href="https://iris.giun.one/live/poetry-slam-bacco-e-venere"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full font-black text-xs sm:text-sm py-3.5 px-4 rounded-full transition-all duration-300 transform hover:scale-[1.03] active:scale-[0.98] shadow-lg flex items-center justify-center gap-2 cursor-pointer no-underline"
                     style={{
                       background: "linear-gradient(135deg, #FF6B35 0%, #FF9233 50%, #FFB03A 100%)",
                       color: "#FFFFFF",
@@ -730,8 +732,8 @@ export default function ClientHome() {
                       textShadow: "0 1px 2px rgba(0,0,0,0.2)",
                     }}
                   >
-                    <span>📡</span> Segui in Streaming Live
-                  </button>
+                    <span>📡</span> Acquista Prevendita Streaming →
+                  </a>
                 </div>
               </div>
             </div>

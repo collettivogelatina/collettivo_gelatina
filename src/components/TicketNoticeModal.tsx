@@ -40,13 +40,13 @@ export default function TicketNoticeModal({ isOpen, onClose, type }: TicketNotic
           <span 
             className="inline-flex items-center gap-1.5 text-[11px] font-black px-3 py-1 rounded-full uppercase tracking-wider"
             style={{
-              background: "#FFF3E6",
-              color: "#D95D00",
-              border: "1px solid #FFCD99",
+              background: isLive ? "#FFF3E6" : "#ECFDF5",
+              color: isLive ? "#D95D00" : "#047857",
+              border: `1px solid ${isLive ? "#FFCD99" : "#6EE7B7"}`,
             }}
           >
-            <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
-            Funzionalità In Arrivo
+            <span className={`w-2 h-2 rounded-full ${isLive ? "bg-amber-500" : "bg-emerald-500"} animate-pulse`} />
+            {isLive ? "Funzionalità In Arrivo" : "Prevendita Attiva su Iris"}
           </span>
         </div>
 
@@ -65,29 +65,44 @@ export default function TicketNoticeModal({ isOpen, onClose, type }: TicketNotic
             </>
           ) : (
             <>
-              Stiamo preparando la piattaforma di <strong>diretta streaming</strong> con il nostro sistema interattivo per consentirti di guardare lo slam e votare i poeti in tempo reale comodamente da casa!
+              La prevendita per seguire la <strong>diretta streaming video</strong> e votare i poeti in tempo reale comodamente da casa è attiva sulla piattaforma ufficiale <strong>Iris</strong>!
             </>
           )}
         </p>
 
         <div className="flex flex-col gap-3">
-          <a
-            href="https://www.instagram.com/collettivogelatina"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="w-full font-black text-sm py-3.5 px-6 rounded-full transition-all hover:scale-105 shadow-md flex items-center justify-center gap-2"
-            style={{
-              background: "linear-gradient(135deg, #4B44DF 0%, #7A74FF 100%)",
-              color: "white",
-            }}
-          >
-            <span>📸</span> Seguici su Instagram per la notifica
-          </a>
+          {isLive ? (
+            <a
+              href="https://www.instagram.com/collettivogelatina"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full font-black text-sm py-3.5 px-6 rounded-full transition-all hover:scale-105 shadow-md flex items-center justify-center gap-2"
+              style={{
+                background: "linear-gradient(135deg, #4B44DF 0%, #7A74FF 100%)",
+                color: "white",
+              }}
+            >
+              <span>📸</span> Seguici su Instagram per la notifica
+            </a>
+          ) : (
+            <a
+              href="https://iris.giun.one/live/poetry-slam-bacco-e-venere"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full font-black text-sm py-3.5 px-6 rounded-full transition-all hover:scale-105 shadow-lg flex items-center justify-center gap-2"
+              style={{
+                background: "linear-gradient(135deg, #FF6B35 0%, #FF9233 50%, #FFB03A 100%)",
+                color: "white",
+              }}
+            >
+              <span>🎟️</span> Acquista Prevendita su Iris →
+            </a>
+          )}
           <button
             onClick={onClose}
             className="w-full text-xs font-bold py-2.5 px-4 rounded-full text-gray-500 hover:text-gray-800 transition-colors"
           >
-            Ho capito, grazie
+            Chiudi
           </button>
         </div>
       </div>
