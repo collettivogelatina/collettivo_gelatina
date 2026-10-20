@@ -734,6 +734,28 @@ export default function ClientHome() {
                   >
                     <span>📡</span> Acquista Prevendita Streaming →
                   </a>
+
+                  <button
+                    onClick={() => {
+                      const text = "📡 Segui in Streaming Live il Poetry Slam del 28 Ottobre da Bacco e Venere a Latina! Acquista la prevendita qui:";
+                      const url = "https://iris.giun.one/live/poetry-slam-bacco-e-venere";
+                      if (navigator.share) {
+                        navigator.share({ title: "Streaming Live Poetry Slam 28 Ottobre (Bacco e Venere)", text, url });
+                      } else {
+                        navigator.clipboard.writeText(`${text}\n${url}`);
+                        alert("Link prevendita streaming copiato negli appunti!");
+                      }
+                    }}
+                    className="mt-2.5 w-full text-xs font-bold py-2.5 px-4 rounded-full transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2 cursor-pointer"
+                    style={{
+                      background: "rgba(255, 255, 255, 0.18)",
+                      border: "1px solid rgba(255, 255, 255, 0.35)",
+                      color: "white",
+                      backdropFilter: "blur(8px)",
+                    }}
+                  >
+                    <span>↗️</span> Condividi Link Streaming
+                  </button>
                 </div>
               </div>
             </div>

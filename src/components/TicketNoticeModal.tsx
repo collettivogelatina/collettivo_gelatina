@@ -85,18 +85,35 @@ export default function TicketNoticeModal({ isOpen, onClose, type }: TicketNotic
               <span>📸</span> Seguici su Instagram per la notifica
             </a>
           ) : (
-            <a
-              href="https://iris.giun.one/live/poetry-slam-bacco-e-venere"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-full font-black text-sm py-3.5 px-6 rounded-full transition-all hover:scale-105 shadow-lg flex items-center justify-center gap-2"
-              style={{
-                background: "linear-gradient(135deg, #FF6B35 0%, #FF9233 50%, #FFB03A 100%)",
-                color: "white",
-              }}
-            >
-              <span>🎟️</span> Acquista Prevendita su Iris →
-            </a>
+            <>
+              <a
+                href="https://iris.giun.one/live/poetry-slam-bacco-e-venere"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full font-black text-sm py-3.5 px-6 rounded-full transition-all hover:scale-105 shadow-lg flex items-center justify-center gap-2"
+                style={{
+                  background: "linear-gradient(135deg, #FF6B35 0%, #FF9233 50%, #FFB03A 100%)",
+                  color: "white",
+                }}
+              >
+                <span>🎟️</span> Acquista Prevendita su Iris →
+              </a>
+              <button
+                onClick={() => {
+                  const text = "📡 Segui in Streaming Live il Poetry Slam del 28 Ottobre da Bacco e Venere a Latina! Acquista la prevendita qui:";
+                  const url = "https://iris.giun.one/live/poetry-slam-bacco-e-venere";
+                  if (navigator.share) {
+                    navigator.share({ title: "Streaming Live Poetry Slam 28 Ottobre (Bacco e Venere)", text, url });
+                  } else {
+                    navigator.clipboard.writeText(`${text}\n${url}`);
+                    alert("Link prevendita streaming copiato negli appunti!");
+                  }
+                }}
+                className="w-full text-xs font-bold py-2.5 px-4 rounded-full border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <span>↗️</span> Condividi Link Prevendita
+              </button>
+            </>
           )}
           <button
             onClick={onClose}
