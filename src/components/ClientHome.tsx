@@ -176,6 +176,7 @@ const pressArticles = [
 export default function ClientHome() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [showTopBanner, setShowTopBanner] = useState(true);
   const [regModalOpen, setRegModalOpen] = useState(false);
   const [gelatinoModalOpen, setGelatinoModalOpen] = useState(false);
   const [ticketModal, setTicketModal] = useState<{ open: boolean; type: "live" | "stream" | null }>({ open: false, type: null });
@@ -274,142 +275,236 @@ export default function ClientHome() {
             0%, 100% { transform: scale(1); opacity: 0.5; }
             50% { transform: scale(1.35); opacity: 0; }
           }
+          @keyframes shimmerBanner {
+            0% { transform: translateX(-150%); }
+            100% { transform: translateX(150%); }
+          }
         `}</style>
       </a>
 
-      {/* ── NAVBAR ── */}
-      <nav
-        className="fixed top-0 left-0 right-0 z-50 transition-all duration-400"
-        style={{
-          background: scrolled ? "rgba(255,255,255,0.92)" : "transparent",
-          backdropFilter: scrolled ? "blur(12px)" : "none",
-          boxShadow: scrolled ? "0 1px 20px rgba(75,68,223,0.08)" : "none",
-        }}
-      >
-        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-          <a
-            href="#"
-            className="font-black text-xl tracking-tight transition-colors"
-            style={{ color: scrolled ? BLUE : "white", fontFamily: "'Nunito', sans-serif" }}
-          >
-            Gelatina
-          </a>
-
-          <div className="hidden md:flex items-center gap-7">
-            {[
-              { label: "Chi Siamo", href: "#chi-siamo" },
-              { label: "Slam", href: "#slam" },
-              { label: "Gelatino", href: "#gelatino" },
-              { label: "Open Mic", href: "#open-mic" },
-              { label: "Contatti", href: "#contatti" },
-            ].map((item) => (
-              <a
-                key={item.label}
-                href={item.href}
-                className="text-sm font-bold tracking-wide transition-opacity hover:opacity-60"
-                style={{ color: scrolled ? DARK : "white" }}
-              >
-                {item.label}
-              </a>
-            ))}
-            <a
-              href="/vota-live"
-              className="px-4 py-2 rounded-full text-sm font-black transition-all hover:scale-105 flex items-center gap-1.5"
-              style={{
-                background: `linear-gradient(135deg, ${BLUE} 0%, ${BLUE_MID} 100%)`,
-                color: "white",
-                boxShadow: `0 4px 14px ${BLUE}55`,
-              }}
-            >
-              🤚 Vota Live
-            </a>
-            <a
-              href="/vota-live/admin"
-              className="px-4 py-2 rounded-full text-sm font-black transition-all hover:scale-105 flex items-center gap-1.5"
-              style={{
-                background: "transparent",
-                color: scrolled ? DARK : "white",
-                border: `1.5px solid ${scrolled ? "rgba(28,26,74,0.25)" : "rgba(255,255,255,0.35)"}`,
-              }}
-            >
-              🔐 Admin
-            </a>
-            <a
-              href="mailto:collettivogelatina@gmail.com?subject=Acquisto%20Gelatino"
-              className="px-5 py-2 rounded-full text-sm font-black transition-all"
-              style={{
-                background: scrolled ? BLUE : "white",
-                color: scrolled ? "white" : BLUE,
-              }}
-            >
-              Gelatino →
-            </a>
-          </div>
-
-          <button
-            className="md:hidden p-1 transition-colors"
-            style={{ color: scrolled ? DARK : "white" }}
-            onClick={() => setMenuOpen(!menuOpen)}
-            aria-label="Menu"
-          >
-            {menuOpen ? (
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            ) : (
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
-            )}
-          </button>
-        </div>
-
-        {menuOpen && (
+      {/* ── HEADER FISSO IN ALTO (CALL TO ACTION BANNER + NAVBAR) ── */}
+      <header className="fixed top-0 left-0 right-0 z-50">
+        {/* ── TOP APPARISCENTE CALL TO ACTION BANNER ── */}
+        {showTopBanner && (
           <div
-            className="md:hidden px-6 pb-6 flex flex-col gap-4"
-            style={{ background: "white", borderTop: `2px solid ${LAVENDER}` }}
+            className="w-full text-white px-3 sm:px-6 py-2 sm:py-2.5 relative overflow-hidden transition-all"
+            style={{
+              background: "linear-gradient(90deg, #E63946 0%, #FF4D36 25%, #FF7A00 65%, #FF9E2C 100%)",
+              borderBottom: "1px solid rgba(255,255,255,0.25)",
+              boxShadow: "0 4px 20px rgba(230, 57, 70, 0.35)",
+            }}
           >
-            {["Chi Siamo", "Slam", "Gelatino", "Open Mic", "Contatti"].map((item) => (
-              <a
-                key={item}
-                href={`#${item.toLowerCase().replace(" ", "-")}`}
-                onClick={() => setMenuOpen(false)}
-                className="font-bold py-2 border-b text-base"
-                style={{ color: DARK, borderColor: LAVENDER }}
-              >
-                {item}
-              </a>
-            ))}
-            <a
-              href="/vota-live"
-              onClick={() => setMenuOpen(false)}
-              className="font-black py-2.5 px-4 rounded-xl text-base text-center"
+            {/* Shimmer effect */}
+            <div
+              className="absolute inset-0 pointer-events-none opacity-20"
               style={{
-                background: `linear-gradient(135deg, ${BLUE} 0%, ${BLUE_MID} 100%)`,
-                color: "white",
+                background: "linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.8) 50%, transparent 100%)",
+                width: "60%",
+                height: "100%",
+                animation: "shimmerBanner 3.5s infinite ease-in-out",
               }}
-            >
-              🤚 Vota Live
-            </a>
-            <a
-              href="/vota-live/admin"
-              onClick={() => setMenuOpen(false)}
-              className="font-black py-2.5 px-4 rounded-xl text-base text-center"
-              style={{
-                background: "transparent",
-                color: DARK,
-                border: `1.5px solid rgba(28,26,74,0.2)`,
-              }}
-            >
-              🔐 Admin organizzatori
-            </a>
+            />
+
+            <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-2 relative z-10">
+              {/* Event info & animated badge */}
+              <div className="flex items-center gap-2 sm:gap-2.5 text-center sm:text-left flex-wrap justify-center">
+                <span
+                  className="text-[10px] sm:text-xs font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider text-[#1C1A4A] bg-white shadow-sm flex items-center gap-1.5 flex-shrink-0"
+                >
+                  <span className="w-2 h-2 rounded-full bg-red-600 animate-ping" />
+                  Mer 28 Ott · 19:30
+                </span>
+                <span className="text-xs sm:text-sm font-black text-white tracking-tight drop-shadow-sm flex items-center gap-1">
+                  <span>🎤</span>
+                  <span>Poetry Slam da Bacco e Venere (Latina)</span>
+                </span>
+                <span className="hidden lg:inline text-xs font-bold text-white/90">
+                  · Tappa LIPS
+                </span>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex items-center gap-2 flex-wrap justify-center">
+                <a
+                  href="https://billetto.it/e/poetry-slam-biglietti-2032403?bref=eyJzIjoiYmlsbGV0dG8iLCJtIjoiYmlsbGV0dG8iLCJjIjoiZmluZCIsImNvIjoiMUlUIiwidCI6MTc5MzAxODcxNn0%3D"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-black text-xs py-1.5 px-3.5 rounded-full transition-all duration-200 transform hover:scale-105 active:scale-95 shadow-md flex items-center gap-1.5 no-underline cursor-pointer"
+                  style={{
+                    background: "white",
+                    color: "#D9381E",
+                    boxShadow: "0 2px 10px rgba(0,0,0,0.25)",
+                  }}
+                >
+                  <span>🎟️</span>
+                  <span>Dal Vivo · 5,50 €</span>
+                </a>
+
+                <a
+                  href="https://iris.giun.one/live/poetry-slam-bacco-e-venere"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-black text-xs py-1.5 px-3.5 rounded-full transition-all duration-200 transform hover:scale-105 active:scale-95 shadow-md flex items-center gap-1.5 no-underline cursor-pointer"
+                  style={{
+                    background: "rgba(28, 26, 74, 0.9)",
+                    color: "white",
+                    border: "1px solid rgba(255,255,255,0.45)",
+                    backdropFilter: "blur(6px)",
+                    boxShadow: "0 2px 10px rgba(0,0,0,0.2)",
+                  }}
+                >
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                  <span>Streaming · 3 €</span>
+                </a>
+
+                <button
+                  onClick={() => setShowTopBanner(false)}
+                  title="Nascondi barra"
+                  className="text-white/75 hover:text-white text-xs font-bold px-1.5 py-0.5 rounded transition-colors ml-0.5 cursor-pointer"
+                >
+                  ✕
+                </button>
+              </div>
+            </div>
           </div>
         )}
-      </nav>
+
+        {/* ── NAVBAR ── */}
+        <nav
+          className="transition-all duration-400"
+          style={{
+            background: scrolled ? "rgba(255,255,255,0.92)" : "transparent",
+            backdropFilter: scrolled ? "blur(12px)" : "none",
+            boxShadow: scrolled ? "0 1px 20px rgba(75,68,223,0.08)" : "none",
+          }}
+        >
+          <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+            <a
+              href="#"
+              className="font-black text-xl tracking-tight transition-colors"
+              style={{ color: scrolled ? BLUE : "white", fontFamily: "'Nunito', sans-serif" }}
+            >
+              Gelatina
+            </a>
+
+            <div className="hidden md:flex items-center gap-7">
+              {[
+                { label: "Chi Siamo", href: "#chi-siamo" },
+                { label: "Slam", href: "#slam" },
+                { label: "Gelatino", href: "#gelatino" },
+                { label: "Open Mic", href: "#open-mic" },
+                { label: "Contatti", href: "#contatti" },
+              ].map((item) => (
+                <a
+                  key={item.label}
+                  href={item.href}
+                  className="text-sm font-bold tracking-wide transition-opacity hover:opacity-60"
+                  style={{ color: scrolled ? DARK : "white" }}
+                >
+                  {item.label}
+                </a>
+              ))}
+              <a
+                href="/vota-live"
+                className="px-4 py-2 rounded-full text-sm font-black transition-all hover:scale-105 flex items-center gap-1.5"
+                style={{
+                  background: `linear-gradient(135deg, ${BLUE} 0%, ${BLUE_MID} 100%)`,
+                  color: "white",
+                  boxShadow: `0 4px 14px ${BLUE}55`,
+                }}
+              >
+                🤚 Vota Live
+              </a>
+              <a
+                href="/vota-live/admin"
+                className="px-4 py-2 rounded-full text-sm font-black transition-all hover:scale-105 flex items-center gap-1.5"
+                style={{
+                  background: "transparent",
+                  color: scrolled ? DARK : "white",
+                  border: `1.5px solid ${scrolled ? "rgba(28,26,74,0.25)" : "rgba(255,255,255,0.35)"}`,
+                }}
+              >
+                🔐 Admin
+              </a>
+              <a
+                href="mailto:collettivogelatina@gmail.com?subject=Acquisto%20Gelatino"
+                className="px-5 py-2 rounded-full text-sm font-black transition-all"
+                style={{
+                  background: scrolled ? BLUE : "white",
+                  color: scrolled ? "white" : BLUE,
+                }}
+              >
+                Gelatino →
+              </a>
+            </div>
+
+            <button
+              className="md:hidden p-1 transition-colors"
+              style={{ color: scrolled ? DARK : "white" }}
+              onClick={() => setMenuOpen(!menuOpen)}
+              aria-label="Menu"
+            >
+              {menuOpen ? (
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              ) : (
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+              )}
+            </button>
+          </div>
+
+          {menuOpen && (
+            <div
+              className="md:hidden px-6 pb-6 flex flex-col gap-4"
+              style={{ background: "white", borderTop: `2px solid ${LAVENDER}` }}
+            >
+              {["Chi Siamo", "Slam", "Gelatino", "Open Mic", "Contatti"].map((item) => (
+                <a
+                  key={item}
+                  href={`#${item.toLowerCase().replace(" ", "-")}`}
+                  onClick={() => setMenuOpen(false)}
+                  className="font-bold py-2 border-b text-base"
+                  style={{ color: DARK, borderColor: LAVENDER }}
+                >
+                  {item}
+                </a>
+              ))}
+              <a
+                href="/vota-live"
+                onClick={() => setMenuOpen(false)}
+                className="font-black py-2.5 px-4 rounded-xl text-base text-center"
+                style={{
+                  background: `linear-gradient(135deg, ${BLUE} 0%, ${BLUE_MID} 100%)`,
+                  color: "white",
+                }}
+              >
+                🤚 Vota Live
+              </a>
+              <a
+                href="/vota-live/admin"
+                onClick={() => setMenuOpen(false)}
+                className="font-black py-2.5 px-4 rounded-xl text-base text-center"
+                style={{
+                  background: "transparent",
+                  color: DARK,
+                  border: `1.5px solid rgba(28,26,74,0.2)`,
+                }}
+              >
+                🔐 Admin organizzatori
+              </a>
+            </div>
+          )}
+        </nav>
+      </header>
 
       {/* ── HERO ── */}
       <section
-        className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden pt-20"
+        className={`relative min-h-screen flex flex-col items-center justify-center overflow-hidden transition-all duration-300 ${
+          showTopBanner ? "pt-28 sm:pt-32" : "pt-20"
+        }`}
         style={{
           background: `linear-gradient(160deg, ${BLUE} 0%, ${BLUE_MID} 28%, ${BLUE_LIGHT} 55%, #D8D4FF 72%, #F0EEFF 87%, #FAFAFF 100%)`,
         }}
