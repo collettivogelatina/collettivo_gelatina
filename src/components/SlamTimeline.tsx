@@ -218,12 +218,11 @@ function Card({ ev, hovered, isFirst, onRegister, onTicketNotice }: { ev: TEvent
 
             {/* Row 2: Dal Vivo & Streaming */}
             <div style={{ display: 'flex', gap: '3px', width: '100%' }}>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  if (onTicketNotice) onTicketNotice("live");
-                  else alert("Biglietti dal vivo in arrivo a breve!");
-                }}
+              <a
+                href="https://billetto.it/e/poetry-slam-biglietti-2032403?bref=eyJzIjoiYmlsbGV0dG8iLCJtIjoiYmlsbGV0dG8iLCJjIjoiZmluZCIsImNvIjoiMUlUIiwidCI6MTc5MzAxODcxNn0%3D"
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(e) => e.stopPropagation()}
                 style={{
                   flex: 1,
                   padding: "4px 3px",
@@ -237,12 +236,14 @@ function Card({ ev, hovered, isFirst, onRegister, onTicketNotice }: { ev: TEvent
                   border: "none",
                   boxShadow: "0 2px 6px rgba(255,94,54,0.35)",
                   whiteSpace: "nowrap",
-                  textAlign: "center"
+                  textAlign: "center",
+                  textDecoration: "none",
+                  display: "inline-block"
                 }}
-                title="Biglietto dal vivo (In arrivo)"
+                title="Acquista biglietto dal vivo (5,50€) su Billetto"
               >
-                🎟️ Dal Vivo
-              </button>
+                🎟️ Dal Vivo 5,50€
+              </a>
               <a
                 href="https://iris.giun.one/live/poetry-slam-bacco-e-venere"
                 target="_blank"
@@ -265,14 +266,14 @@ function Card({ ev, hovered, isFirst, onRegister, onTicketNotice }: { ev: TEvent
                   textDecoration: "none",
                   display: "inline-block"
                 }}
-                title="Acquista prevendita Streaming Live su Iris"
+                title="Acquista prevendita Streaming Live (3€) su Iris"
               >
-                📡 Streaming
+                📡 Streaming 3€
               </a>
             </div>
 
             <span style={{ fontSize: 7, fontWeight: 900, color: "#10B981", letterSpacing: "0.04em" }}>
-              ✦ Streaming attivo su Iris ✦
+              ✦ Biglietti Billetto &amp; Streaming Iris attivi ✦
             </span>
           </div>
         )}

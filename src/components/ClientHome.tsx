@@ -570,12 +570,15 @@ export default function ClientHome() {
               }}
             >
               <div>
-                <div className="flex items-center justify-center sm:justify-start gap-2 mb-1">
+                <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 mb-1">
                   <span className="text-base">🎤</span>
                   <span className="text-white font-black text-sm">Sei un poeta? Sali sul palco!</span>
+                  <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-amber-400 text-[#1C1A4A] uppercase tracking-wide animate-pulse">
+                    🔥 Ultimo Posto!
+                  </span>
                 </div>
                 <p className="text-xs text-white/75">
-                  Iscriviti all'Open Mic: 3 minuti, la tua voce, le tue parole.
+                  Gara LIPS &amp; Open Mic: 3 minuti, la tua voce, le tue parole.
                 </p>
               </div>
               <div className="flex items-center gap-2 flex-shrink-0 w-full sm:w-auto justify-center">
@@ -645,30 +648,32 @@ export default function ClientHome() {
                     <span
                       className="text-[10px] font-black px-2.5 py-1 rounded-full uppercase tracking-wider flex items-center gap-1.5 shadow-sm"
                       style={{
-                        background: "linear-gradient(135deg, rgba(255,140,0,0.3) 0%, rgba(255,94,54,0.4) 100%)",
-                        color: "#FFEAD4",
-                        border: "1px solid rgba(255,165,0,0.6)",
+                        background: "linear-gradient(135deg, rgba(34,197,94,0.25) 0%, rgba(16,185,129,0.35) 100%)",
+                        color: "#DCFCE7",
+                        border: "1px solid rgba(74,222,128,0.6)",
                       }}
                     >
-                      <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
-                      In Arrivo
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                      Prevendita Attiva · 5,50 €
                     </span>
                   </div>
                   <h4 className="text-white font-black text-base mb-1.5 flex items-center gap-1.5">
                     Biglietto Dal Vivo
                   </h4>
                   <p className="text-white/80 text-xs leading-relaxed mb-4">
-                    Assisti in presenza all'energia dello slam a Bacco e Venere a Latina. Posto in sala e voto della giuria popolare!
+                    Assisti in presenza a Bacco e Venere a Latina (Via P. R. Giuliani 12). Posto in sala e voto della giuria popolare!
                   </p>
                 </div>
 
                 <div>
-                  <p className="text-[11px] text-orange-200/90 font-bold mb-2 flex items-center gap-1">
-                    <span>⏳</span> Prevendite attive a brevissimo
+                  <p className="text-[11px] text-amber-200/90 font-bold mb-2 flex items-center gap-1">
+                    <span>⚡</span> Biglietti online su Billetto (5,50 €)
                   </p>
-                  <button
-                    onClick={() => setTicketModal({ open: true, type: "live" })}
-                    className="w-full font-black text-xs sm:text-sm py-3.5 px-4 rounded-full transition-all duration-300 transform hover:scale-[1.03] active:scale-[0.98] shadow-lg flex items-center justify-center gap-2 cursor-pointer"
+                  <a
+                    href="https://billetto.it/e/poetry-slam-biglietti-2032403?bref=eyJzIjoiYmlsbGV0dG8iLCJtIjoiYmlsbGV0dG8iLCJjIjoiZmluZCIsImNvIjoiMUlUIiwidCI6MTc5MzAxODcxNn0%3D"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full font-black text-xs sm:text-sm py-3.5 px-4 rounded-full transition-all duration-300 transform hover:scale-[1.03] active:scale-[0.98] shadow-lg flex items-center justify-center gap-2 cursor-pointer no-underline"
                     style={{
                       background: "linear-gradient(135deg, #FF5E36 0%, #FF8A00 50%, #FFA834 100%)",
                       color: "#FFFFFF",
@@ -677,8 +682,34 @@ export default function ClientHome() {
                       textShadow: "0 1px 2px rgba(0,0,0,0.2)",
                     }}
                   >
-                    <span>🎟️</span> Compra Biglietto Dal Vivo
+                    <span>🎟️</span> Compra Biglietto su Billetto →
+                  </a>
+
+                  <button
+                    onClick={() => {
+                      const text = "🎟️ Biglietto per il Poetry Slam di Mercoledì 28 Ottobre da Bacco e Venere (Latina) a 5,50€:";
+                      const url = "https://billetto.it/e/poetry-slam-biglietti-2032403?bref=eyJzIjoiYmlsbGV0dG8iLCJtIjoiYmlsbGV0dG8iLCJjIjoiZmluZCIsImNvIjoiMUlUIiwidCI6MTc5MzAxODcxNn0%3D";
+                      if (navigator.share) {
+                        navigator.share({ title: "Biglietti Poetry Slam 28 Ottobre - Bacco e Venere (Latina)", text, url });
+                      } else {
+                        navigator.clipboard.writeText(`${text}\n${url}`);
+                        alert("Link biglietto Billetto copiato negli appunti!");
+                      }
+                    }}
+                    className="mt-2.5 w-full text-xs font-bold py-2.5 px-4 rounded-full transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2 cursor-pointer"
+                    style={{
+                      background: "rgba(255, 255, 255, 0.18)",
+                      border: "1px solid rgba(255, 255, 255, 0.35)",
+                      color: "white",
+                      backdropFilter: "blur(8px)",
+                    }}
+                  >
+                    <span>↗️</span> Condividi Biglietto Dal Vivo
                   </button>
+
+                  <p className="text-[10px] text-white/70 text-center mt-2.5">
+                    Prenotazioni anche via tel: <a href="tel:3514910626" className="underline font-bold text-white hover:text-orange-200">351 491 0626</a> · <a href="mailto:collettivogelatina@gmail.com" className="underline text-white hover:text-orange-200">email</a>
+                  </p>
                 </div>
               </div>
 
@@ -704,7 +735,7 @@ export default function ClientHome() {
                       }}
                     >
                       <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                      Prevendita Attiva
+                      Prevendita Attiva · 3,00 €
                     </span>
                   </div>
                   <h4 className="text-white font-black text-base mb-1.5 flex items-center gap-1.5">
@@ -717,7 +748,7 @@ export default function ClientHome() {
 
                 <div>
                   <p className="text-[11px] text-emerald-200/90 font-bold mb-2 flex items-center gap-1">
-                    <span>⚡</span> Prevendita attiva su Iris
+                    <span>⚡</span> Prevendita attiva su Iris (3 €)
                   </p>
                   <a
                     href="https://iris.giun.one/live/poetry-slam-bacco-e-venere"
@@ -732,12 +763,12 @@ export default function ClientHome() {
                       textShadow: "0 1px 2px rgba(0,0,0,0.2)",
                     }}
                   >
-                    <span>📡</span> Acquista Prevendita Streaming →
+                    <span>📡</span> Acquista Prevendita Streaming (3 €) →
                   </a>
 
                   <button
                     onClick={() => {
-                      const text = "📡 Segui in Streaming Live il Poetry Slam del 28 Ottobre da Bacco e Venere a Latina! Acquista la prevendita qui:";
+                      const text = "📡 Segui in Streaming Live il Poetry Slam del 28 Ottobre da Bacco e Venere a Latina (3€)! Acquista la prevendita qui:";
                       const url = "https://iris.giun.one/live/poetry-slam-bacco-e-venere";
                       if (navigator.share) {
                         navigator.share({ title: "Streaming Live Poetry Slam 28 Ottobre (Bacco e Venere)", text, url });

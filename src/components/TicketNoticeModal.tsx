@@ -40,50 +40,71 @@ export default function TicketNoticeModal({ isOpen, onClose, type }: TicketNotic
           <span 
             className="inline-flex items-center gap-1.5 text-[11px] font-black px-3 py-1 rounded-full uppercase tracking-wider"
             style={{
-              background: isLive ? "#FFF3E6" : "#ECFDF5",
-              color: isLive ? "#D95D00" : "#047857",
-              border: `1px solid ${isLive ? "#FFCD99" : "#6EE7B7"}`,
+              background: "#ECFDF5",
+              color: "#047857",
+              border: "1px solid #6EE7B7",
             }}
           >
-            <span className={`w-2 h-2 rounded-full ${isLive ? "bg-amber-500" : "bg-emerald-500"} animate-pulse`} />
-            {isLive ? "Funzionalità In Arrivo" : "Prevendita Attiva su Iris"}
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            {isLive ? "Prevendita Attiva · 5,50 €" : "Prevendita Attiva · 3,00 €"}
           </span>
         </div>
 
         <h3 className="text-2xl font-black text-[#1C1A4A] mb-2 leading-tight">
-          {isLive ? "Biglietto Dal Vivo" : "Streaming Live da Casa"}
+          {isLive ? "Biglietto Dal Vivo (Billetto)" : "Streaming Live da Casa (Iris)"}
         </h3>
 
         <p className="text-xs font-bold text-[#FF8A00] mb-4">
-          Mercoledì 28 Ottobre · Ore 19:30 · Bacco e Venere (Latina)
+          Mercoledì 28 Ottobre · Ore 19:30 · Bacco e Venere (Via P. R. Giuliani 12, Latina)
         </p>
 
         <p className="text-sm text-gray-600 leading-relaxed mb-6">
           {isLive ? (
             <>
-              Stiamo definendo gli ultimi dettagli con il locale. A brevissimo potrai acquistare direttamente qui sul sito il tuo <strong>biglietto in presenza</strong> per assistere allo slam dal vivo. I posti in sala saranno limitati!
+              Assisti di persona allo slam a Latina! Posto in sala e voto della giuria popolare per decidere il vincitore. 
+              Biglietto a <strong>5,50 €</strong> su Billetto. Posti limitati!
             </>
           ) : (
             <>
-              La prevendita per seguire la <strong>diretta streaming video</strong> e votare i poeti in tempo reale comodamente da casa è attiva sulla piattaforma ufficiale <strong>Iris</strong>!
+              La prevendita per seguire la <strong>diretta streaming video</strong> (3 €) e votare i poeti in tempo reale comodamente dal divano è attiva sulla piattaforma ufficiale <strong>Iris</strong>! In regalo per te il PDF di Gelatino N°1.
             </>
           )}
         </p>
 
         <div className="flex flex-col gap-3">
           {isLive ? (
-            <a
-              href="https://www.instagram.com/collettivogelatina"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-full font-black text-sm py-3.5 px-6 rounded-full transition-all hover:scale-105 shadow-md flex items-center justify-center gap-2"
-              style={{
-                background: "linear-gradient(135deg, #4B44DF 0%, #7A74FF 100%)",
-                color: "white",
-              }}
-            >
-              <span>📸</span> Seguici su Instagram per la notifica
-            </a>
+            <>
+              <a
+                href="https://billetto.it/e/poetry-slam-biglietti-2032403?bref=eyJzIjoiYmlsbGV0dG8iLCJtIjoiYmlsbGV0dG8iLCJjIjoiZmluZCIsImNvIjoiMUlUIiwidCI6MTc5MzAxODcxNn0%3D"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full font-black text-sm py-3.5 px-6 rounded-full transition-all hover:scale-105 shadow-md flex items-center justify-center gap-2"
+                style={{
+                  background: "linear-gradient(135deg, #FF5E36 0%, #FF8A00 100%)",
+                  color: "white",
+                }}
+              >
+                <span>🎟️</span> Compra Biglietto su Billetto (5,50 €) →
+              </a>
+              <button
+                onClick={() => {
+                  const text = "🎟️ Biglietto per il Poetry Slam di Mercoledì 28 Ottobre da Bacco e Venere (Latina) a 5,50€:";
+                  const url = "https://billetto.it/e/poetry-slam-biglietti-2032403?bref=eyJzIjoiYmlsbGV0dG8iLCJtIjoiYmlsbGV0dG8iLCJjIjoiZmluZCIsImNvIjoiMUlUIiwidCI6MTc5MzAxODcxNn0%3D";
+                  if (navigator.share) {
+                    navigator.share({ title: "Biglietto Poetry Slam 28 Ottobre (Bacco e Venere)", text, url });
+                  } else {
+                    navigator.clipboard.writeText(`${text}\n${url}`);
+                    alert("Link biglietto Billetto copiato negli appunti!");
+                  }
+                }}
+                className="w-full text-xs font-bold py-2.5 px-4 rounded-full border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <span>↗️</span> Condividi Link Biglietto
+              </button>
+              <p className="text-[11px] text-gray-500">
+                Prenotazioni anche via tel: <a href="tel:3514910626" className="text-orange-600 underline font-bold">351 491 0626</a> · <a href="mailto:collettivogelatina@gmail.com" className="text-orange-600 underline">email</a>
+              </p>
+            </>
           ) : (
             <>
               <a
@@ -96,11 +117,11 @@ export default function TicketNoticeModal({ isOpen, onClose, type }: TicketNotic
                   color: "white",
                 }}
               >
-                <span>🎟️</span> Acquista Prevendita su Iris →
+                <span>📡</span> Acquista Prevendita su Iris (3 €) →
               </a>
               <button
                 onClick={() => {
-                  const text = "📡 Segui in Streaming Live il Poetry Slam del 28 Ottobre da Bacco e Venere a Latina! Acquista la prevendita qui:";
+                  const text = "📡 Segui in Streaming Live il Poetry Slam del 28 Ottobre da Bacco e Venere a Latina (3€)! Acquista la prevendita qui:";
                   const url = "https://iris.giun.one/live/poetry-slam-bacco-e-venere";
                   if (navigator.share) {
                     navigator.share({ title: "Streaming Live Poetry Slam 28 Ottobre (Bacco e Venere)", text, url });
