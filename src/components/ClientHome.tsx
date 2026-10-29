@@ -15,12 +15,21 @@ const DARK = "#1C1A4A";
 
 const events = [
   {
+    date: "12 Novembre",
+    title: "Il Divano Astarnato",
+    venue: "Caffè Poeta",
+    time: "20:30",
+    description:
+      "Giovedì 12 Novembre al Caffè Poeta Bistrot Letterario a Latina. Talk live, comicità senza filtri e poesia con Gelatina!",
+    tag: "LIVE TALK",
+  },
+  {
     date: "28 Ottobre",
     title: "Poetry Slam",
     venue: "Bacco e Venere",
     time: "19:30",
     description:
-      "Mercoledì 28 Ottobre ore 19:30 da Bacco e Venere a Latina. Sali sul palco con l'Open Mic!",
+      "Mercoledì 28 Ottobre da Bacco e Venere a Latina. Tappa LIPS e streaming live.",
     tag: "SLAM",
   },
   {
@@ -191,7 +200,7 @@ export default function ClientHome() {
     if (typeof window !== "undefined") {
       const params = new URLSearchParams(window.location.search);
       if (params.get("iscriviti")) {
-        openRegModal("Slam del 28 Ottobre (Bacco e Venere)");
+        openRegModal("Il Divano Astarnato (12 Novembre @ Caffè Poeta)");
       }
       if (params.get("invia-poesia") || window.location.pathname.startsWith("/invia-poesia")) {
         setGelatinoModalOpen(true);
@@ -289,9 +298,9 @@ export default function ClientHome() {
           <div
             className="w-full text-white px-3 sm:px-6 py-2 sm:py-2.5 relative overflow-hidden transition-all"
             style={{
-              background: "linear-gradient(90deg, #E63946 0%, #FF4D36 25%, #FF7A00 65%, #FF9E2C 100%)",
+              background: "linear-gradient(90deg, #7C3AED 0%, #5B21B6 28%, #D9381E 65%, #FF7A00 100%)",
               borderBottom: "1px solid rgba(255,255,255,0.25)",
-              boxShadow: "0 4px 20px rgba(230, 57, 70, 0.35)",
+              boxShadow: "0 4px 20px rgba(124, 58, 237, 0.35)",
             }}
           >
             {/* Shimmer effect */}
@@ -311,40 +320,36 @@ export default function ClientHome() {
                 <span
                   className="text-[10px] sm:text-xs font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider text-[#1C1A4A] bg-white shadow-sm flex items-center gap-1.5 flex-shrink-0"
                 >
-                  <span className="w-2 h-2 rounded-full bg-red-600 animate-ping" />
-                  Mer 28 Ott · 19:30
+                  <span className="w-2 h-2 rounded-full bg-amber-500 animate-ping" />
+                  Gio 12 Nov 2026
                 </span>
                 <span className="text-xs sm:text-sm font-black text-white tracking-tight drop-shadow-sm flex items-center gap-1">
-                  <span>🎤</span>
-                  <span>Poetry Slam da Bacco e Venere (Latina)</span>
+                  <span>🛋️</span>
+                  <span>Il Divano Astarnato arriva a Latina! @ Caffè Poeta</span>
                 </span>
-                <span className="hidden lg:inline text-xs font-bold text-white/90">
-                  · Tappa LIPS
+                <span className="hidden lg:inline text-xs font-bold text-amber-200">
+                  · "Un divano, un microfono, nessuna regola"
                 </span>
               </div>
 
               {/* Action Buttons */}
               <div className="flex items-center gap-2 flex-wrap justify-center">
                 <a
-                  href="https://billetto.it/e/poetry-slam-biglietti-2032403?bref=eyJzIjoiYmlsbGV0dG8iLCJtIjoiYmlsbGV0dG8iLCJjIjoiZmluZCIsImNvIjoiMUlUIiwidCI6MTc5MzAxODcxNn0%3D"
-                  target="_blank"
-                  rel="noopener noreferrer"
+                  href="#prossimo-evento"
                   className="font-black text-xs py-1.5 px-3.5 rounded-full transition-all duration-200 transform hover:scale-105 active:scale-95 shadow-md flex items-center gap-1.5 no-underline cursor-pointer"
                   style={{
                     background: "white",
-                    color: "#D9381E",
+                    color: "#5B21B6",
                     boxShadow: "0 2px 10px rgba(0,0,0,0.25)",
                   }}
                 >
-                  <span>🎟️</span>
-                  <span>Dal Vivo · 5,50 €</span>
+                  <span>🛋️</span>
+                  <span>Scopri l'Evento →</span>
                 </a>
 
-                <a
-                  href="https://iris.giun.one/live/poetry-slam-bacco-e-venere"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="font-black text-xs py-1.5 px-3.5 rounded-full transition-all duration-200 transform hover:scale-105 active:scale-95 shadow-md flex items-center gap-1.5 no-underline cursor-pointer"
+                <button
+                  onClick={() => openRegModal("Il Divano Astarnato (12 Novembre @ Caffè Poeta)")}
+                  className="font-black text-xs py-1.5 px-3.5 rounded-full transition-all duration-200 transform hover:scale-105 active:scale-95 shadow-md flex items-center gap-1.5 cursor-pointer"
                   style={{
                     background: "rgba(28, 26, 74, 0.9)",
                     color: "white",
@@ -354,8 +359,8 @@ export default function ClientHome() {
                   }}
                 >
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                  <span>Streaming · 3 €</span>
-                </a>
+                  <span>Prenota / Info Serata</span>
+                </button>
 
                 <button
                   onClick={() => setShowTopBanner(false)}
@@ -623,8 +628,9 @@ export default function ClientHome() {
             </a>
           </div>
 
-          {/* ── PROSSIMO SLAM: 28 OTTOBRE CARD IN HERO ── */}
+          {/* ── PROSSIMO EVENTO: IL DIVANO ASTARNATO (12 NOVEMBRE) CARD IN HERO ── */}
           <div
+            id="prossimo-evento"
             className="mt-10 w-full max-w-3xl mx-auto rounded-3xl p-6 sm:p-8 backdrop-blur-xl relative overflow-hidden text-center"
             style={{
               background: "rgba(255, 255, 255, 0.12)",
@@ -636,71 +642,129 @@ export default function ClientHome() {
             <div className="flex flex-wrap items-center justify-center gap-2 mb-3">
               <span
                 className="text-xs font-black px-3.5 py-1 rounded-full uppercase tracking-wider text-white shadow-md flex items-center gap-1.5"
-                style={{ background: "#E63946", boxShadow: "0 2px 10px rgba(230,57,70,0.5)" }}
+                style={{
+                  background: "linear-gradient(135deg, #7C3AED 0%, #E63946 100%)",
+                  boxShadow: "0 2px 10px rgba(124,58,237,0.5)",
+                }}
               >
-                <span className="w-2 h-2 rounded-full bg-white animate-ping" />
-                Prossimo Slam · Mercoledì 28 Ottobre
+                <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping" />
+                Prossimo Evento · Giovedì 12 Novembre 2026
               </span>
               <span
                 className="text-xs font-bold px-3 py-1 rounded-full text-white"
                 style={{ background: "rgba(255, 255, 255, 0.2)" }}
               >
-                📍 Bacco e Venere · Latina · Ore 19:30
+                📍 Caffè Poeta Bistrot · Piazza del Popolo 12, Latina
               </span>
             </div>
 
-            <h3 className="text-xl sm:text-2xl font-black text-white mb-2 leading-tight">
-              Poetry Slam &amp; Open Mic
+            <h3 className="text-2xl sm:text-3xl font-black text-white mb-1.5 leading-tight flex items-center justify-center gap-2 flex-wrap">
+              <span>🛋️</span>
+              <span>Il Divano Astarnato</span>
+              <span className="text-amber-300 font-bold text-lg sm:text-xl">@ Caffè Poeta</span>
             </h3>
-            <p className="text-white/85 text-xs sm:text-sm max-w-xl mx-auto mb-6 leading-relaxed">
-              Sali sul palco a recitare i tuoi versi o goditi lo spettacolo tra il pubblico in sala o comodamente da casa con il voto live!
+
+            <p
+              className="text-amber-200/90 font-bold text-sm sm:text-base max-w-lg mx-auto mb-3 italic"
+              style={{ fontFamily: "'Playfair Display', serif" }}
+            >
+              "Un divano, un microfono, nessuna regola."
             </p>
 
-            {/* SEZIONE PER I POETI (OPEN MIC) */}
+            <p className="text-white/85 text-xs sm:text-sm max-w-xl mx-auto mb-6 leading-relaxed">
+              Il format cult di talk show e podcast live più irriverente e spontaneo approda per la prima volta a Latina! Una serata senza filtri dove il <strong>Collettivo Gelatina</strong> incontra <strong>Il Divano Astarnato</strong> nello storico bistrot letterario di Piazza del Popolo: interviste, comicità a ruota libera, risate e incursioni poetiche.
+            </p>
+
+            {/* LE DUE INFO SU DIVANO ASTARNATO E CAFFÈ POETA */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-left mb-6">
+              {/* INFO 1: IL FORMAT */}
+              <div
+                className="p-5 rounded-2xl flex flex-col justify-between transition-all duration-300 relative overflow-hidden"
+                style={{
+                  background: "rgba(255, 255, 255, 0.14)",
+                  border: "1.5px solid rgba(255, 255, 255, 0.25)",
+                  backdropFilter: "blur(14px)",
+                }}
+              >
+                <div>
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-xl">🛋️</span>
+                    <h4 className="text-white font-black text-sm">
+                      Cos'è "Il Divano Astarnato"?
+                    </h4>
+                  </div>
+                  <p className="text-white/80 text-xs leading-relaxed">
+                    Un format talk &amp; comedy nato a Roma tra interviste senza peli sulla lingua, comici, doppiatori, creator e interazione totale col pubblico. <em>"Astarnato"</em> significa stravaccato, comodo come a casa sul divano: zero copioni, zero censure, solo pura improvvisazione e risate!
+                  </p>
+                </div>
+              </div>
+
+              {/* INFO 2: LA LOCATION */}
+              <div
+                className="p-5 rounded-2xl flex flex-col justify-between transition-all duration-300 relative overflow-hidden"
+                style={{
+                  background: "rgba(255, 255, 255, 0.14)",
+                  border: "1.5px solid rgba(255, 255, 255, 0.25)",
+                  backdropFilter: "blur(14px)",
+                }}
+              >
+                <div>
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-xl">☕</span>
+                    <h4 className="text-white font-black text-sm">
+                      La cornice: Caffè Poeta Bistrot
+                    </h4>
+                  </div>
+                  <p className="text-white/80 text-xs leading-relaxed">
+                    Piazza del Popolo 12, nel cuore di Latina. Lo storico locale letterario rinnovato dalla nuova gestione: il punto di ritrovo ideale per un aperitivo, un calice di vino ricercato e una serata di cultura viva, spettacolo e comunità.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* SEZIONE PARTECIPAZIONE & PRENOTAZIONE */}
             <div
-              className="p-4 rounded-2xl mb-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left"
+              className="p-4 sm:p-5 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left"
               style={{
-                background: "rgba(255, 255, 255, 0.1)",
-                border: "1px solid rgba(255, 255, 255, 0.2)",
+                background: "rgba(124, 58, 237, 0.35)",
+                border: "1.5px solid rgba(255, 255, 255, 0.3)",
+                boxShadow: "0 8px 24px rgba(0, 0, 0, 0.15)",
               }}
             >
               <div>
-                <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 mb-1">
-                  <span className="text-base">🎤</span>
-                  <span className="text-white font-black text-sm">Sei un poeta? Sali sul palco!</span>
-                  <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-amber-400 text-[#1C1A4A] uppercase tracking-wide animate-pulse">
-                    🔥 Ultimo Posto!
-                  </span>
+                <div className="flex items-center justify-center sm:justify-start gap-2 mb-1">
+                  <span className="text-base">✨</span>
+                  <span className="text-white font-black text-sm">Posti limitati in sala!</span>
                 </div>
-                <p className="text-xs text-white/75">
-                  Gara LIPS &amp; Open Mic: 3 minuti, la tua voce, le tue parole.
+                <p className="text-xs text-white/80">
+                  Vuoi riservare un posto o un tavolo? Scrivi al Collettivo o contattaci direttamente.
                 </p>
               </div>
+
               <div className="flex items-center gap-2 flex-shrink-0 w-full sm:w-auto justify-center">
                 <button
-                  onClick={() => openRegModal("Slam del 28 Ottobre (Bacco e Venere)")}
+                  onClick={() => openRegModal("Il Divano Astarnato (12 Novembre @ Caffè Poeta)")}
                   className="font-black text-xs sm:text-sm px-6 py-3 rounded-full transition-all hover:scale-105 shadow-xl cursor-pointer"
                   style={{
-                    background: "#E63946",
-                    color: "white",
-                    boxShadow: "0 4px 18px rgba(230,57,70,0.6)",
-                    animation: "pulse 2s infinite",
+                    background: "white",
+                    color: "#5B21B6",
+                    boxShadow: "0 4px 18px rgba(255, 255, 255, 0.35)",
                   }}
                 >
-                  🎤 Iscriviti Open Mic
+                  ✍️ Prenota Posto / Info
                 </button>
                 <button
                   onClick={() => {
-                    const text = "🎤 Iscriviti all'Open Mic del 28 Ottobre da Bacco e Venere!";
-                    const url = "https://www.collettivogelatina.it/?iscriviti=28-ottobre";
+                    const text = "🛋️ Il Divano Astarnato arriva a Latina! Giovedì 12 Novembre al Caffè Poeta Bistrot con il Collettivo Gelatina:";
+                    const url = "https://www.collettivogelatina.it";
                     if (navigator.share) {
-                      navigator.share({ title: "Iscriviti all'Open Mic del 28 ottobre (Bacco e Venere)", text, url });
+                      navigator.share({ title: "Il Divano Astarnato al Caffè Poeta (Latina)", text, url });
                     } else {
                       navigator.clipboard.writeText(`${text}\n${url}`);
-                      alert("Link di iscrizione copiato!");
+                      alert("Link evento copiato negli appunti!");
                     }
                   }}
-                  title="Condividi link d'iscrizione"
+                  title="Condividi evento"
                   className="font-black text-xs px-3.5 py-3 rounded-full transition-all hover:scale-105 cursor-pointer"
                   style={{
                     background: "rgba(255, 255, 255, 0.18)",
@@ -713,178 +777,9 @@ export default function ClientHome() {
               </div>
             </div>
 
-            {/* DIVISORE PUBBLICO */}
-            <div className="flex items-center justify-center gap-3 mb-5">
-              <div className="h-[1px] flex-grow bg-white/20" />
-              <span
-                className="text-[11px] font-black uppercase tracking-[0.2em] text-white px-3 py-1 rounded-full shadow-sm"
-                style={{ background: "rgba(255, 255, 255, 0.16)", border: "1px solid rgba(255, 255, 255, 0.25)" }}
-              >
-                ✨ Partecipa come Pubblico
-              </span>
-              <div className="h-[1px] flex-grow bg-white/20" />
-            </div>
-
-            {/* LE DUE SEZIONI SPETTATORI */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-left">
-              {/* OPZIONE 1: BIGLIETTO DAL VIVO */}
-              <div
-                className="p-5 rounded-2xl flex flex-col justify-between transition-all duration-300 hover:border-orange-300/60 relative overflow-hidden group"
-                style={{
-                  background: "rgba(255, 255, 255, 0.14)",
-                  border: "1.5px solid rgba(255, 255, 255, 0.25)",
-                  backdropFilter: "blur(14px)",
-                  boxShadow: "0 8px 24px rgba(0, 0, 0, 0.1)",
-                }}
-              >
-                <div>
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="text-2xl">🎟️</span>
-                    <span
-                      className="text-[10px] font-black px-2.5 py-1 rounded-full uppercase tracking-wider flex items-center gap-1.5 shadow-sm"
-                      style={{
-                        background: "linear-gradient(135deg, rgba(34,197,94,0.25) 0%, rgba(16,185,129,0.35) 100%)",
-                        color: "#DCFCE7",
-                        border: "1px solid rgba(74,222,128,0.6)",
-                      }}
-                    >
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                      Prevendita Attiva · 5,50 €
-                    </span>
-                  </div>
-                  <h4 className="text-white font-black text-base mb-1.5 flex items-center gap-1.5">
-                    Biglietto Dal Vivo
-                  </h4>
-                  <p className="text-white/80 text-xs leading-relaxed mb-4">
-                    Assisti in presenza a Bacco e Venere a Latina (Via P. R. Giuliani 12). Posto in sala e voto della giuria popolare!
-                  </p>
-                </div>
-
-                <div>
-                  <p className="text-[11px] text-amber-200/90 font-bold mb-2 flex items-center gap-1">
-                    <span>⚡</span> Biglietti online su Billetto (5,50 €)
-                  </p>
-                  <a
-                    href="https://billetto.it/e/poetry-slam-biglietti-2032403?bref=eyJzIjoiYmlsbGV0dG8iLCJtIjoiYmlsbGV0dG8iLCJjIjoiZmluZCIsImNvIjoiMUlUIiwidCI6MTc5MzAxODcxNn0%3D"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-full font-black text-xs sm:text-sm py-3.5 px-4 rounded-full transition-all duration-300 transform hover:scale-[1.03] active:scale-[0.98] shadow-lg flex items-center justify-center gap-2 cursor-pointer no-underline"
-                    style={{
-                      background: "linear-gradient(135deg, #FF5E36 0%, #FF8A00 50%, #FFA834 100%)",
-                      color: "#FFFFFF",
-                      boxShadow: "0 6px 20px rgba(255, 94, 54, 0.45), inset 0 1px 1px rgba(255, 255, 255, 0.4)",
-                      border: "1px solid rgba(255, 255, 255, 0.35)",
-                      textShadow: "0 1px 2px rgba(0,0,0,0.2)",
-                    }}
-                  >
-                    <span>🎟️</span> Compra Biglietto su Billetto →
-                  </a>
-
-                  <button
-                    onClick={() => {
-                      const text = "🎟️ Biglietto per il Poetry Slam di Mercoledì 28 Ottobre da Bacco e Venere (Latina) a 5,50€:";
-                      const url = "https://billetto.it/e/poetry-slam-biglietti-2032403?bref=eyJzIjoiYmlsbGV0dG8iLCJtIjoiYmlsbGV0dG8iLCJjIjoiZmluZCIsImNvIjoiMUlUIiwidCI6MTc5MzAxODcxNn0%3D";
-                      if (navigator.share) {
-                        navigator.share({ title: "Biglietti Poetry Slam 28 Ottobre - Bacco e Venere (Latina)", text, url });
-                      } else {
-                        navigator.clipboard.writeText(`${text}\n${url}`);
-                        alert("Link biglietto Billetto copiato negli appunti!");
-                      }
-                    }}
-                    className="mt-2.5 w-full text-xs font-bold py-2.5 px-4 rounded-full transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2 cursor-pointer"
-                    style={{
-                      background: "rgba(255, 255, 255, 0.18)",
-                      border: "1px solid rgba(255, 255, 255, 0.35)",
-                      color: "white",
-                      backdropFilter: "blur(8px)",
-                    }}
-                  >
-                    <span>↗️</span> Condividi Biglietto Dal Vivo
-                  </button>
-
-                  <p className="text-[10px] text-white/70 text-center mt-2.5">
-                    Prenotazioni anche via tel: <a href="tel:3514910626" className="underline font-bold text-white hover:text-orange-200">351 491 0626</a> · <a href="mailto:collettivogelatina@gmail.com" className="underline text-white hover:text-orange-200">email</a>
-                  </p>
-                </div>
-              </div>
-
-              {/* OPZIONE 2: STREAMING LIVE DA CASA */}
-              <div
-                className="p-5 rounded-2xl flex flex-col justify-between transition-all duration-300 hover:border-orange-300/60 relative overflow-hidden group"
-                style={{
-                  background: "rgba(255, 255, 255, 0.14)",
-                  border: "1.5px solid rgba(255, 255, 255, 0.25)",
-                  backdropFilter: "blur(14px)",
-                  boxShadow: "0 8px 24px rgba(0, 0, 0, 0.1)",
-                }}
-              >
-                <div>
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="text-2xl">📡</span>
-                    <span
-                      className="text-[10px] font-black px-2.5 py-1 rounded-full uppercase tracking-wider flex items-center gap-1.5 shadow-sm"
-                      style={{
-                        background: "linear-gradient(135deg, rgba(34,197,94,0.25) 0%, rgba(16,185,129,0.35) 100%)",
-                        color: "#DCFCE7",
-                        border: "1px solid rgba(74,222,128,0.6)",
-                      }}
-                    >
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                      Prevendita Attiva · 3,00 €
-                    </span>
-                  </div>
-                  <h4 className="text-white font-black text-base mb-1.5 flex items-center gap-1.5">
-                    Streaming da Casa
-                  </h4>
-                  <p className="text-white/80 text-xs leading-relaxed mb-4">
-                    Non riesci a venire a Latina? Segui la diretta streaming video e vota i poeti in tempo reale con la nostra web app!
-                  </p>
-                </div>
-
-                <div>
-                  <p className="text-[11px] text-emerald-200/90 font-bold mb-2 flex items-center gap-1">
-                    <span>⚡</span> Prevendita attiva su Iris (3 €)
-                  </p>
-                  <a
-                    href="https://iris.giun.one/live/poetry-slam-bacco-e-venere"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-full font-black text-xs sm:text-sm py-3.5 px-4 rounded-full transition-all duration-300 transform hover:scale-[1.03] active:scale-[0.98] shadow-lg flex items-center justify-center gap-2 cursor-pointer no-underline"
-                    style={{
-                      background: "linear-gradient(135deg, #FF6B35 0%, #FF9233 50%, #FFB03A 100%)",
-                      color: "#FFFFFF",
-                      boxShadow: "0 6px 20px rgba(255, 107, 53, 0.45), inset 0 1px 1px rgba(255, 255, 255, 0.4)",
-                      border: "1px solid rgba(255, 255, 255, 0.35)",
-                      textShadow: "0 1px 2px rgba(0,0,0,0.2)",
-                    }}
-                  >
-                    <span>📡</span> Acquista Prevendita Streaming (3 €) →
-                  </a>
-
-                  <button
-                    onClick={() => {
-                      const text = "📡 Segui in Streaming Live il Poetry Slam del 28 Ottobre da Bacco e Venere a Latina (3€)! Acquista la prevendita qui:";
-                      const url = "https://iris.giun.one/live/poetry-slam-bacco-e-venere";
-                      if (navigator.share) {
-                        navigator.share({ title: "Streaming Live Poetry Slam 28 Ottobre (Bacco e Venere)", text, url });
-                      } else {
-                        navigator.clipboard.writeText(`${text}\n${url}`);
-                        alert("Link prevendita streaming copiato negli appunti!");
-                      }
-                    }}
-                    className="mt-2.5 w-full text-xs font-bold py-2.5 px-4 rounded-full transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2 cursor-pointer"
-                    style={{
-                      background: "rgba(255, 255, 255, 0.18)",
-                      border: "1px solid rgba(255, 255, 255, 0.35)",
-                      color: "white",
-                      backdropFilter: "blur(8px)",
-                    }}
-                  >
-                    <span>↗️</span> Condividi Link Streaming
-                  </button>
-                </div>
-              </div>
-            </div>
+            <p className="text-[11px] text-white/70 text-center mt-3">
+              Prenotazioni &amp; Info anche via tel: <a href="tel:3514910626" className="underline font-bold text-white hover:text-amber-200">351 491 0626</a> · <a href="mailto:collettivogelatina@gmail.com" className="underline text-white hover:text-amber-200">email</a>
+            </p>
           </div>
 
           <div className="mt-16 text-white/30 text-xs tracking-[0.4em] uppercase animate-bounce">

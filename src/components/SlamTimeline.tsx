@@ -53,7 +53,8 @@ const TIMELINE: TEvent[] = [
   { id: 15, label: "11 Lug 2026",    title: "Estrella Pop Slam",      desc: "Poetry slam locale all'Estrella Pop. Le voci del territorio si sfidano a colpi di versi.",               tag: "SLAM",          past: true  },
   { id: 16, label: "16 Lug 2026",    title: "Sottoscala9",            desc: "Presentazione del libro ed open mic. Uno spazio aperto alle parole e alle nuove pubblicazioni.",           tag: "PRESENTAZIONE", past: true  },
   { id: 17, label: "3 Set 2026",    title: "Slam all'Hotel Tirreno", desc: "Poetry slam sul mare all'Hotel Tirreno. Versi, onde e microfoni accesi.",                               tag: "SLAM",          past: true  },
-  { id: 18, label: "28 Ott",        title: "Slam a Bacco e Venere",  desc: "Mercoledì 28 Ottobre ore 19:30 da Bacco e Venere a Latina. Sali sul palco per l'Open Mic!",                 tag: "SLAM",          past: false },
+  { id: 18, label: "28 Ott 2026",   title: "Slam a Bacco e Venere",  desc: "Mercoledì 28 Ottobre da Bacco e Venere a Latina. Tappa LIPS infuocata tra voci dal vivo e voto in streaming.", tag: "SLAM",          past: true  },
+  { id: 19, label: "12 Nov",        title: "Il Divano Astarnato",    desc: "Giovedì 12 Novembre al Caffè Poeta Bistrot (Piazza del Popolo, Latina). Talk live, comicità senza filtri e poesia con Gelatina!", tag: "LIVE TALK",     past: false },
 ];
 
 function CoverFloat({ src }: { src: string }) {
@@ -155,7 +156,7 @@ function Card({ ev, hovered, isFirst, onRegister, onTicketNotice }: { ev: TEvent
         </p>
         {(hovered || isFirst) && !ev.past && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'center', marginTop: 4, width: '100%' }}>
-            {/* Row 1: Open Mic & Condividi */}
+            {/* Row 1: Info & Prenota */}
             <div style={{ display: 'flex', gap: '4px', width: '100%', alignItems: 'center' }}>
               <button
                 onClick={(e) => {
@@ -163,14 +164,14 @@ function Card({ ev, hovered, isFirst, onRegister, onTicketNotice }: { ev: TEvent
                   if (onRegister) {
                     onRegister(ev.title);
                   } else {
-                    window.location.href = `mailto:collettivogelatina@gmail.com?subject=Iscrizione%20${encodeURIComponent(ev.title)}`;
+                    window.location.href = `mailto:collettivogelatina@gmail.com?subject=Info%20${encodeURIComponent(ev.title)}`;
                   }
                 }}
                 style={{
                   flexGrow: 1,
                   padding: "5px 8px",
                   borderRadius: 99,
-                  background: "#E63946",
+                  background: "#7C3AED",
                   color: "white",
                   fontSize: 9,
                   fontWeight: 900,
@@ -179,32 +180,32 @@ function Card({ ev, hovered, isFirst, onRegister, onTicketNotice }: { ev: TEvent
                   fontFamily: "'Space Mono', monospace",
                   letterSpacing: "0.04em",
                   border: "none",
-                  boxShadow: "0 2px 8px rgba(230,57,70,0.4)",
+                  boxShadow: "0 2px 8px rgba(124,58,237,0.4)",
                   animation: "pulse 2s infinite",
                   whiteSpace: "nowrap"
                 }}
               >
-                🎤 Open Mic
+                🛋️ Info &amp; Prenota
               </button>
               <button
                 onClick={(e) => {
                   e.stopPropagation();
-                  const text = `🎤 Iscriviti all'Open Mic del 28 Ottobre da Bacco e Venere!`;
-                  const url = `https://www.collettivogelatina.it/?iscriviti=28-ottobre`;
+                  const text = `🛋️ Il Divano Astarnato arriva a Latina giovedì 12 Novembre al Caffè Poeta con il Collettivo Gelatina!`;
+                  const url = `https://www.collettivogelatina.it`;
                   if (navigator.share) {
-                    navigator.share({ title: "Iscriviti all'Open Mic del 28 ottobre (Bacco e Venere)", text, url });
+                    navigator.share({ title: "Il Divano Astarnato al Caffè Poeta", text, url });
                   } else {
                     navigator.clipboard.writeText(`${text}\n${url}`);
                     alert("Link copiato!");
                   }
                 }}
-                title="Condividi link d'iscrizione"
+                title="Condividi evento"
                 style={{
                   padding: "4px 8px",
                   borderRadius: 99,
-                  border: "1.5px solid #4B44DF",
+                  border: "1.5px solid #7C3AED",
                   background: "transparent",
-                  color: "#4B44DF",
+                  color: "#7C3AED",
                   fontSize: 9,
                   fontWeight: 900,
                   cursor: "pointer",
@@ -216,64 +217,35 @@ function Card({ ev, hovered, isFirst, onRegister, onTicketNotice }: { ev: TEvent
               </button>
             </div>
 
-            {/* Row 2: Dal Vivo & Streaming */}
-            <div style={{ display: 'flex', gap: '3px', width: '100%' }}>
+            {/* Row 2: Location pill */}
+            <div style={{ width: '100%' }}>
               <a
-                href="https://billetto.it/e/poetry-slam-biglietti-2032403?bref=eyJzIjoiYmlsbGV0dG8iLCJtIjoiYmlsbGV0dG8iLCJjIjoiZmluZCIsImNvIjoiMUlUIiwidCI6MTc5MzAxODcxNn0%3D"
-                target="_blank"
-                rel="noopener noreferrer"
+                href="#prossimo-evento"
                 onClick={(e) => e.stopPropagation()}
                 style={{
-                  flex: 1,
-                  padding: "4px 3px",
+                  display: "block",
+                  width: "100%",
+                  padding: "4px 6px",
                   borderRadius: 99,
-                  background: "linear-gradient(135deg, #FF5E36 0%, #FF8A00 100%)",
+                  background: "linear-gradient(135deg, #4B44DF 0%, #7C3AED 100%)",
                   color: "white",
                   fontSize: 8,
                   fontWeight: 900,
                   cursor: "pointer",
                   pointerEvents: "auto",
                   border: "none",
-                  boxShadow: "0 2px 6px rgba(255,94,54,0.35)",
+                  boxShadow: "0 2px 6px rgba(75,68,223,0.35)",
                   whiteSpace: "nowrap",
                   textAlign: "center",
-                  textDecoration: "none",
-                  display: "inline-block"
+                  textDecoration: "none"
                 }}
-                title="Acquista biglietto dal vivo (5,50€) su Billetto"
               >
-                🎟️ Dal Vivo 5,50€
-              </a>
-              <a
-                href="https://iris.giun.one/live/poetry-slam-bacco-e-venere"
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={(e) => e.stopPropagation()}
-                style={{
-                  flex: 1,
-                  padding: "4px 3px",
-                  borderRadius: 99,
-                  background: "linear-gradient(135deg, #FF6B35 0%, #FFB03A 100%)",
-                  color: "white",
-                  fontSize: 8,
-                  fontWeight: 900,
-                  cursor: "pointer",
-                  pointerEvents: "auto",
-                  border: "none",
-                  boxShadow: "0 2px 6px rgba(255,107,53,0.35)",
-                  whiteSpace: "nowrap",
-                  textAlign: "center",
-                  textDecoration: "none",
-                  display: "inline-block"
-                }}
-                title="Acquista prevendita Streaming Live (3€) su Iris"
-              >
-                📡 Streaming 3€
+                ☕ Caffè Poeta Bistrot (Latina)
               </a>
             </div>
 
-            <span style={{ fontSize: 7, fontWeight: 900, color: "#10B981", letterSpacing: "0.04em" }}>
-              ✦ Biglietti Billetto &amp; Streaming Iris attivi ✦
+            <span style={{ fontSize: 7, fontWeight: 900, color: "#7C3AED", letterSpacing: "0.04em" }}>
+              ✦ Gio 12 Nov · Piazza del Popolo 12 ✦
             </span>
           </div>
         )}

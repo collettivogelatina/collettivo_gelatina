@@ -3,12 +3,12 @@ import "./globals.css";
 import CookieBanner from "@/components/CookieBanner";
 
 export const metadata: Metadata = {
-  title: "Iscriviti all'Open Mic del 28 Ottobre — Gelatina",
+  title: "Il Divano Astarnato al Caffè Poeta (12 Novembre) — Gelatina",
   description:
-    "Gelatina torna sul palco mercoledì 28 Ottobre da Bacco e Venere a Latina (ore 19:30). Sali a leggere le tue poesie con l'Open Mic. Clicca qui per iscriverti!",
+    "Giovedì 12 Novembre 2026 il Collettivo Gelatina ospita Il Divano Astarnato al Caffè Poeta Bistrot Letterario in Piazza del Popolo a Latina. Talk live, comicità senza filtri e poesia!",
   openGraph: {
-    title: "Iscriviti all'Open Mic del 28 Ottobre — Gelatina",
-    description: "Gelatina torna sul palco mercoledì 28 Ottobre da Bacco e Venere a Latina (ore 19:30). Sali a leggere le tue poesie con l'Open Mic. Clicca qui per iscriverti!",
+    title: "Il Divano Astarnato al Caffè Poeta (12 Novembre) — Gelatina",
+    description: "Giovedì 12 Novembre 2026 il Collettivo Gelatina ospita Il Divano Astarnato al Caffè Poeta Bistrot Letterario in Piazza del Popolo a Latina. Talk live, comicità senza filtri e poesia!",
     url: "https://www.collettivogelatina.it",
     siteName: "Gelatina Poetry Slam",
     images: [
@@ -16,7 +16,7 @@ export const metadata: Metadata = {
         url: "https://www.collettivogelatina.it/og-microphone.jpg",
         width: 1200,
         height: 675,
-        alt: "Gelatina Poetry Slam Microphone",
+        alt: "Gelatina Spoken Word & Talk Live",
       },
     ],
     locale: "it_IT",
@@ -24,8 +24,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Iscriviti all'Open Mic del 28 Ottobre — Gelatina",
-    description: "Gelatina torna sul palco mercoledì 28 Ottobre da Bacco e Venere a Latina (ore 19:30). Sali a leggere le tue poesie con l'Open Mic. Clicca qui per iscriverti!",
+    title: "Il Divano Astarnato al Caffè Poeta (12 Novembre) — Gelatina",
+    description: "Giovedì 12 Novembre 2026 il Collettivo Gelatina ospita Il Divano Astarnato al Caffè Poeta Bistrot Letterario in Piazza del Popolo a Latina. Talk live, comicità senza filtri e poesia!",
     images: ["https://www.collettivogelatina.it/og-microphone.jpg"],
   },
 };
