@@ -1,23 +1,26 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 interface OrderPrintedGelatinoModalProps {
   isOpen: boolean;
   onClose: () => void;
   defaultIssueNumber?: number;
+  initialBundle?: "trio" | "natale" | null;
 }
 
 export default function OrderPrintedGelatinoModal({
   isOpen,
   onClose,
   defaultIssueNumber,
+  initialBundle,
 }: OrderPrintedGelatinoModalProps) {
   const [copies, setCopies] = useState<{ [key: number]: number }>({
-    1: defaultIssueNumber === 1 ? 1 : 0,
-    2: defaultIssueNumber === 2 ? 1 : 0,
-    3: defaultIssueNumber === 3 ? 1 : 0,
-    4: defaultIssueNumber === 4 ? 1 : (defaultIssueNumber ? 0 : 1),
+    1: 0,
+    2: 0,
+    3: 0,
+    4: 0,
+    5: 0,
   });
 
   const [name, setName] = useState("");
@@ -31,29 +34,73 @@ export default function OrderPrintedGelatinoModal({
   const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
   const [errorMsg, setErrorMsg] = useState("");
 
+  // Sync initial setup whenever modal opens or props change
+  useEffect(() => {
+    if (isOpen) {
+      if (initialBundle === "natale") {
+        setCopies({ 1: 1, 2: 1, 3: 1, 4: 1, 5: 1 });
+      } else if (initialBundle === "trio") {
+        setCopies({ 1: 1, 2: 1, 3: 1, 4: 0, 5: 0 });
+      } else if (defaultIssueNumber && defaultIssueNumber >= 1 && defaultIssueNumber <= 5) {
+        setCopies({
+          1: defaultIssueNumber === 1 ? 1 : 0,
+          2: defaultIssueNumber === 2 ? 1 : 0,
+          3: defaultIssueNumber === 3 ? 1 : 0,
+          4: defaultIssueNumber === 4 ? 1 : 0,
+          5: defaultIssueNumber === 5 ? 1 : 0,
+        });
+      } else {
+        setCopies({ 1: 0, 2: 0, 3: 0, 4: 1, 5: 0 });
+      }
+    }
+  }, [isOpen, defaultIssueNumber, initialBundle]);
+
   if (!isOpen) return null;
 
-  const totalCopies = (copies[1] || 0) + (copies[2] || 0) + (copies[3] || 0) + (copies[4] || 0);
+  const totalCopies =
+    (copies[1] || 0) +
+    (copies[2] || 0) +
+    (copies[3] || 0) +
+    (copies[4] || 0) +
+    (copies[5] || 0);
 
-  // Price math:
-  // Base: 5€ each + 2€ shipping
-  // Trio offer: 3 copies for 13€ (+ 2€ shipping)
-  // Additional copies: 5€ each
+  // Price Calculation:
+  // - 1-2 copies: 5€ each + 2€ shipping
+  // - 3 copies (Trio): 13€ + 2€ shipping = 15€
+  // - 4 copies: 18€ + 2€ shipping = 20€
+  // - 5 copies (Offerta Natale - tutti i primi 5 numeri): 20€ flat (spese di spedizione COMPRESE!)
+  // - >5 copies: 20€ + 4€ per extra copy (spedizione compresa)
   let copiesPrice = 0;
+  let shippingCost = 0;
+  let isChristmasDeal = false;
+  let isTrioDeal = false;
+
   if (totalCopies === 0) {
     copiesPrice = 0;
-  } else if (totalCopies < 3) {
-    copiesPrice = totalCopies * 5;
+    shippingCost = 0;
+  } else if (totalCopies === 5) {
+    copiesPrice = 20;
+    shippingCost = 0; // Spese di spedizione comprese!
+    isChristmasDeal = true;
   } else if (totalCopies === 3) {
     copiesPrice = 13;
+    shippingCost = 2;
+    isTrioDeal = true;
+  } else if (totalCopies < 3) {
+    copiesPrice = totalCopies * 5;
+    shippingCost = 2;
+  } else if (totalCopies === 4) {
+    copiesPrice = 18;
+    shippingCost = 2;
+    isTrioDeal = true;
   } else {
-    // 3 for 13, then +5 for each additional
-    copiesPrice = 13 + (totalCopies - 3) * 5;
+    // More than 5
+    copiesPrice = 20 + (totalCopies - 5) * 4;
+    shippingCost = 0;
+    isChristmasDeal = true;
   }
 
-  const shippingCost = totalCopies > 0 ? 2 : 0;
   const totalPrice = copiesPrice + shippingCost;
-  const isTrioDeal = totalCopies >= 3;
 
   const updateQuantity = (issueNum: number, delta: number) => {
     setCopies((prev) => {
@@ -64,11 +111,11 @@ export default function OrderPrintedGelatinoModal({
   };
 
   const selectTrioDeal = () => {
-    setCopies({ 1: 1, 2: 1, 3: 1, 4: 0 });
+    setCopies({ 1: 1, 2: 1, 3: 1, 4: 0, 5: 0 });
   };
 
-  const selectAllFour = () => {
-    setCopies({ 1: 1, 2: 1, 3: 1, 4: 1 });
+  const selectChristmasDeal = () => {
+    setCopies({ 1: 1, 2: 1, 3: 1, 4: 1, 5: 1 });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -90,6 +137,7 @@ export default function OrderPrintedGelatinoModal({
       copies[2] > 0 ? `N.2 Gusto Limone: ${copies[2]} cop.` : null,
       copies[3] > 0 ? `N.3 Gusto Menta e Basilico: ${copies[3]} cop.` : null,
       copies[4] > 0 ? `N.4 Gusto Zucca e Amaretto: ${copies[4]} cop.` : null,
+      copies[5] > 0 ? `N.5 Edizione di Natale: ${copies[5]} cop.` : null,
     ]
       .filter(Boolean)
       .join(" | ");
@@ -102,7 +150,7 @@ export default function OrderPrintedGelatinoModal({
           Accept: "application/json",
         },
         body: JSON.stringify({
-          _subject: `📦 Nuovo Ordine Gelatino Cartaceo da ${name} (${totalCopies} copie - ${totalPrice}€)`,
+          _subject: `📦 Nuovo Ordine Gelatino Cartaceo da ${name} (${totalCopies} copie - ${totalPrice}€${isChristmasDeal ? " - OFFERTA NATALE" : ""})`,
           _replyto: email,
           "Nome e Cognome": name,
           Email: email,
@@ -110,9 +158,13 @@ export default function OrderPrintedGelatinoModal({
           "Totale Copie": totalCopies,
           "Dettaglio Copie": issuesSummary,
           "Costo Copie (€)": copiesPrice,
-          "Spese Spedizione (€)": shippingCost,
-          "Totale Stimato (€)": totalPrice,
-          "Offerta Trio Applicata": isTrioDeal ? "SÌ (13€ per 3 copie)" : "No",
+          "Spese Spedizione (€)": shippingCost === 0 ? "0 € (COMPRESE NELL'OFFERTA)" : `${shippingCost} €`,
+          "Totale Finale (€)": totalPrice,
+          "Offerta Applicata": isChristmasDeal
+            ? "🎄 OFFERTA DI NATALE (Tutti e 5 i numeri a 20€ con spedizione inclusa)"
+            : isTrioDeal
+            ? "🌟 OFFERTA TRIO (13€ per 3 copie + 2€ spedizione)"
+            : "Prezzo standard (5€ a copia)",
           "È un regalo per terzi": isGift ? `SÌ, destinatario: ${recipientName || "Vedi indirizzo"}` : "No (per me)",
           "Indirizzo di Consegna": address,
           "Città e CAP": cityCap,
@@ -171,7 +223,8 @@ export default function OrderPrintedGelatinoModal({
               Grazie, {name}!
             </h3>
             <p className="text-sm text-gray-600 leading-relaxed max-w-md mx-auto mb-6">
-              Abbiamo registrato la tua richiesta per <strong>{totalCopies} {totalCopies === 1 ? "copia" : "copie"}</strong> di Gelatino cartaceo (totale: <strong>{totalPrice}€</strong> con spedizione inclusa).
+              Abbiamo registrato la tua richiesta per <strong>{totalCopies} {totalCopies === 1 ? "copia" : "copie"}</strong> di Gelatino cartaceo (totale: <strong>{totalPrice}€</strong>
+              {shippingCost === 0 ? " con spese di spedizione comprese!" : " con spedizione inclusa"}).
               <br /><br />
               Ti ricontatteremo prestissimo via <strong>email o WhatsApp</strong> per confermare l&apos;indirizzo e concordare il pagamento (PayPal, Bonifico, Satispay o PostePay) prima di spedire il pacchetto!
             </p>
@@ -207,29 +260,54 @@ export default function OrderPrintedGelatinoModal({
 
             {/* Offer Callout Banner */}
             <div
-              className="p-4 rounded-2xl mb-6 flex flex-col sm:flex-row items-center justify-between gap-3"
+              className="p-4 rounded-2xl mb-6 space-y-3"
               style={{
                 background: "linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 100%)",
                 border: "1.5px dashed #F59E0B",
               }}
             >
-              <div className="text-left text-xs leading-relaxed">
-                <p className="font-black text-sm text-[#92400E] flex items-center gap-1.5 mb-1">
-                  <span>✨</span>
-                  <span>5€ a copia (+2€ spedizione)</span>
-                </p>
-                <p className="text-gray-700">
-                  🌟 <strong>Offerta Trio: 3 numeri a soli 13€</strong> (+ 2€ spedizione in tutta Italia).
-                  Risparmi 2€ e fai scorta di versi!
-                </p>
-              </div>
-              <div className="flex gap-2 flex-shrink-0">
+              {/* Row 1: Trio Deal */}
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5">
+                <div className="text-left text-xs leading-relaxed">
+                  <p className="font-black text-sm text-[#92400E] flex items-center gap-1.5 mb-0.5">
+                    <span>✨</span>
+                    <span>5€ a copia (+2€ spedizione)</span>
+                  </p>
+                  <p className="text-gray-700">
+                    🌟 <strong>Offerta Trio: 3 numeri a soli 13€</strong> (+ 2€ spedizione).
+                  </p>
+                </div>
                 <button
                   type="button"
                   onClick={selectTrioDeal}
-                  className="text-xs font-black px-3 py-1.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white shadow-sm transition-transform active:scale-95 cursor-pointer whitespace-nowrap"
+                  className="text-xs font-black px-3.5 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white shadow-sm transition-transform active:scale-95 cursor-pointer whitespace-nowrap self-stretch sm:self-auto text-center"
                 >
                   ⚡ Scegli Trio (13€)
+                </button>
+              </div>
+
+              {/* Row 2: Brilliant Red Christmas Offer Button */}
+              <div className="pt-3 border-t border-amber-300/70 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5">
+                <div className="text-left text-xs leading-relaxed">
+                  <p className="font-black text-sm text-red-700 flex items-center gap-1.5 mb-0.5">
+                    <span>🎄</span>
+                    <span>Speciale Natale: I primi 5 numeri a 20€</span>
+                  </p>
+                  <p className="text-red-900 font-semibold">
+                    🎁 <strong>Tutti e 5 i primi numeri fisici</strong> a soli 20€ — <strong>spese di spedizione comprese!</strong>
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={selectChristmasDeal}
+                  className="w-full sm:w-auto text-xs font-black px-4 py-2.5 rounded-xl text-white shadow-md transition-all hover:scale-105 active:scale-95 cursor-pointer flex items-center justify-center gap-1.5 border border-red-300 whitespace-nowrap"
+                  style={{
+                    background: "linear-gradient(135deg, #EF4444 0%, #DC2626 50%, #B91C1C 100%)",
+                    boxShadow: "0 4px 14px rgba(220, 38, 38, 0.35)",
+                  }}
+                >
+                  <span>🎄</span>
+                  <span>Offerta Natale: 5 Numeri a 20€ (Sped. Inclusa!)</span>
                 </button>
               </div>
             </div>
@@ -352,21 +430,61 @@ export default function OrderPrintedGelatinoModal({
                       </button>
                     </div>
                   </div>
+
+                  {/* Issue 5 - Christmas Edition */}
+                  <div className="flex items-center justify-between p-3 rounded-2xl border border-red-300 bg-red-50/70 sm:col-span-2 shadow-xs">
+                    <div className="flex items-center gap-2.5">
+                      <span className="text-2xl">🎄</span>
+                      <div>
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <p className="font-black text-xs text-red-950 leading-tight">N.5 Edizione di Natale</p>
+                          <span className="text-[10px] font-black uppercase tracking-wider bg-red-600 text-white px-2 py-0.2 rounded-full font-mono">
+                            Speciale Natale
+                          </span>
+                        </div>
+                        <p className="text-[10px] text-red-800 font-medium">Dicembre 2026 · Il 5° volume da collezione</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 bg-white rounded-xl p-1 border border-red-200 shadow-xs">
+                      <button
+                        type="button"
+                        onClick={() => updateQuantity(5, -1)}
+                        className="w-7 h-7 flex items-center justify-center rounded-lg bg-gray-100 hover:bg-gray-200 font-bold text-sm cursor-pointer"
+                      >
+                        -
+                      </button>
+                      <span className="w-6 text-center font-black text-xs text-gray-900">{copies[5] || 0}</span>
+                      <button
+                        type="button"
+                        onClick={() => updateQuantity(5, 1)}
+                        className="w-7 h-7 flex items-center justify-center rounded-lg bg-red-600 hover:bg-red-700 text-white font-bold text-sm cursor-pointer"
+                      >
+                        +
+                      </button>
+                    </div>
+                  </div>
                 </div>
 
                 {/* Subtotal Pill */}
-                <div className="mt-3 p-3 rounded-xl bg-gray-50 border border-gray-200 flex flex-wrap items-center justify-between text-xs">
+                <div className="mt-3 p-3 rounded-xl bg-gray-50 border border-gray-200 flex flex-wrap items-center justify-between text-xs gap-2">
                   <div>
                     <span className="font-bold text-gray-700">Totale selezionato: </span>
                     <span className="font-black text-purple-700">{totalCopies} {totalCopies === 1 ? "copia" : "copie"}</span>
-                    {isTrioDeal && (
-                      <span className="ml-2 text-[11px] font-black px-2 py-0.5 rounded-full bg-amber-100 text-amber-800">
+                    {isChristmasDeal && (
+                      <span className="ml-2 text-[11px] font-black px-2.5 py-0.5 rounded-full bg-red-100 text-red-800 border border-red-200">
+                        🎄 Offerta Natale applicata (Sped. Gratuita!)
+                      </span>
+                    )}
+                    {!isChristmasDeal && isTrioDeal && (
+                      <span className="ml-2 text-[11px] font-black px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-200">
                         🎉 Sconto Trio Applicato!
                       </span>
                     )}
                   </div>
                   <div className="text-right">
-                    <span className="text-gray-500">Copie: {copiesPrice}€ + Sped: {shippingCost}€ = </span>
+                    <span className="text-gray-500">
+                      Copie: {copiesPrice}€ + Sped: {shippingCost === 0 ? "0€ (Inclusa!)" : `${shippingCost}€`} ={" "}
+                    </span>
                     <strong className="text-sm font-black text-gray-900">{totalPrice}€</strong>
                   </div>
                 </div>
@@ -515,7 +633,9 @@ export default function OrderPrintedGelatinoModal({
                   <p className="text-xs text-gray-500">Nessun pagamento ora</p>
                   <p className="text-sm font-black text-gray-900">
                     Totale: <span className="text-purple-600 text-base">{totalPrice}€</span>{" "}
-                    <span className="text-[11px] font-normal text-gray-500">(inclusa spedizione)</span>
+                    <span className="text-[11px] font-normal text-gray-500">
+                      {shippingCost === 0 ? "(spese di spedizione incluse!)" : "(inclusa spedizione)"}
+                    </span>
                   </p>
                 </div>
                 <button
@@ -523,7 +643,12 @@ export default function OrderPrintedGelatinoModal({
                   disabled={status === "sending" || totalCopies === 0}
                   className="w-full sm:w-auto px-8 py-3.5 rounded-full font-black text-sm text-white shadow-xl transition-all hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                   style={{
-                    background: "linear-gradient(135deg, #4B44DF 0%, #7A74FF 100%)",
+                    background: isChristmasDeal
+                      ? "linear-gradient(135deg, #EF4444 0%, #DC2626 50%, #991B1B 100%)"
+                      : "linear-gradient(135deg, #4B44DF 0%, #7A74FF 100%)",
+                    boxShadow: isChristmasDeal
+                      ? "0 8px 25px rgba(220, 38, 38, 0.45)"
+                      : "0 8px 25px rgba(75, 68, 223, 0.35)",
                   }}
                 >
                   {status === "sending" ? "Invio in corso..." : `Invia Richiesta d'Ordine (${totalPrice}€) →`}
@@ -531,7 +656,7 @@ export default function OrderPrintedGelatinoModal({
               </div>
 
               <p className="text-[11px] text-gray-400 text-center italic">
-                * Riceverai una conferma via email con le indicazioni per il pagamento (PayPal, Bonifico o Satispay).
+                * Riceverai una conferma via email o WhatsApp con le indicazioni per il pagamento (PayPal, Bonifico, Satispay o PostePay).
               </p>
             </form>
           </div>

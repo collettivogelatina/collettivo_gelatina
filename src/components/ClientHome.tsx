@@ -204,6 +204,7 @@ export default function ClientHome() {
   const [shareModalIssue, setShareModalIssue] = useState<ShareIssueTarget | null>(null);
   const [orderModalOpen, setOrderModalOpen] = useState(false);
   const [orderModalIssueNumber, setOrderModalIssueNumber] = useState<number | undefined>(undefined);
+  const [orderModalInitialBundle, setOrderModalInitialBundle] = useState<"trio" | "natale" | null>(null);
 
   const openRegModal = (title: string) => {
     setRegEventTitle(title);
@@ -1457,12 +1458,57 @@ export default function ClientHome() {
                     <span className="flex items-center gap-1.5 bg-white/80 px-3 py-1.5 rounded-xl border border-amber-300">
                       <span>📖</span> <strong>5€ a copia</strong> (+2€ spedizione)
                     </span>
-                    <span className="flex items-center gap-1.5 bg-amber-600 text-white px-3 py-1.5 rounded-xl shadow-xs">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setOrderModalIssueNumber(undefined);
+                        setOrderModalInitialBundle("trio");
+                        setOrderModalOpen(true);
+                      }}
+                      className="flex items-center gap-1.5 bg-amber-600 hover:bg-amber-700 text-white px-3 py-1.5 rounded-xl shadow-xs transition-transform active:scale-95 cursor-pointer"
+                    >
                       <span>🌟</span> <strong>Offerta Trio: 3 numeri a 13€</strong> (+2€ spedizione)
-                    </span>
+                    </button>
                     <span className="flex items-center gap-1.5 bg-white/80 px-3 py-1.5 rounded-xl border border-amber-300">
                       <span>💌</span> <strong>Dedica inclusa</strong>
                     </span>
+                  </div>
+
+                  {/* 🎄 PULSANTE ROSSO BRILLANTE SOTTO OFFERTA TRIO: OFFERTA DI NATALE */}
+                  <div className="mt-4 pt-3.5 border-t border-amber-300/70 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-red-50/90 p-3.5 rounded-2xl border-2 border-red-200 shadow-sm">
+                    <div className="flex items-center gap-2.5 text-left">
+                      <span className="text-3xl">🎄</span>
+                      <div>
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <span className="text-[10px] font-black uppercase tracking-wider bg-red-600 text-white px-2 py-0.5 rounded-full font-mono">
+                            Speciale Natale 2026
+                          </span>
+                          <span className="text-xs font-black text-red-950">
+                            Tutti e 5 i primi numeri fisici
+                          </span>
+                        </div>
+                        <p className="text-xs text-red-800 mt-0.5 font-medium">
+                          A soli <strong>20€ con spese di spedizione comprese!</strong> (invece di 27€)
+                        </p>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setOrderModalIssueNumber(undefined);
+                        setOrderModalInitialBundle("natale");
+                        setOrderModalOpen(true);
+                      }}
+                      className="w-full sm:w-auto px-6 py-3 rounded-full font-black text-xs sm:text-sm text-white shadow-xl transition-all hover:scale-105 active:scale-95 cursor-pointer flex items-center justify-center gap-2 whitespace-nowrap"
+                      style={{
+                        background: "linear-gradient(135deg, #EF4444 0%, #DC2626 50%, #991B1B 100%)",
+                        boxShadow: "0 6px 22px rgba(220, 38, 38, 0.45)",
+                        border: "2px solid #FCA5A5",
+                      }}
+                    >
+                      <span>🎁</span>
+                      <span>Offerta di Natale: 5 Numeri a 20€ (Sped. Inclusa) →</span>
+                    </button>
                   </div>
                 </div>
 
@@ -2101,8 +2147,12 @@ export default function ClientHome() {
 
       <OrderPrintedGelatinoModal
         isOpen={orderModalOpen}
-        onClose={() => setOrderModalOpen(false)}
+        onClose={() => {
+          setOrderModalOpen(false);
+          setOrderModalInitialBundle(null);
+        }}
         defaultIssueNumber={orderModalIssueNumber}
+        initialBundle={orderModalInitialBundle}
       />
     </div>
   );
