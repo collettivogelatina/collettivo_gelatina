@@ -5,6 +5,7 @@ import SlamTimeline from "@/components/SlamTimeline";
 import RegistrationModal from "@/components/RegistrationModal";
 import GelatinoModal from "@/components/GelatinoModal";
 import TicketNoticeModal from "@/components/TicketNoticeModal";
+import GelatinoReaderGallery from "@/components/GelatinoReaderGallery";
 
 const BLUE = "#4B44DF";
 const BLUE_MID = "#7A74FF";
@@ -136,20 +137,20 @@ const issues = [
   },
   {
     number: 4,
-    flavor: "Gusto Cocomero",
-    emoji: "🍉",
-    tagline: "Il quarto numero illustrato — in arrivo. Prenota la tua copia.",
+    flavor: "Gusto Zucca e Amaretto",
+    emoji: "🎃",
+    tagline: "Il quarto numero. Poesie e racconti d'autunno tra carrozze di zucca e profumo d'amaretto.",
     price: 2,
-    url: "mailto:collettivogelatina@gmail.com?subject=Preordine%20Gelatino%20N.4%20Gusto%20Cocomero",
-    preorder: true,
-    cover: null,
+    url: "mailto:collettivogelatina@gmail.com?subject=Acquisto%20Gelatino%20N.4%20Gusto%20Zucca%20e%20Amaretto",
+    preorder: false,
+    cover: "/Gelatina4Cover.jpeg",
     c: {
-      primary: "#E63946",
-      bg: "#FFF0F2",
-      border: "#FFA3B1",
-      stripe: "linear-gradient(135deg, #E63946 0%, #FF6B6B 100%)",
-      badge: "#FFF0F2",
-      badgeText: "#E63946",
+      primary: "#D95D00",
+      bg: "#FFF7ED",
+      border: "#FED7AA",
+      stripe: "linear-gradient(135deg, #EA580C 0%, #FB923C 100%)",
+      badge: "#FFF7ED",
+      badgeText: "#C2410C",
     },
   },
 ];
@@ -208,6 +209,7 @@ export default function ClientHome() {
     }
   }, []);
   const [gelatinFormat, setGelatinFormat] = useState<"pdf" | "cartaceo">("pdf");
+  const [selectedReaderIssue, setSelectedReaderIssue] = useState<number>(1);
 
 
 
@@ -1320,31 +1322,48 @@ export default function ClientHome() {
                           <h3 className="font-black text-base mb-1" style={{ color: DARK }}>{issue.flavor}</h3>
                           <p className="text-xs leading-relaxed mb-4" style={{ color: "#4A4880" }}>{issue.tagline}</p>
                         </div>
-                        <div className="flex items-center justify-between mt-auto">
-                          {issue.preorder ? (
-                            <span className="text-sm font-bold italic" style={{ color: issue.c.primary }}>In arrivo</span>
-                          ) : (
-                            <span className="text-xl font-black" style={{ color: issue.c.primary }}>€{issue.price}</span>
-                          )}
-                          <a
-                            href={issue.url}
-                            target={issue.preorder ? "_self" : "_blank"}
-                            rel="noopener noreferrer"
-                            className="text-xs font-black px-3 py-2 rounded-full transition-all duration-200 hover:scale-105"
+                        <div className="flex flex-col gap-2 mt-auto pt-2">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setGelatinFormat("pdf");
+                              setSelectedReaderIssue(issue.number);
+                              const el = document.getElementById("leggi-gelatino");
+                              if (el) el.scrollIntoView({ behavior: "smooth" });
+                            }}
+                            className="w-full text-xs font-black py-2.5 px-3 rounded-full transition-all duration-200 hover:scale-[1.02] flex items-center justify-center gap-1.5 cursor-pointer shadow-sm"
                             style={{
                               background: issue.c.primary,
                               color: "white",
-                              border: `2px solid ${issue.c.primary}`,
                             }}
                           >
-                            {issue.preorder ? "Pre-ordina" : "Compra"}
-                          </a>
+                            <span>📖</span>
+                            <span>Leggi Online</span>
+                          </button>
+                          <div className="flex items-center justify-between text-xs px-1">
+                            <span className="font-bold text-gray-500">€{issue.price}</span>
+                            <a
+                              href={issue.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="font-bold underline transition-colors hover:opacity-80"
+                              style={{ color: issue.c.primary }}
+                            >
+                              Acquista copia PDF ↗
+                            </a>
+                          </div>
                         </div>
                       </div>
                     </div>
                   );
                 })}
               </div>
+
+              {/* ── SALA DI LETTURA / READER GALLERY ── */}
+              <GelatinoReaderGallery
+                selectedIssueNumber={selectedReaderIssue}
+                onSelectIssue={setSelectedReaderIssue}
+              />
 
               {/* Subscription strip */}
               <div

@@ -1,4 +1,4 @@
-﻿import type { Metadata } from "next";
+import type { Metadata } from "next";
 import ClientHome from "@/components/ClientHome";
 
 export const metadata: Metadata = {
@@ -11,7 +11,7 @@ export const metadata: Metadata = {
     siteName: "Gelatino",
     images: [
       {
-        url: "https://www.collettivogelatina.it/Gelatina3cover.jpeg",
+        url: "https://www.collettivogelatina.it/Gelatina4Cover.jpeg",
         width: 1200,
         height: 675,
         alt: "Gelatino Poetry Cover",
@@ -24,7 +24,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Invia la tua poesia a Gelatino",
     description: "Gelatino è una raccolta mensile di poesie illustrate. Inviaci il tuo testo per partecipare al prossimo numero!",
-    images: ["https://www.collettivogelatina.it/Gelatina3cover.jpeg"],
+    images: ["https://www.collettivogelatina.it/Gelatina4Cover.jpeg"],
   },
 };
 
