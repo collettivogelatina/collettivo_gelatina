@@ -7,6 +7,7 @@ import GelatinoModal from "@/components/GelatinoModal";
 import TicketNoticeModal from "@/components/TicketNoticeModal";
 import GelatinoReaderGallery from "@/components/GelatinoReaderGallery";
 import ShareGelatinoModal, { ShareIssueTarget } from "@/components/ShareGelatinoModal";
+import OrderPrintedGelatinoModal from "@/components/OrderPrintedGelatinoModal";
 
 const BLUE = "#4B44DF";
 const BLUE_MID = "#7A74FF";
@@ -201,6 +202,8 @@ export default function ClientHome() {
   const [ticketModal, setTicketModal] = useState<{ open: boolean; type: "live" | "stream" | null }>({ open: false, type: null });
   const [regEventTitle, setRegEventTitle] = useState("");
   const [shareModalIssue, setShareModalIssue] = useState<ShareIssueTarget | null>(null);
+  const [orderModalOpen, setOrderModalOpen] = useState(false);
+  const [orderModalIssueNumber, setOrderModalIssueNumber] = useState<number | undefined>(undefined);
 
   const openRegModal = (title: string) => {
     setRegEventTitle(title);
@@ -1400,23 +1403,90 @@ export default function ClientHome() {
                             <span>Condividi nei social</span>
                           </button>
 
-                          <div className="flex items-center justify-between text-xs px-1 pt-0.5">
-                            <span className="font-bold text-gray-500">€{issue.price}</span>
+                          <div className="flex items-center justify-between text-xs px-1 pt-1 border-t border-black/5">
                             <a
                               href={issue.url}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="font-bold underline transition-colors hover:opacity-80"
-                              style={{ color: issue.c.primary }}
+                              className="font-bold underline text-gray-500 hover:text-gray-800 transition-colors"
                             >
-                              Acquista copia PDF ↗
+                              PDF (€{issue.price}) ↗
                             </a>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setOrderModalIssueNumber(issue.number);
+                                setOrderModalOpen(true);
+                              }}
+                              className="font-black text-amber-700 hover:text-amber-900 transition-colors cursor-pointer flex items-center gap-1"
+                            >
+                              <span>📦</span>
+                              <span>Cartaceo (5€) →</span>
+                            </button>
                           </div>
                         </div>
                       </div>
                     </div>
                   );
                 })}
+              </div>
+
+              {/* ── BANNER PROMOZIONE VERSIONE STAMPATA & REGALO ── */}
+              <div
+                className="p-6 sm:p-7 rounded-3xl mb-8 flex flex-col md:flex-row items-center justify-between gap-6 relative overflow-hidden"
+                style={{
+                  background: "linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 60%, #FDE68A 100%)",
+                  border: "2px solid #F59E0B",
+                  boxShadow: "0 10px 30px rgba(245, 158, 11, 0.15)",
+                }}
+              >
+                <div className="max-w-xl text-left">
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full mb-3 bg-amber-500 text-white shadow-xs">
+                    <span className="text-sm">📬</span>
+                    <span className="text-[11px] font-black uppercase tracking-wider font-mono">
+                      Spedizione in tutta Italia · Anche come Regalo
+                    </span>
+                  </div>
+                  <h3 className="font-black text-xl sm:text-2xl text-amber-950 leading-tight mb-2">
+                    Preferisci toccare la poesia con mano? Ricevi o regala <em>Gelatino</em> su carta!
+                  </h3>
+                  <p className="text-xs sm:text-sm text-amber-900/90 leading-relaxed">
+                    Tutti i numeri sono disponibili in versione stampata da collezione su carta di pregio: da sfogliare con calma o da <strong>spedire a sorpresa a una persona cara</strong>, con una dedica personalizzata inclusa nel pacchetto.
+                  </p>
+                  <div className="flex flex-wrap items-center gap-2.5 mt-4 text-xs font-bold text-amber-950">
+                    <span className="flex items-center gap-1.5 bg-white/80 px-3 py-1.5 rounded-xl border border-amber-300">
+                      <span>📖</span> <strong>5€ a copia</strong> (+2€ spedizione)
+                    </span>
+                    <span className="flex items-center gap-1.5 bg-amber-600 text-white px-3 py-1.5 rounded-xl shadow-xs">
+                      <span>🌟</span> <strong>Offerta Trio: 3 numeri a 13€</strong> (+2€ spedizione)
+                    </span>
+                    <span className="flex items-center gap-1.5 bg-white/80 px-3 py-1.5 rounded-xl border border-amber-300">
+                      <span>💌</span> <strong>Dedica inclusa</strong>
+                    </span>
+                  </div>
+                </div>
+
+                {/* CTA Button */}
+                <div className="flex-shrink-0 w-full md:w-auto text-center">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setOrderModalIssueNumber(undefined);
+                      setOrderModalOpen(true);
+                    }}
+                    className="w-full sm:w-auto px-7 py-3.5 rounded-full font-black text-sm text-white shadow-xl transition-transform hover:scale-105 active:scale-95 cursor-pointer flex items-center justify-center gap-2"
+                    style={{
+                      background: "linear-gradient(135deg, #D97706 0%, #B45309 100%)",
+                      boxShadow: "0 8px 24px rgba(180, 83, 9, 0.35)",
+                    }}
+                  >
+                    <span>📦</span>
+                    <span>Ordina Copia Cartacea (da 5€) →</span>
+                  </button>
+                  <p className="text-[11px] font-semibold text-amber-800 mt-2">
+                    Nessun pagamento anticipato · Ti ricontattiamo noi
+                  </p>
+                </div>
               </div>
 
               {/* ── SALA DI LETTURA / READER GALLERY ── */}
@@ -1599,13 +1669,17 @@ export default function ClientHome() {
                 </div>
 
                 <div className="flex flex-col gap-3">
-                  <a
-                    href="mailto:collettivogelatina@gmail.com?subject=Ordine%20Gelatino%20Cartaceo"
-                    className="font-black text-sm px-8 py-4 rounded-full transition-all hover:scale-105 text-center"
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setOrderModalIssueNumber(undefined);
+                      setOrderModalOpen(true);
+                    }}
+                    className="font-black text-sm px-8 py-4 rounded-full transition-all hover:scale-105 text-center cursor-pointer shadow-lg"
                     style={{ background: BLUE, color: "white" }}
                   >
-                    Ordina la versione stampata →
-                  </a>
+                    📦 Compila il modulo d&apos;ordine stampato (da 5€) →
+                  </button>
                   <a
                     href="mailto:collettivogelatina@gmail.com?subject=Abbonamento%20annuale%20Gelatino%20Cartaceo"
                     className="font-black text-sm px-8 py-4 rounded-full border-2 transition-all hover:scale-105 text-center"
@@ -2023,6 +2097,12 @@ export default function ClientHome() {
         isOpen={!!shareModalIssue}
         onClose={() => setShareModalIssue(null)}
         issue={shareModalIssue}
+      />
+
+      <OrderPrintedGelatinoModal
+        isOpen={orderModalOpen}
+        onClose={() => setOrderModalOpen(false)}
+        defaultIssueNumber={orderModalIssueNumber}
       />
     </div>
   );
