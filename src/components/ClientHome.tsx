@@ -87,6 +87,8 @@ const issues = [
     flavor: "Gusto Puffo",
     emoji: "🫐",
     tagline: "Il primo numero. Poesie illustrate che colorano di blu.",
+    date: "Giugno 2026",
+    pages: 32,
     price: 2,
     url: "https://closurecomics.gumroad.com/l/Gelatinodigitale1",
     preorder: false,
@@ -105,6 +107,8 @@ const issues = [
     flavor: "Gusto Limone",
     emoji: "🍋",
     tagline: "Il secondo numero. Poesie illustrate — aspre, luminose, inattese.",
+    date: "Giugno 2026",
+    pages: 36,
     price: 2,
     url: "https://closurecomics.gumroad.com/l/Gelatino2",
     preorder: false,
@@ -123,6 +127,8 @@ const issues = [
     flavor: "Gusto Menta e Basilico",
     emoji: "🌿",
     tagline: "Il terzo numero illustrato — fresco e balsamico. Ora disponibile!",
+    date: "Luglio 2026",
+    pages: 36,
     price: 2,
     url: "https://closurecomics.gumroad.com/l/Gelatino3",
     preorder: false,
@@ -141,6 +147,8 @@ const issues = [
     flavor: "Gusto Zucca e Amaretto",
     emoji: "🎃",
     tagline: "Il quarto numero. Poesie e racconti d'autunno tra carrozze di zucca e profumo d'amaretto.",
+    date: "Novembre 2026",
+    pages: 36,
     price: 2,
     url: "mailto:collettivogelatina@gmail.com?subject=Acquisto%20Gelatino%20N.4%20Gusto%20Zucca%20e%20Amaretto",
     preorder: false,
@@ -1175,24 +1183,35 @@ export default function ClientHome() {
           {gelatinFormat === "pdf" && (
             <div>
               {/* Subtitle */}
-              <p
-                className="text-center text-xs font-bold mb-8 tracking-[0.4em] uppercase"
-                style={{ color: "#9896CC", fontFamily: "'Space Mono', monospace" }}
-              >
-                Scegli il tuo gusto
-              </p>
+              <div className="text-center mb-8">
+                <p
+                  className="text-xs font-bold tracking-[0.4em] uppercase mb-2"
+                  style={{ color: "#9896CC", fontFamily: "'Space Mono', monospace" }}
+                >
+                  I 4 Numeri Pubblicati
+                </p>
+                <p className="text-sm font-semibold text-gray-600">
+                  Scegli un gusto per leggerlo subito nel visualizzatore qui sotto, scaricarlo o condividerlo:
+                </p>
+              </div>
 
               {/* Flavor cards */}
               <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
                 {issues.map((issue) => {
+                  const isSelected = selectedReaderIssue === issue.number;
                   return (
                     <div
                       key={issue.number}
                       className="rounded-3xl overflow-hidden transition-all duration-300 hover:scale-[1.02] select-none flex flex-col justify-between"
                       style={{
                         background: issue.c.bg,
-                        border: `1.5px solid ${issue.c.border || "rgba(75,68,223,0.09)"}`,
-                        boxShadow: "0 4px 20px rgba(0,0,0,0.07)",
+                        border: isSelected
+                          ? `2.5px solid ${issue.c.primary}`
+                          : `1.5px solid ${issue.c.border || "rgba(75,68,223,0.09)"}`,
+                        boxShadow: isSelected
+                          ? `0 12px 32px ${issue.c.primary}38, 0 2px 10px rgba(0,0,0,0.08)`
+                          : "0 4px 20px rgba(0,0,0,0.07)",
+                        transform: isSelected ? "scale(1.02)" : "scale(1)",
                       }}
                     >
                       {/* Stripe header */}
@@ -1202,6 +1221,12 @@ export default function ClientHome() {
                       >
                         <span style={{ fontSize: "1.8rem", lineHeight: 1 }}>{issue.emoji}</span>
                         <div className="flex items-center gap-2">
+                          {isSelected && (
+                            <span className="text-[11px] font-black px-2.5 py-0.5 rounded-full bg-white text-gray-900 shadow-sm flex items-center gap-1 font-mono">
+                              <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                              IN LETTURA
+                            </span>
+                          )}
                           {issue.preorder && (
                             <span
                               className="text-xs font-black px-2 py-0.5 rounded-full"
@@ -1334,6 +1359,11 @@ export default function ClientHome() {
                       <div className="p-4 flex-grow flex flex-col justify-between">
                         <div>
                           <h3 className="font-black text-base mb-1" style={{ color: DARK }}>{issue.flavor}</h3>
+                          <div className="flex items-center gap-2 text-[11px] font-bold text-gray-500 mb-2 font-mono">
+                            <span>📅 {issue.date}</span>
+                            <span>·</span>
+                            <span>{issue.pages} pag.</span>
+                          </div>
                           <p className="text-xs leading-relaxed mb-4" style={{ color: "#4A4880" }}>{issue.tagline}</p>
                         </div>
                         <div className="flex flex-col gap-2 mt-auto pt-2">
@@ -1352,7 +1382,7 @@ export default function ClientHome() {
                             }}
                           >
                             <span>📖</span>
-                            <span>Leggi Online</span>
+                            <span>{isSelected ? "Stai Leggendo (Vai al Lettore ↓)" : "Leggi questo numero ↓"}</span>
                           </button>
 
                           {/* CONDIVIDI NEI SOCIAL */}

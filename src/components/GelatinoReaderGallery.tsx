@@ -109,8 +109,8 @@ export const GELATINI_ISSUES: GelatinoIssueData[] = [
 ];
 
 interface GelatinoReaderGalleryProps {
-  selectedIssueNumber?: number;
-  onSelectIssue?: (num: number) => void;
+  selectedIssueNumber: number;
+  onSelectIssue: (num: number) => void;
   onShareIssue?: (issue: ShareIssueTarget) => void;
 }
 
@@ -119,43 +119,33 @@ export default function GelatinoReaderGallery({
   onSelectIssue,
   onShareIssue,
 }: GelatinoReaderGalleryProps) {
-  const [internalIssueNumber, setInternalIssueNumber] = useState<number>(1);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [internalShareIssue, setInternalShareIssue] = useState<ShareIssueTarget | null>(null);
 
-  const activeNumber = selectedIssueNumber ?? internalIssueNumber;
   const currentIssue =
-    GELATINI_ISSUES.find((item) => item.number === activeNumber) || GELATINI_ISSUES[0];
-
-  const handleSelect = (num: number) => {
-    if (onSelectIssue) {
-      onSelectIssue(num);
-    } else {
-      setInternalIssueNumber(num);
-    }
-  };
+    GELATINI_ISSUES.find((item) => item.number === selectedIssueNumber) || GELATINI_ISSUES[0];
 
   const handlePrev = () => {
     if (currentIssue.number > 1) {
-      handleSelect(currentIssue.number - 1);
+      onSelectIssue(currentIssue.number - 1);
     }
   };
 
   const handleNext = () => {
     if (currentIssue.number < GELATINI_ISSUES.length) {
-      handleSelect(currentIssue.number + 1);
+      onSelectIssue(currentIssue.number + 1);
     }
   };
 
-  const handleShare = (issue: GelatinoIssueData) => {
+  const handleShare = () => {
     const target: ShareIssueTarget = {
-      number: issue.number,
-      flavor: issue.flavor,
-      emoji: issue.emoji,
-      cover: issue.cover,
+      number: currentIssue.number,
+      flavor: currentIssue.flavor,
+      emoji: currentIssue.emoji,
+      cover: currentIssue.cover,
       color: {
-        primary: issue.color.primary,
-        border: issue.color.border,
+        primary: currentIssue.color.primary,
+        border: currentIssue.color.border,
       },
     };
     if (onShareIssue) {
@@ -176,141 +166,12 @@ export default function GelatinoReaderGallery({
   }, []);
 
   return (
-    <div id="leggi-gelatino" className="mt-16 pt-10 border-t border-purple-100">
-      {/* Title & Introduction */}
-      <div className="text-center mb-10">
-        <div
-          className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full mb-3 shadow-sm"
-          style={{ background: "rgba(75,68,223,0.08)", border: "1px solid rgba(75,68,223,0.18)" }}
-        >
-          <span className="text-base">📖</span>
-          <span className="text-xs font-black tracking-widest uppercase font-mono" style={{ color: "#4B44DF" }}>
-            Sala di Lettura Digitale
-          </span>
-        </div>
-        <h3 className="font-black text-2xl sm:text-3xl md:text-4xl leading-tight mb-3" style={{ color: "#0F0E17" }}>
-          Sfoglia e leggi i numeri di <em style={{ fontFamily: "'Playfair Display', serif" }}>Gelatino</em>
-        </h3>
-        <p className="text-sm md:text-base leading-relaxed max-w-2xl mx-auto" style={{ color: "#4A4880" }}>
-          Tutti i numeri della nostra raccolta mensile di poesie illustrate sono disponibili per la lettura diretta online.
-          Scegli un numero per iniziare a sfogliarlo subito o condividilo con gli amici!
-        </p>
-      </div>
-
-      {/* Issue Selection Gallery (4 items) */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-        {GELATINI_ISSUES.map((issue) => {
-          const isSelected = issue.number === currentIssue.number;
-          return (
-            <div
-              key={issue.number}
-              onClick={() => handleSelect(issue.number)}
-              className="relative rounded-2xl p-3 sm:p-4 text-left transition-all duration-300 flex flex-col justify-between group cursor-pointer"
-              style={{
-                background: isSelected ? issue.color.bg : "#FFFFFF",
-                border: isSelected
-                  ? `2.5px solid ${issue.color.primary}`
-                  : "1.5px solid rgba(0,0,0,0.08)",
-                boxShadow: isSelected
-                  ? `0 10px 28px ${issue.color.primary}33, 0 2px 10px rgba(0,0,0,0.06)`
-                  : "0 2px 8px rgba(0,0,0,0.04)",
-                transform: isSelected ? "scale(1.02)" : "scale(1)",
-              }}
-            >
-              {/* Badge Number */}
-              <div className="flex items-center justify-between mb-3">
-                <span
-                  className="text-xs font-black px-2.5 py-1 rounded-full uppercase tracking-wider font-mono"
-                  style={{
-                    background: isSelected ? issue.color.primary : "#E8E8FA",
-                    color: isSelected ? "#FFFFFF" : "#4B44DF",
-                  }}
-                >
-                  N. {issue.number}
-                </span>
-                <span className="text-xl">{issue.emoji}</span>
-              </div>
-
-              {/* Cover Preview */}
-              <div className="flex justify-center my-2">
-                <div
-                  className="relative transition-transform duration-300 group-hover:scale-105"
-                  style={{ perspective: "600px" }}
-                >
-                  <div
-                    className="absolute -bottom-1 -right-1 w-full h-full rounded"
-                    style={{
-                      background: issue.color.primary,
-                      opacity: isSelected ? 0.35 : 0.15,
-                      filter: "blur(2px)",
-                    }}
-                  />
-                  <img
-                    src={issue.cover}
-                    alt={issue.flavor}
-                    className="w-24 sm:w-28 h-auto rounded shadow-md object-cover border border-white/60"
-                    style={{ aspectRatio: "3 / 4.2" }}
-                  />
-                </div>
-              </div>
-
-              {/* Text Info */}
-              <div className="mt-3">
-                <h4
-                  className="font-black text-sm leading-snug line-clamp-1 mb-1"
-                  style={{ color: isSelected ? issue.color.primary : "#0F0E17" }}
-                >
-                  {issue.flavor}
-                </h4>
-                <div className="flex items-center justify-between text-[11px] font-semibold text-gray-500">
-                  <span>{issue.date}</span>
-                  <span>{issue.pages} pag.</span>
-                </div>
-              </div>
-
-              {/* Action Buttons: Read & Share */}
-              <div className="mt-3 pt-2 border-t border-black/5 flex items-center gap-1.5">
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleSelect(issue.number);
-                  }}
-                  className="flex-1 inline-flex items-center justify-center gap-1 text-xs font-black py-1.5 px-2 rounded-xl transition-colors cursor-pointer"
-                  style={{
-                    background: isSelected ? issue.color.primary : "rgba(75,68,223,0.06)",
-                    color: isSelected ? "#FFFFFF" : "#4B44DF",
-                  }}
-                >
-                  {isSelected ? "📖 In Lettura" : "Sfoglia →"}
-                </button>
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleShare(issue);
-                  }}
-                  className="p-1.5 px-2.5 rounded-xl text-xs font-bold transition-all hover:bg-black/5 cursor-pointer flex-shrink-0"
-                  style={{
-                    border: `1px solid ${issue.color.border || issue.color.primary}`,
-                    color: issue.color.badgeText,
-                    background: "rgba(255,255,255,0.8)",
-                  }}
-                  title="Condividi questo numero nei social"
-                >
-                  📲
-                </button>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-
+    <div id="leggi-gelatino" className="mt-8 mb-10 scroll-mt-24">
       {/* Active Issue Reader Container */}
       <div
         className="rounded-3xl overflow-hidden shadow-2xl transition-all duration-300"
         style={{
-          border: `2px solid ${currentIssue.color.primary}44`,
+          border: `2.5px solid ${currentIssue.color.primary}55`,
           background: "#1F1E29",
         }}
       >
@@ -324,11 +185,14 @@ export default function GelatinoReaderGallery({
             <div className="text-2xl sm:text-3xl">{currentIssue.emoji}</div>
             <div>
               <div className="flex items-center gap-2 flex-wrap">
-                <span className="bg-white/20 text-white font-mono text-xs font-bold px-2 py-0.5 rounded-full">
+                <span className="bg-white/20 text-white font-mono text-xs font-bold px-2.5 py-0.5 rounded-full">
                   NUMERO {currentIssue.number}
                 </span>
                 <span className="text-xs text-white/90 font-medium">
                   {currentIssue.date} · {currentIssue.pages} pagine
+                </span>
+                <span className="bg-white/25 text-white text-[11px] font-black px-2 py-0.5 rounded-full">
+                  📖 Sala di Lettura Online
                 </span>
               </div>
               <h4 className="font-black text-lg sm:text-xl text-white tracking-tight">
@@ -367,7 +231,7 @@ export default function GelatinoReaderGallery({
             {/* Condividi nei social */}
             <button
               type="button"
-              onClick={() => handleShare(currentIssue)}
+              onClick={handleShare}
               className="inline-flex items-center gap-1.5 bg-white/20 hover:bg-white/30 text-white font-bold text-xs px-3.5 py-2 rounded-full transition-all cursor-pointer shadow-sm"
               title="Condividi questo numero sui social"
             >
@@ -420,7 +284,7 @@ export default function GelatinoReaderGallery({
         )}
 
         {/* Embedded PDF Viewer */}
-        <div className="relative w-full bg-[#2A2938]" style={{ height: "720px" }}>
+        <div className="relative w-full bg-[#2A2938]" style={{ height: "740px" }}>
           <iframe
             key={currentIssue.pdfUrl}
             src={`${currentIssue.pdfUrl}#toolbar=1&navpanes=0&view=FitH`}
@@ -434,7 +298,7 @@ export default function GelatinoReaderGallery({
           <p className="flex items-center gap-2">
             <span>💡</span>
             <span>
-              Per sfogliare comodamente le pagine puoi ingrandire il lettore a{" "}
+              Stai leggendo <strong>Gelatino N.{currentIssue.number} ({currentIssue.flavor})</strong>. Per leggere a tutta pagina apri a{" "}
               <button
                 type="button"
                 onClick={() => setIsFullscreen(true)}
@@ -448,10 +312,10 @@ export default function GelatinoReaderGallery({
           <div className="flex items-center gap-4">
             <button
               type="button"
-              onClick={() => handleShare(currentIssue)}
+              onClick={handleShare}
               className="text-amber-300 hover:text-white font-semibold transition-colors inline-flex items-center gap-1 cursor-pointer"
             >
-              <span>📲</span> Condividi nei social
+              <span>📲</span> Condividi questo numero
             </button>
             <a
               href={currentIssue.pdfUrl}
@@ -459,7 +323,7 @@ export default function GelatinoReaderGallery({
               rel="noopener noreferrer"
               className="text-purple-300 hover:text-white font-semibold transition-colors"
             >
-              Visualizza PDF a pagina intera ↗
+              Apri PDF a pagina intera ↗
             </a>
           </div>
         </div>
@@ -516,7 +380,7 @@ export default function GelatinoReaderGallery({
               {/* Share in Fullscreen */}
               <button
                 type="button"
-                onClick={() => handleShare(currentIssue)}
+                onClick={handleShare}
                 className="hidden sm:inline-flex items-center gap-1.5 bg-white/20 hover:bg-white/30 text-white text-xs font-bold px-3 py-1.5 rounded-full cursor-pointer"
               >
                 📲 Condividi
