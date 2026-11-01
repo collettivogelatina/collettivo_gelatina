@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import ShareGelatinoModal, { ShareIssueTarget } from "./ShareGelatinoModal";
 
 export interface GelatinoIssueData {
   number: number;
@@ -110,14 +111,17 @@ export const GELATINI_ISSUES: GelatinoIssueData[] = [
 interface GelatinoReaderGalleryProps {
   selectedIssueNumber?: number;
   onSelectIssue?: (num: number) => void;
+  onShareIssue?: (issue: ShareIssueTarget) => void;
 }
 
 export default function GelatinoReaderGallery({
   selectedIssueNumber,
   onSelectIssue,
+  onShareIssue,
 }: GelatinoReaderGalleryProps) {
   const [internalIssueNumber, setInternalIssueNumber] = useState<number>(1);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [internalShareIssue, setInternalShareIssue] = useState<ShareIssueTarget | null>(null);
 
   const activeNumber = selectedIssueNumber ?? internalIssueNumber;
   const currentIssue =
@@ -140,6 +144,24 @@ export default function GelatinoReaderGallery({
   const handleNext = () => {
     if (currentIssue.number < GELATINI_ISSUES.length) {
       handleSelect(currentIssue.number + 1);
+    }
+  };
+
+  const handleShare = (issue: GelatinoIssueData) => {
+    const target: ShareIssueTarget = {
+      number: issue.number,
+      flavor: issue.flavor,
+      emoji: issue.emoji,
+      cover: issue.cover,
+      color: {
+        primary: issue.color.primary,
+        border: issue.color.border,
+      },
+    };
+    if (onShareIssue) {
+      onShareIssue(target);
+    } else {
+      setInternalShareIssue(target);
     }
   };
 
@@ -171,7 +193,7 @@ export default function GelatinoReaderGallery({
         </h3>
         <p className="text-sm md:text-base leading-relaxed max-w-2xl mx-auto" style={{ color: "#4A4880" }}>
           Tutti i numeri della nostra raccolta mensile di poesie illustrate sono disponibili per la lettura diretta online.
-          Scegli un numero per iniziare a sfogliarlo subito!
+          Scegli un numero per iniziare a sfogliarlo subito o condividilo con gli amici!
         </p>
       </div>
 
@@ -180,11 +202,10 @@ export default function GelatinoReaderGallery({
         {GELATINI_ISSUES.map((issue) => {
           const isSelected = issue.number === currentIssue.number;
           return (
-            <button
+            <div
               key={issue.number}
-              type="button"
               onClick={() => handleSelect(issue.number)}
-              className="relative rounded-2xl p-3 sm:p-4 text-left transition-all duration-300 focus:outline-none flex flex-col justify-between group cursor-pointer"
+              className="relative rounded-2xl p-3 sm:p-4 text-left transition-all duration-300 flex flex-col justify-between group cursor-pointer"
               style={{
                 background: isSelected ? issue.color.bg : "#FFFFFF",
                 border: isSelected
@@ -247,19 +268,40 @@ export default function GelatinoReaderGallery({
                 </div>
               </div>
 
-              {/* Active Indicator Button */}
-              <div className="mt-3 pt-2 border-t border-black/5">
-                <span
-                  className="w-full inline-flex items-center justify-center gap-1.5 text-xs font-black py-1.5 px-2 rounded-xl transition-colors"
+              {/* Action Buttons: Read & Share */}
+              <div className="mt-3 pt-2 border-t border-black/5 flex items-center gap-1.5">
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleSelect(issue.number);
+                  }}
+                  className="flex-1 inline-flex items-center justify-center gap-1 text-xs font-black py-1.5 px-2 rounded-xl transition-colors cursor-pointer"
                   style={{
                     background: isSelected ? issue.color.primary : "rgba(75,68,223,0.06)",
                     color: isSelected ? "#FFFFFF" : "#4B44DF",
                   }}
                 >
-                  {isSelected ? "📖 In Lettura" : "Sfoglia questo →"}
-                </span>
+                  {isSelected ? "📖 In Lettura" : "Sfoglia →"}
+                </button>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleShare(issue);
+                  }}
+                  className="p-1.5 px-2.5 rounded-xl text-xs font-bold transition-all hover:bg-black/5 cursor-pointer flex-shrink-0"
+                  style={{
+                    border: `1px solid ${issue.color.border || issue.color.primary}`,
+                    color: issue.color.badgeText,
+                    background: "rgba(255,255,255,0.8)",
+                  }}
+                  title="Condividi questo numero nei social"
+                >
+                  📲
+                </button>
               </div>
-            </button>
+            </div>
           );
         })}
       </div>
@@ -321,6 +363,17 @@ export default function GelatinoReaderGallery({
                 Next →
               </button>
             </div>
+
+            {/* Condividi nei social */}
+            <button
+              type="button"
+              onClick={() => handleShare(currentIssue)}
+              className="inline-flex items-center gap-1.5 bg-white/20 hover:bg-white/30 text-white font-bold text-xs px-3.5 py-2 rounded-full transition-all cursor-pointer shadow-sm"
+              title="Condividi questo numero sui social"
+            >
+              <span>📲</span>
+              <span>Condividi</span>
+            </button>
 
             {/* Fullscreen Button */}
             <button
@@ -393,6 +446,13 @@ export default function GelatinoReaderGallery({
             </span>
           </p>
           <div className="flex items-center gap-4">
+            <button
+              type="button"
+              onClick={() => handleShare(currentIssue)}
+              className="text-amber-300 hover:text-white font-semibold transition-colors inline-flex items-center gap-1 cursor-pointer"
+            >
+              <span>📲</span> Condividi nei social
+            </button>
             <a
               href={currentIssue.pdfUrl}
               target="_blank"
@@ -453,6 +513,15 @@ export default function GelatinoReaderGallery({
                 </button>
               </div>
 
+              {/* Share in Fullscreen */}
+              <button
+                type="button"
+                onClick={() => handleShare(currentIssue)}
+                className="hidden sm:inline-flex items-center gap-1.5 bg-white/20 hover:bg-white/30 text-white text-xs font-bold px-3 py-1.5 rounded-full cursor-pointer"
+              >
+                📲 Condividi
+              </button>
+
               {/* Download */}
               <a
                 href={currentIssue.pdfUrl}
@@ -483,6 +552,15 @@ export default function GelatinoReaderGallery({
             />
           </div>
         </div>
+      )}
+
+      {/* Internal share modal if used as fallback */}
+      {internalShareIssue && !onShareIssue && (
+        <ShareGelatinoModal
+          isOpen={!!internalShareIssue}
+          onClose={() => setInternalShareIssue(null)}
+          issue={internalShareIssue}
+        />
       )}
     </div>
   );

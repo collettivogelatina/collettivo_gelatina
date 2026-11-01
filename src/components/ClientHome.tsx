@@ -6,6 +6,7 @@ import RegistrationModal from "@/components/RegistrationModal";
 import GelatinoModal from "@/components/GelatinoModal";
 import TicketNoticeModal from "@/components/TicketNoticeModal";
 import GelatinoReaderGallery from "@/components/GelatinoReaderGallery";
+import ShareGelatinoModal, { ShareIssueTarget } from "@/components/ShareGelatinoModal";
 
 const BLUE = "#4B44DF";
 const BLUE_MID = "#7A74FF";
@@ -191,6 +192,7 @@ export default function ClientHome() {
   const [gelatinoModalOpen, setGelatinoModalOpen] = useState(false);
   const [ticketModal, setTicketModal] = useState<{ open: boolean; type: "live" | "stream" | null }>({ open: false, type: null });
   const [regEventTitle, setRegEventTitle] = useState("");
+  const [shareModalIssue, setShareModalIssue] = useState<ShareIssueTarget | null>(null);
 
   const openRegModal = (title: string) => {
     setRegEventTitle(title);
@@ -205,6 +207,18 @@ export default function ClientHome() {
       }
       if (params.get("invia-poesia") || window.location.pathname.startsWith("/invia-poesia")) {
         setGelatinoModalOpen(true);
+      }
+      const leggi = params.get("leggi");
+      if (leggi) {
+        const num = parseInt(leggi, 10);
+        if (num >= 1 && num <= 4) {
+          setSelectedReaderIssue(num);
+          setGelatinFormat("pdf");
+          setTimeout(() => {
+            const el = document.getElementById("leggi-gelatino");
+            if (el) el.scrollIntoView({ behavior: "smooth" });
+          }, 350);
+        }
       }
     }
   }, []);
@@ -1340,7 +1354,23 @@ export default function ClientHome() {
                             <span>📖</span>
                             <span>Leggi Online</span>
                           </button>
-                          <div className="flex items-center justify-between text-xs px-1">
+
+                          {/* CONDIVIDI NEI SOCIAL */}
+                          <button
+                            type="button"
+                            onClick={() => setShareModalIssue(issue)}
+                            className="w-full text-xs font-bold py-2 px-3 rounded-full transition-all duration-200 hover:bg-white flex items-center justify-center gap-1.5 cursor-pointer"
+                            style={{
+                              border: `1.5px solid ${issue.c.border || issue.c.primary}`,
+                              color: issue.c.badgeText || issue.c.primary,
+                              background: "rgba(255,255,255,0.75)",
+                            }}
+                          >
+                            <span>📲</span>
+                            <span>Condividi nei social</span>
+                          </button>
+
+                          <div className="flex items-center justify-between text-xs px-1 pt-0.5">
                             <span className="font-bold text-gray-500">€{issue.price}</span>
                             <a
                               href={issue.url}
@@ -1363,6 +1393,7 @@ export default function ClientHome() {
               <GelatinoReaderGallery
                 selectedIssueNumber={selectedReaderIssue}
                 onSelectIssue={setSelectedReaderIssue}
+                onShareIssue={(target) => setShareModalIssue(target)}
               />
 
               {/* Subscription strip */}
@@ -1956,6 +1987,12 @@ export default function ClientHome() {
         isOpen={ticketModal.open}
         onClose={() => setTicketModal({ open: false, type: null })}
         type={ticketModal.type}
+      />
+
+      <ShareGelatinoModal
+        isOpen={!!shareModalIssue}
+        onClose={() => setShareModalIssue(null)}
+        issue={shareModalIssue}
       />
     </div>
   );
