@@ -151,7 +151,7 @@ const issues = [
     date: "Novembre 2026",
     pages: 36,
     price: 2,
-    url: "mailto:collettivogelatina@gmail.com?subject=Acquisto%20Gelatino%20N.4%20Gusto%20Zucca%20e%20Amaretto",
+    url: "https://closurecomics.gumroad.com/l/Gelatino4",
     preorder: false,
     cover: "/Gelatina4Cover.jpeg",
     c: {
@@ -1404,14 +1404,16 @@ export default function ClientHome() {
                             <span>Condividi nei social</span>
                           </button>
 
-                          <div className="flex items-center justify-between text-xs px-1 pt-1 border-t border-black/5">
+                          <div className="flex items-center justify-between text-xs px-1 pt-1.5 border-t border-black/5 gap-2">
                             <a
                               href={issue.url}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="font-bold underline text-gray-500 hover:text-gray-800 transition-colors"
+                              className="font-bold underline text-gray-600 hover:text-purple-700 transition-colors flex items-center gap-1"
+                              title="Acquista la copia digitale su Gumroad"
                             >
-                              PDF (€{issue.price}) ↗
+                              <span>💾</span>
+                              <span>Acquista copia digitale (€{issue.price}) ↗</span>
                             </a>
                             <button
                               type="button"
@@ -1419,7 +1421,7 @@ export default function ClientHome() {
                                 setOrderModalIssueNumber(issue.number);
                                 setOrderModalOpen(true);
                               }}
-                              className="font-black text-amber-700 hover:text-amber-900 transition-colors cursor-pointer flex items-center gap-1"
+                              className="font-black text-amber-700 hover:text-amber-900 transition-colors cursor-pointer flex items-center gap-1 flex-shrink-0"
                             >
                               <span>📦</span>
                               <span>Cartaceo (5€) →</span>

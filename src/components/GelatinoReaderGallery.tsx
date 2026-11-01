@@ -13,6 +13,7 @@ export interface GelatinoIssueData {
   authors?: string[];
   cover: string;
   pdfUrl: string;
+  gumroadUrl?: string;
   color: {
     primary: string;
     bg: string;
@@ -33,6 +34,7 @@ export const GELATINI_ISSUES: GelatinoIssueData[] = [
     authors: ["Collettivo Gelatina", "Autori vari"],
     cover: "/Gelatina1Cover.jpeg",
     pdfUrl: "/gelatini/Gelatino1.pdf",
+    gumroadUrl: "https://closurecomics.gumroad.com/l/Gelatinodigitale1",
     color: {
       primary: "#3B6FE8",
       bg: "#EEF2FF",
@@ -51,6 +53,7 @@ export const GELATINI_ISSUES: GelatinoIssueData[] = [
     authors: ["Collettivo Gelatina", "Autori vari"],
     cover: "/Gelatina2Cover.jpeg",
     pdfUrl: "/gelatini/Gelatino2.pdf",
+    gumroadUrl: "https://closurecomics.gumroad.com/l/Gelatino2",
     color: {
       primary: "#C49200",
       bg: "#FFFDE8",
@@ -69,6 +72,7 @@ export const GELATINI_ISSUES: GelatinoIssueData[] = [
     authors: ["Collettivo Gelatina", "Autori vari"],
     cover: "/Gelatina3cover.jpeg",
     pdfUrl: "/gelatini/Gelatino3.pdf",
+    gumroadUrl: "https://closurecomics.gumroad.com/l/Gelatino3",
     color: {
       primary: "#2A8A5A",
       bg: "#E8F8F0",
@@ -98,6 +102,7 @@ export const GELATINI_ISSUES: GelatinoIssueData[] = [
     ],
     cover: "/Gelatina4Cover.jpeg",
     pdfUrl: "/gelatini/Gelatino4.pdf",
+    gumroadUrl: "https://closurecomics.gumroad.com/l/Gelatino4",
     color: {
       primary: "#D95D00",
       bg: "#FFF7ED",
@@ -238,6 +243,20 @@ export default function GelatinoReaderGallery({
               <span>📲</span>
               <span>Condividi</span>
             </button>
+
+            {/* Acquista Copia Digitale Gumroad */}
+            {currentIssue.gumroadUrl && (
+              <a
+                href={currentIssue.gumroadUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-amber-950 font-black text-xs px-3.5 py-2 rounded-full shadow-md transition-all cursor-pointer whitespace-nowrap"
+                title="Acquista la copia digitale su Gumroad (€2)"
+              >
+                <span>🛒</span>
+                <span>Acquista copia digitale (€2) ↗</span>
+              </a>
+            )}
 
             {/* Fullscreen Button */}
             <button
@@ -385,6 +404,19 @@ export default function GelatinoReaderGallery({
               >
                 📲 Condividi
               </button>
+
+              {/* Gumroad Buy */}
+              {currentIssue.gumroadUrl && (
+                <a
+                  href={currentIssue.gumroadUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hidden sm:inline-flex items-center gap-1.5 bg-amber-400 hover:bg-amber-300 text-amber-950 text-xs font-black px-3.5 py-1.5 rounded-full shadow-md transition-all"
+                  title="Acquista la copia digitale su Gumroad (€2)"
+                >
+                  🛒 Acquista (€2) ↗
+                </a>
+              )}
 
               {/* Download */}
               <a
