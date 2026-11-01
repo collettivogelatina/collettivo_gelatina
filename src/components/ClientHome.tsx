@@ -1434,103 +1434,151 @@ export default function ClientHome() {
 
               {/* ── BANNER PROMOZIONE VERSIONE STAMPATA & REGALO ── */}
               <div
-                className="p-6 sm:p-7 rounded-3xl mb-8 flex flex-col md:flex-row items-center justify-between gap-6 relative overflow-hidden"
+                className="p-6 sm:p-8 rounded-3xl mb-8 relative overflow-hidden text-left"
                 style={{
-                  background: "linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 60%, #FDE68A 100%)",
+                  background: "linear-gradient(135deg, #FFFDF7 0%, #FEF9EE 50%, #FEF3C7 100%)",
                   border: "2px solid #F59E0B",
-                  boxShadow: "0 10px 30px rgba(245, 158, 11, 0.15)",
+                  boxShadow: "0 12px 36px rgba(245, 158, 11, 0.12)",
                 }}
               >
-                <div className="max-w-xl text-left">
+                {/* Header a tutta larghezza */}
+                <div className="max-w-3xl mb-6">
                   <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full mb-3 bg-amber-500 text-white shadow-xs">
                     <span className="text-sm">📬</span>
                     <span className="text-[11px] font-black uppercase tracking-wider font-mono">
-                      Spedizione in tutta Italia · Anche come Regalo
+                      Spedizione in tutta Italia · Anche con Dedica e Confezione Regalo
                     </span>
                   </div>
-                  <h3 className="font-black text-xl sm:text-2xl text-amber-950 leading-tight mb-2">
+                  <h3 className="font-black text-2xl sm:text-3xl text-amber-950 leading-tight mb-2">
                     Preferisci toccare la poesia con mano? Ricevi o regala <em>Gelatino</em> su carta!
                   </h3>
                   <p className="text-xs sm:text-sm text-amber-900/90 leading-relaxed">
-                    Tutti i numeri sono disponibili in versione stampata da collezione su carta di pregio: da sfogliare con calma o da <strong>spedire a sorpresa a una persona cara</strong>, con una dedica personalizzata inclusa nel pacchetto.
+                    Tutti i numeri sono stampati con cura su carta di pregio da collezione: da sfogliare con calma oppure da <strong>spedire a sorpresa a una persona cara</strong>, con una dedica personalizzata inserita nel pacchetto.
                   </p>
-                  <div className="flex flex-wrap items-center gap-2.5 mt-4 text-xs font-bold text-amber-950">
-                    <span className="flex items-center gap-1.5 bg-white/80 px-3 py-1.5 rounded-xl border border-amber-300">
-                      <span>📖</span> <strong>5€ a copia</strong> (+2€ spedizione)
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setOrderModalIssueNumber(undefined);
-                        setOrderModalInitialBundle("trio");
-                        setOrderModalOpen(true);
-                      }}
-                      className="flex items-center gap-1.5 bg-amber-600 hover:bg-amber-700 text-white px-3 py-1.5 rounded-xl shadow-xs transition-transform active:scale-95 cursor-pointer"
-                    >
-                      <span>🌟</span> <strong>Offerta Trio: 3 numeri a 13€</strong> (+2€ spedizione)
-                    </button>
-                    <span className="flex items-center gap-1.5 bg-white/80 px-3 py-1.5 rounded-xl border border-amber-300">
-                      <span>💌</span> <strong>Dedica inclusa</strong>
-                    </span>
+                </div>
+
+                {/* 2 Colonne Bilanciate / Formule d'Acquisto */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
+                  {/* Card 1: Copia Singola & Offerta Trio */}
+                  <div className="bg-white/95 backdrop-blur-xs p-5 sm:p-6 rounded-2xl border border-amber-300/80 shadow-xs flex flex-col justify-between">
+                    <div>
+                      <div className="flex items-center justify-between gap-2 mb-2">
+                        <span className="text-[10px] font-black uppercase tracking-wider bg-amber-100 text-amber-900 px-2.5 py-0.5 rounded-full font-mono">
+                          Formula Flessibile
+                        </span>
+                        <span className="text-xs font-bold text-gray-500">Da 5€ a copia</span>
+                      </div>
+                      <h4 className="font-black text-lg text-amber-950 mb-2 flex items-center gap-2">
+                        <span>📖</span>
+                        <span>Copia Singola o Tris di Gusti</span>
+                      </h4>
+                      <ul className="text-xs text-gray-700 space-y-2 mb-5">
+                        <li className="flex items-start gap-2">
+                          <span className="text-amber-600 font-bold">•</span>
+                          <span><strong>5€ a copia</strong> (+2€ spedizione) per uno o due numeri a tua scelta.</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <span className="text-amber-600 font-bold">•</span>
+                          <span>🌟 <strong>Offerta Trio: 3 numeri a soli 13€</strong> (+2€ sped.) — risparmi 2€!</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <span className="text-amber-600 font-bold">•</span>
+                          <span>Dedica e messaggio personalizzato inclusi gratuitamente nel plico.</span>
+                        </li>
+                      </ul>
+                    </div>
+
+                    <div className="pt-3 border-t border-amber-100 flex flex-col sm:flex-row items-center gap-2.5">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setOrderModalIssueNumber(undefined);
+                          setOrderModalInitialBundle("trio");
+                          setOrderModalOpen(true);
+                        }}
+                        className="w-full sm:w-auto flex-1 px-4 py-2.5 rounded-xl font-black text-xs text-amber-900 bg-amber-100 hover:bg-amber-200 border border-amber-300 transition-all active:scale-95 cursor-pointer text-center"
+                      >
+                        ⚡ Scegli Trio (13€)
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setOrderModalIssueNumber(undefined);
+                          setOrderModalInitialBundle(null);
+                          setOrderModalOpen(true);
+                        }}
+                        className="w-full sm:w-auto flex-1 px-4 py-2.5 rounded-xl font-black text-xs text-white bg-amber-600 hover:bg-amber-700 transition-all active:scale-95 cursor-pointer text-center shadow-xs"
+                      >
+                        📦 Componi Ordine →
+                      </button>
+                    </div>
                   </div>
 
-                  {/* 🎄 PULSANTE ROSSO BRILLANTE SOTTO OFFERTA TRIO: OFFERTA DI NATALE */}
-                  <div className="mt-4 pt-3.5 border-t border-amber-300/70 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-red-50/90 p-3.5 rounded-2xl border-2 border-red-200 shadow-sm">
-                    <div className="flex items-center gap-2.5 text-left">
-                      <span className="text-3xl">🎄</span>
-                      <div>
-                        <div className="flex items-center gap-1.5 flex-wrap">
-                          <span className="text-[10px] font-black uppercase tracking-wider bg-red-600 text-white px-2 py-0.5 rounded-full font-mono">
-                            Speciale Natale 2026
-                          </span>
-                          <span className="text-xs font-black text-red-950">
-                            Tutti e 5 i primi numeri fisici
-                          </span>
-                        </div>
-                        <p className="text-xs text-red-800 mt-0.5 font-medium">
-                          A soli <strong>20€ con spese di spedizione comprese!</strong> (invece di 27€)
-                        </p>
+                  {/* Card 2: 🎄 SPECIALE NATALE 2026 */}
+                  <div
+                    className="p-5 sm:p-6 rounded-2xl border-2 shadow-sm flex flex-col justify-between relative overflow-hidden"
+                    style={{
+                      background: "linear-gradient(135deg, #FFF1F2 0%, #FFE4E6 50%, #FECDD3 100%)",
+                      borderColor: "#F43F5E",
+                    }}
+                  >
+                    <div>
+                      <div className="flex items-center justify-between gap-2 mb-2">
+                        <span className="text-[10px] font-black uppercase tracking-wider bg-rose-600 text-white px-2.5 py-0.5 rounded-full font-mono shadow-xs">
+                          🎄 Speciale Natale 2026
+                        </span>
+                        <span className="text-[11px] font-black text-rose-800 bg-white/90 px-2.5 py-0.5 rounded-full border border-rose-300">
+                          Spedizione Gratuita
+                        </span>
                       </div>
+                      <h4 className="font-black text-lg text-rose-950 mb-1.5 flex items-center gap-2">
+                        <span>🎁</span>
+                        <span>Cofanetto Completo: Tutti i 5 Numeri</span>
+                      </h4>
+                      <p className="text-xs text-rose-900 font-semibold mb-2">
+                        Tutti i primi 5 numeri fisici usciti finora a soli <strong>20€ tutto incluso!</strong>
+                      </p>
+                      <ul className="text-xs text-rose-900/90 space-y-1.5 mb-5">
+                        <li className="flex items-start gap-2">
+                          <span className="text-rose-600 font-bold">✓</span>
+                          <span><strong>Spese di spedizione COMPRESE</strong> (invece di 27€ totali, risparmi 7€).</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <span className="text-rose-600 font-bold">✓</span>
+                          <span>Include N.1 Puffo, N.2 Limone, N.3 Menta, N.4 Zucca e N.5 Speciale Natale.</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <span className="text-rose-600 font-bold">✓</span>
+                          <span>Confezione speciale con biglietto d&apos;auguri e dedica natalizia.</span>
+                        </li>
+                      </ul>
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setOrderModalIssueNumber(undefined);
-                        setOrderModalInitialBundle("natale");
-                        setOrderModalOpen(true);
-                      }}
-                      className="w-full sm:w-auto px-6 py-3 rounded-full font-black text-xs sm:text-sm text-white shadow-xl transition-all hover:scale-105 active:scale-95 cursor-pointer flex items-center justify-center gap-2 whitespace-nowrap"
-                      style={{
-                        background: "linear-gradient(135deg, #EF4444 0%, #DC2626 50%, #991B1B 100%)",
-                        boxShadow: "0 6px 22px rgba(220, 38, 38, 0.45)",
-                        border: "2px solid #FCA5A5",
-                      }}
-                    >
-                      <span>🎁</span>
-                      <span>Offerta di Natale: 5 Numeri a 20€ (Sped. Inclusa) →</span>
-                    </button>
+
+                    <div className="pt-3 border-t border-rose-200">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setOrderModalIssueNumber(undefined);
+                          setOrderModalInitialBundle("natale");
+                          setOrderModalOpen(true);
+                        }}
+                        className="w-full px-5 py-3 rounded-xl font-black text-xs sm:text-sm text-white shadow-md transition-all hover:scale-[1.02] active:scale-95 cursor-pointer flex items-center justify-center gap-2"
+                        style={{
+                          background: "linear-gradient(135deg, #E11D48 0%, #BE123C 100%)",
+                          boxShadow: "0 6px 20px rgba(190, 18, 60, 0.35)",
+                        }}
+                      >
+                        <span>🎄</span>
+                        <span>Ordina Offerta di Natale a 20€ (Sped. Inclusa) →</span>
+                      </button>
+                    </div>
                   </div>
                 </div>
 
-                {/* CTA Button */}
-                <div className="flex-shrink-0 w-full md:w-auto text-center">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setOrderModalIssueNumber(undefined);
-                      setOrderModalOpen(true);
-                    }}
-                    className="w-full sm:w-auto px-7 py-3.5 rounded-full font-black text-sm text-white shadow-xl transition-transform hover:scale-105 active:scale-95 cursor-pointer flex items-center justify-center gap-2"
-                    style={{
-                      background: "linear-gradient(135deg, #D97706 0%, #B45309 100%)",
-                      boxShadow: "0 8px 24px rgba(180, 83, 9, 0.35)",
-                    }}
-                  >
-                    <span>📦</span>
-                    <span>Ordina Copia Cartacea (da 5€) →</span>
-                  </button>
-                  <p className="text-[11px] font-semibold text-amber-800 mt-2">
-                    Nessun pagamento anticipato · Ti ricontattiamo noi
+                {/* Info rassicurazione a fondo card */}
+                <div className="text-center pt-1">
+                  <p className="text-[11px] sm:text-xs text-amber-900/80 font-medium">
+                    🔒 <strong>Nessun pagamento anticipato adesso:</strong> compila la richiesta, ti ricontatteremo via email o WhatsApp per confermare l&apos;indirizzo e concordare il pagamento (PayPal, Bonifico, Satispay, PostePay).
                   </p>
                 </div>
               </div>
