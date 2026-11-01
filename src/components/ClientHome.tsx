@@ -1823,6 +1823,7 @@ export default function ClientHome() {
             {[
               { name: "Spazio Idea Kennedy",            type: "Spazio Culturale",     url: "https://spazioideakennedy.it/",                                                            icon: "🏛️" },
               { name: "Open Hub Lazio",                 type: "Hub Culturale",         url: "https://openhublazio.it/",                                                                 icon: "🌐" },
+              { name: "Castelli in Versi",              type: "Collettivo Poetry Slam",url: "https://www.instagram.com/castelli_in_versi/",                                            icon: "🏰" },
               { name: "Lestrella Pop",                  type: "Associazione",          url: "https://www.instagram.com/lestrellapop/",                                                  icon: "⭐" },
               { name: "Quartieri Connessi",             type: "Associazione",          url: "https://www.q4q5.it/",                                                                     icon: "🏘️" },
               { name: "Caffè Poeta",                    type: "Bistrot Letterario",    url: "https://www.facebook.com/p/Caff%C3%A8-Poeta-Bistrot-Letterario-61588142742806/",          icon: "☕" },
