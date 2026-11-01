@@ -35,6 +35,8 @@ export default function OrderPrintedGelatinoModal({
   const [personalNote, setPersonalNote] = useState("");
   const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
   const [errorMsg, setErrorMsg] = useState("");
+  const [showSharePanel, setShowSharePanel] = useState(false);
+  const [copiedLink, setCopiedLink] = useState(false);
 
   // Sync initial setup whenever modal opens or props change
   useEffect(() => {
@@ -151,6 +153,54 @@ export default function OrderPrintedGelatinoModal({
     }
   };
 
+  const getShareUrl = () => {
+    if (typeof window !== "undefined") {
+      const base = window.location.origin;
+      if (selectedFormula === "natale") return `${base}/?ordina=gelatino&bundle=natale#ordina-gelatino`;
+      if (selectedFormula === "trio") return `${base}/?ordina=gelatino&bundle=trio#ordina-gelatino`;
+      return `${base}/?ordina=gelatino#ordina-gelatino`;
+    }
+    return "https://www.collettivogelatina.it/?ordina=gelatino";
+  };
+
+  const getShareText = () => {
+    if (selectedFormula === "natale") {
+      return "🎄 Ordina o regala il Cofanetto di Natale di Gelatino: tutti i 5 numeri fisici a soli 20€ con spedizione inclusa e dedica regalo!";
+    }
+    if (selectedFormula === "trio") {
+      return "🌟 Ordina l'Offerta Trio di Gelatino su carta: 3 numeri a scelta a soli 13€ (+2€ sped.) con dedica regalo inclusa!";
+    }
+    return "📦 Ordina o regala le copie cartacee da collezione di Gelatino (da 5€ a copia) con dedica inclusa:";
+  };
+
+  const handleShareForm = async () => {
+    const url = getShareUrl();
+    const text = getShareText();
+    if (typeof navigator !== "undefined" && navigator.share) {
+      try {
+        await navigator.share({
+          title: "Ordina o Regala Gelatino su Carta — Collettivo Gelatina",
+          text,
+          url,
+        });
+      } catch (err: any) {
+        if (err.name !== "AbortError") {
+          setShowSharePanel((prev) => !prev);
+        }
+      }
+    } else {
+      setShowSharePanel((prev) => !prev);
+    }
+  };
+
+  const handleCopyShareLink = () => {
+    if (typeof navigator !== "undefined" && navigator.clipboard) {
+      navigator.clipboard.writeText(`${getShareText()}\n${getShareUrl()}`);
+      setCopiedLink(true);
+      setTimeout(() => setCopiedLink(false), 2500);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (totalCopies === 0) {
@@ -219,6 +269,8 @@ export default function OrderPrintedGelatinoModal({
   const handleResetAndClose = () => {
     setStatus("idle");
     setErrorMsg("");
+    setShowSharePanel(false);
+    setCopiedLink(false);
     onClose();
   };
 
@@ -233,6 +285,17 @@ export default function OrderPrintedGelatinoModal({
         className="bg-white rounded-3xl p-6 sm:p-8 w-full max-w-xl shadow-2xl relative my-8 border-2 border-amber-300 max-h-[92vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
+        {/* Pulsante Condividi */}
+        <button
+          type="button"
+          onClick={handleShareForm}
+          className="absolute top-4 right-15 h-9 px-3 flex items-center justify-center gap-1.5 rounded-full bg-amber-100 hover:bg-amber-200 text-amber-950 font-black text-xs transition-all cursor-pointer z-10 shadow-xs"
+          title="Condividi il modulo d'ordine"
+        >
+          <span>📲</span>
+          <span className="hidden sm:inline">Condividi</span>
+        </button>
+
         {/* Pulsante chiudi */}
         <button
           type="button"
@@ -261,19 +324,29 @@ export default function OrderPrintedGelatinoModal({
               <br /><br />
               Ti ricontatteremo prestissimo via <strong>email o WhatsApp</strong> per confermare l&apos;indirizzo e concordare il pagamento (PayPal, Bonifico, Satispay o PostePay) prima di spedire il pacchetto!
             </p>
-            <button
-              type="button"
-              onClick={handleResetAndClose}
-              className="px-8 py-3 rounded-full font-black text-sm text-white shadow-lg transition-transform hover:scale-105 cursor-pointer"
-              style={{ background: "#4B44DF" }}
-            >
-              Torna al sito
-            </button>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+              <button
+                type="button"
+                onClick={handleShareForm}
+                className="w-full sm:w-auto px-6 py-3 rounded-full font-black text-xs sm:text-sm text-purple-700 bg-purple-50 hover:bg-purple-100 border border-purple-200 transition-all cursor-pointer flex items-center justify-center gap-1.5 shadow-xs"
+              >
+                <span>📲</span>
+                <span>{copiedLink ? "Link Copiato!" : "Consiglia o condividi con amici"}</span>
+              </button>
+              <button
+                type="button"
+                onClick={handleResetAndClose}
+                className="w-full sm:w-auto px-8 py-3 rounded-full font-black text-sm text-white shadow-lg transition-transform hover:scale-105 cursor-pointer"
+                style={{ background: "#4B44DF" }}
+              >
+                Torna al sito
+              </button>
+            </div>
           </div>
         ) : (
           <div>
             {/* Header */}
-            <div className="text-center mb-6 pr-6">
+            <div className="text-center mb-5 pr-14 sm:pr-0">
               <div
                 className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full mb-2"
                 style={{ background: "#FEF3C7", border: "1px solid #FDE68A", color: "#92400E" }}
@@ -289,7 +362,78 @@ export default function OrderPrintedGelatinoModal({
               <p className="text-xs sm:text-sm text-gray-600 mt-1 max-w-md mx-auto">
                 La poesia illustrata da toccare, sfogliare o regalare a una persona speciale.
               </p>
+
+              {/* Tasto condividi pill sotto descrizione */}
+              <div className="mt-2.5 flex items-center justify-center">
+                <button
+                  type="button"
+                  onClick={handleShareForm}
+                  className="inline-flex items-center gap-1.5 text-xs font-black text-amber-800 hover:text-amber-950 bg-amber-50 hover:bg-amber-100/80 px-3.5 py-1 rounded-full border border-amber-200 transition-colors cursor-pointer"
+                >
+                  <span>📲</span>
+                  <span>Condividi questo modulo o l&apos;offerta</span>
+                </button>
+              </div>
             </div>
+
+            {/* Share Panel (visibile al click o quando navigator.share non è disponibile) */}
+            {showSharePanel && (
+              <div className="mb-5 p-4 rounded-2xl bg-amber-50/95 border-2 border-amber-300 animate-fade-in text-left shadow-sm">
+                <div className="flex items-center justify-between mb-1.5">
+                  <span className="text-xs font-black text-amber-950 flex items-center gap-1.5">
+                    <span>📲</span>
+                    <span>Condividi il modulo d&apos;ordine:</span>
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setShowSharePanel(false)}
+                    className="text-gray-400 hover:text-gray-600 font-bold text-xs p-1 cursor-pointer"
+                  >
+                    ✕
+                  </button>
+                </div>
+                <p className="text-[11px] text-gray-600 mb-3">
+                  Invia il link diretto a chi desidera ordinare o ricevere le copie cartacee di Gelatino:
+                </p>
+                <div className="flex flex-wrap items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={handleCopyShareLink}
+                    className="px-3.5 py-2 rounded-xl text-xs font-black bg-white hover:bg-gray-50 border border-amber-300 text-amber-950 shadow-xs cursor-pointer flex items-center gap-1.5 transition-transform active:scale-95"
+                  >
+                    <span>📋</span>
+                    <span>{copiedLink ? "Link Copiato!" : "Copia Link"}</span>
+                  </button>
+                  <a
+                    href={`https://api.whatsapp.com/send?text=${encodeURIComponent(`${getShareText()} ${getShareUrl()}`)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-3.5 py-2 rounded-xl text-xs font-black bg-[#25D366] hover:bg-[#20bd5a] text-white shadow-xs cursor-pointer flex items-center gap-1.5 transition-transform active:scale-95"
+                  >
+                    <span>💬</span>
+                    <span>WhatsApp</span>
+                  </a>
+                  <a
+                    href={`https://t.me/share/url?url=${encodeURIComponent(getShareUrl())}&text=${encodeURIComponent(getShareText())}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-3.5 py-2 rounded-xl text-xs font-black bg-[#229ED9] hover:bg-[#1e8ec3] text-white shadow-xs cursor-pointer flex items-center gap-1.5 transition-transform active:scale-95"
+                  >
+                    <span>✈️</span>
+                    <span>Telegram</span>
+                  </a>
+                  <a
+                    href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(getShareUrl())}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-3.5 py-2 rounded-xl text-xs font-black bg-[#1877F2] hover:bg-[#166fe5] text-white shadow-xs cursor-pointer flex items-center gap-1.5 transition-transform active:scale-95"
+                  >
+                    <span>📘</span>
+                    <span>Facebook</span>
+                  </a>
+                </div>
+              </div>
+            )}
 
             {/* ── 1. SELETTORE DELLE FORMULE D'ACQUISTO ── */}
             <div className="mb-6">

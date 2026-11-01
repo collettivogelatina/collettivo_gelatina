@@ -232,6 +232,21 @@ export default function ClientHome() {
           }, 350);
         }
       }
+      const ordina = params.get("ordina");
+      const bundle = params.get("bundle");
+      const numeroParam = params.get("numero");
+      if (ordina || bundle || window.location.hash === "#ordina-gelatino") {
+        if (bundle === "natale") {
+          setOrderModalInitialBundle("natale");
+        } else if (bundle === "trio") {
+          setOrderModalInitialBundle("trio");
+        }
+        if (numeroParam) {
+          const n = parseInt(numeroParam, 10);
+          if (n >= 1 && n <= 5) setOrderModalIssueNumber(n);
+        }
+        setOrderModalOpen(true);
+      }
     }
   }, []);
   const [gelatinFormat, setGelatinFormat] = useState<"pdf" | "cartaceo">("pdf");
@@ -1577,11 +1592,32 @@ export default function ClientHome() {
                   </div>
                 </div>
 
-                {/* Info rassicurazione a fondo card */}
-                <div className="text-center pt-1">
-                  <p className="text-[11px] sm:text-xs text-amber-900/80 font-medium">
-                    🔒 <strong>Nessun pagamento anticipato adesso:</strong> compila la richiesta, ti ricontatteremo via email o WhatsApp per confermare l&apos;indirizzo e concordare il pagamento (PayPal, Bonifico, Satispay, PostePay).
+                {/* Info rassicurazione e pulsante condividi a fondo card */}
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-3 border-t border-amber-200/80 mt-4">
+                  <p className="text-[11px] sm:text-xs text-amber-900/80 font-medium text-left">
+                    🔒 <strong>Nessun pagamento anticipato adesso:</strong> compila la richiesta, ti ricontatteremo via email o WhatsApp per concordare il pagamento (PayPal, Bonifico, Satispay, PostePay).
                   </p>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const shareData = {
+                        title: "Ordina o Regala Gelatino su Carta — Collettivo Gelatina",
+                        text: "Scopri le copie cartacee da collezione di Gelatino: 5€ a copia, Offerta Trio a 13€ o Cofanetto di Natale con tutti i 5 numeri a 20€ spedizione compresa e dedica inclusa!",
+                        url: typeof window !== "undefined" ? `${window.location.origin}/?ordina=gelatino#ordina-gelatino` : "https://www.collettivogelatina.it/?ordina=gelatino",
+                      };
+                      if (typeof navigator !== "undefined" && navigator.share) {
+                        navigator.share(shareData).catch(() => {});
+                      } else if (typeof navigator !== "undefined" && navigator.clipboard) {
+                        navigator.clipboard.writeText(`${shareData.text}\n${shareData.url}`);
+                        alert("Link dell'ordine copiato negli appunti! Condividilo con chi vuoi.");
+                      }
+                    }}
+                    className="flex-shrink-0 px-4 py-2 rounded-full font-black text-xs text-amber-950 bg-amber-200 hover:bg-amber-300 transition-all cursor-pointer flex items-center gap-1.5 shadow-2xs whitespace-nowrap active:scale-95"
+                    title="Condividi il modulo d'ordine con un amico"
+                  >
+                    <span>📲</span>
+                    <span>Condividi questa offerta</span>
+                  </button>
                 </div>
               </div>
 
