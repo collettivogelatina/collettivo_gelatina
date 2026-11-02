@@ -99,6 +99,8 @@ export const GELATINI_ISSUES: GelatinoIssueData[] = [
       "Martina Azzurra",
       "Francesca Riccetti",
       "Joe P.",
+      "Marco Tedesco",
+      "Ida Grasso",
     ],
     cover: "/Gelatina4Cover.jpeg",
     pdfUrl: "/gelatini/Gelatino4.pdf",
