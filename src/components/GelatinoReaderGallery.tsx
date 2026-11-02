@@ -95,7 +95,7 @@ export const GELATINI_ISSUES: GelatinoIssueData[] = [
       "Rino Gilbronchi",
       "Alessia Cianfanelli",
       "Akinorev",
-      "Leuikida",
+      "Leukida",
       "Martina Azzurra",
       "Francesca Riccetti",
       "Joe P.",
