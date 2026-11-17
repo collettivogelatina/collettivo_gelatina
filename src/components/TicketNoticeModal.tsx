@@ -51,20 +51,20 @@ export default function TicketNoticeModal({ isOpen, onClose, type }: TicketNotic
         </div>
 
         <h3 className="text-2xl font-black text-[#1C1A4A] mb-2 leading-tight">
-          Il Divano Astarnato @ Caffè Poeta
+          Serata Gelatina @ Sosò Pub
         </h3>
 
         <p className="text-xs font-bold text-[#7C3AED] mb-4">
-          Giovedì 12 Novembre 2026 · Caffè Poeta Bistrot (Piazza del Popolo 12, Latina)
+          Domenica 20 Dicembre 2026 · Sosò Pub (Via Legnano 61, Latina)
         </p>
 
         <p className="text-sm text-gray-600 leading-relaxed mb-6">
-          L'evento del 28 Ottobre si è concluso con successo! Il prossimo appuntamento è con il talk show comico dal vivo e podcast <strong>Il Divano Astarnato</strong> insieme al <strong>Collettivo Gelatina</strong>. Posti limitati in sala.
+          L'evento con Il Divano Astarnato si è concluso con successo! Il prossimo appuntamento è per <strong>domenica 20 Dicembre</strong> con la serata di poesia dal vivo e microfono aperto del <strong>Collettivo Gelatina</strong> al <strong>Sosò Pub</strong>. Posti limitati e tavoli consigliati!
         </p>
 
         <div className="flex flex-col gap-3">
           <a
-            href="mailto:collettivogelatina@gmail.com?subject=Info%20e%20Prenotazioni%20Il%20Divano%20Astarnato"
+            href="mailto:collettivogelatina@gmail.com?subject=Info%20e%20Prenotazioni%20Serata%20Soso%20Pub"
             className="w-full font-black text-sm py-3.5 px-6 rounded-full transition-all hover:scale-105 shadow-md flex items-center justify-center gap-2"
             style={{
               background: "linear-gradient(135deg, #7C3AED 0%, #4B44DF 100%)",

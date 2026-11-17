@@ -3,12 +3,12 @@ import "./globals.css";
 import CookieBanner from "@/components/CookieBanner";
 
 export const metadata: Metadata = {
-  title: "Il Divano Astarnato al Caffè Poeta (12 Novembre) — Gelatina",
+  title: "Serata da Sosò Pub (20 Dicembre) — Collettivo Gelatina",
   description:
-    "Giovedì 12 Novembre 2026 il Collettivo Gelatina ospita Il Divano Astarnato al Caffè Poeta Bistrot Letterario in Piazza del Popolo a Latina. Talk live, comicità senza filtri e poesia!",
+    "Domenica 20 Dicembre 2026 il Collettivo Gelatina torna al Sosò Pub a Latina (Via Legnano, 61). Parole, poesia viva, microfono aperto e ottima birra!",
   openGraph: {
-    title: "Il Divano Astarnato al Caffè Poeta (12 Novembre) — Gelatina",
-    description: "Giovedì 12 Novembre 2026 il Collettivo Gelatina ospita Il Divano Astarnato al Caffè Poeta Bistrot Letterario in Piazza del Popolo a Latina. Talk live, comicità senza filtri e poesia!",
+    title: "Serata da Sosò Pub (20 Dicembre) — Collettivo Gelatina",
+    description: "Domenica 20 Dicembre 2026 il Collettivo Gelatina torna al Sosò Pub a Latina (Via Legnano, 61). Parole, poesia viva, microfono aperto e ottima birra!",
     url: "https://www.collettivogelatina.it",
     siteName: "Gelatina Poetry Slam",
     images: [
@@ -16,7 +16,7 @@ export const metadata: Metadata = {
         url: "https://www.collettivogelatina.it/og-microphone.jpg",
         width: 1200,
         height: 675,
-        alt: "Gelatina Spoken Word & Talk Live",
+        alt: "Gelatina Poetry Slam & Open Mic da Sosò",
       },
     ],
     locale: "it_IT",
@@ -24,8 +24,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Il Divano Astarnato al Caffè Poeta (12 Novembre) — Gelatina",
-    description: "Giovedì 12 Novembre 2026 il Collettivo Gelatina ospita Il Divano Astarnato al Caffè Poeta Bistrot Letterario in Piazza del Popolo a Latina. Talk live, comicità senza filtri e poesia!",
+    title: "Serata da Sosò Pub (20 Dicembre) — Collettivo Gelatina",
+    description: "Domenica 20 Dicembre 2026 il Collettivo Gelatina torna al Sosò Pub a Latina (Via Legnano, 61). Parole, poesia viva, microfono aperto e ottima birra!",
     images: ["https://www.collettivogelatina.it/og-microphone.jpg"],
   },
 };

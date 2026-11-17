@@ -18,12 +18,21 @@ const DARK = "#1C1A4A";
 
 const events = [
   {
+    date: "20 Dicembre",
+    title: "Serata da Sosò",
+    venue: "Sosò Pub",
+    time: "20:30",
+    description:
+      "Domenica 20 Dicembre al Sosò Pub a Latina (Via Legnano, 61). Nuova serata tra versi, poesia viva, microfono aperto e birre con il Collettivo Gelatina!",
+    tag: "SLAM",
+  },
+  {
     date: "12 Novembre",
     title: "Il Divano Astarnato",
     venue: "Caffè Poeta",
     time: "20:30",
     description:
-      "Giovedì 12 Novembre al Caffè Poeta Bistrot Letterario a Latina. Talk live, comicità senza filtri e poesia con Gelatina!",
+      "Talk live, comicità senza filtri e incursioni poetiche con Il Divano Astarnato al Caffè Poeta Bistrot Letterario.",
     tag: "LIVE TALK",
   },
   {
@@ -215,7 +224,7 @@ export default function ClientHome() {
     if (typeof window !== "undefined") {
       const params = new URLSearchParams(window.location.search);
       if (params.get("iscriviti")) {
-        openRegModal("Il Divano Astarnato (12 Novembre @ Caffè Poeta)");
+        openRegModal("Serata da Sosò (20 Dicembre @ Sosò Pub)");
       }
       if (params.get("invia-poesia") || window.location.pathname.startsWith("/invia-poesia")) {
         setGelatinoModalOpen(true);
@@ -364,14 +373,14 @@ export default function ClientHome() {
                   className="text-[10px] sm:text-xs font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider text-[#1C1A4A] bg-white shadow-sm flex items-center gap-1.5 flex-shrink-0"
                 >
                   <span className="w-2 h-2 rounded-full bg-amber-500 animate-ping" />
-                  Gio 12 Nov 2026
+                  Dom 20 Dic 2026
                 </span>
                 <span className="text-xs sm:text-sm font-black text-white tracking-tight drop-shadow-sm flex items-center gap-1">
-                  <span>🛋️</span>
-                  <span>Il Divano Astarnato arriva a Latina! @ Caffè Poeta</span>
+                  <span>🍺</span>
+                  <span>Serata da Sosò a Latina! @ Sosò Pub</span>
                 </span>
                 <span className="hidden lg:inline text-xs font-bold text-amber-200">
-                  · "Un divano, un microfono, nessuna regola"
+                  · "Parole, poesia viva e ottima birra"
                 </span>
               </div>
 
@@ -386,12 +395,12 @@ export default function ClientHome() {
                     boxShadow: "0 2px 10px rgba(0,0,0,0.25)",
                   }}
                 >
-                  <span>🛋️</span>
+                  <span>🍺</span>
                   <span>Scopri l'Evento →</span>
                 </a>
 
                 <button
-                  onClick={() => openRegModal("Il Divano Astarnato (12 Novembre @ Caffè Poeta)")}
+                  onClick={() => openRegModal("Serata da Sosò (20 Dicembre @ Sosò Pub)")}
                   className="font-black text-xs py-1.5 px-3.5 rounded-full transition-all duration-200 transform hover:scale-105 active:scale-95 shadow-md flex items-center gap-1.5 cursor-pointer"
                   style={{
                     background: "rgba(28, 26, 74, 0.9)",
@@ -671,7 +680,7 @@ export default function ClientHome() {
             </a>
           </div>
 
-          {/* ── PROSSIMO EVENTO: IL DIVANO ASTARNATO (12 NOVEMBRE) CARD IN HERO ── */}
+          {/* ── PROSSIMO EVENTO: SERATA DA SOSÒ PUB (20 DICEMBRE) CARD IN HERO ── */}
           <div
             id="prossimo-evento"
             className="mt-10 w-full max-w-3xl mx-auto rounded-3xl p-6 sm:p-8 backdrop-blur-xl relative overflow-hidden text-center"
@@ -686,41 +695,41 @@ export default function ClientHome() {
               <span
                 className="text-xs font-black px-3.5 py-1 rounded-full uppercase tracking-wider text-white shadow-md flex items-center gap-1.5"
                 style={{
-                  background: "linear-gradient(135deg, #7C3AED 0%, #E63946 100%)",
-                  boxShadow: "0 2px 10px rgba(124,58,237,0.5)",
+                  background: "linear-gradient(135deg, #FF5E36 0%, #D97706 100%)",
+                  boxShadow: "0 2px 10px rgba(249,115,22,0.5)",
                 }}
               >
                 <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping" />
-                Prossimo Evento · Giovedì 12 Novembre 2026
+                Prossimo Evento · Domenica 20 Dicembre 2026
               </span>
               <span
                 className="text-xs font-bold px-3 py-1 rounded-full text-white"
                 style={{ background: "rgba(255, 255, 255, 0.2)" }}
               >
-                📍 Caffè Poeta Bistrot · Piazza del Popolo 12, Latina
+                📍 Sosò Pub · Via Legnano 61, Latina
               </span>
             </div>
 
             <h3 className="text-2xl sm:text-3xl font-black text-white mb-1.5 leading-tight flex items-center justify-center gap-2 flex-wrap">
-              <span>🛋️</span>
-              <span>Il Divano Astarnato</span>
-              <span className="text-amber-300 font-bold text-lg sm:text-xl">@ Caffè Poeta</span>
+              <span>🍺</span>
+              <span>Serata da Sosò</span>
+              <span className="text-amber-300 font-bold text-lg sm:text-xl">@ Sosò Pub</span>
             </h3>
 
             <p
               className="text-amber-200/90 font-bold text-sm sm:text-base max-w-lg mx-auto mb-3 italic"
               style={{ fontFamily: "'Playfair Display', serif" }}
             >
-              "Un divano, un microfono, nessuna regola."
+              "Parole, poesia viva e ottima birra."
             </p>
 
             <p className="text-white/85 text-xs sm:text-sm max-w-xl mx-auto mb-6 leading-relaxed">
-              Il format cult di talk show e podcast live più irriverente e spontaneo approda per la prima volta a Latina! Una serata senza filtri dove il <strong>Collettivo Gelatina</strong> incontra <strong>Il Divano Astarnato</strong> nello storico bistrot letterario di Piazza del Popolo: interviste, comicità a ruota libera, risate e incursioni poetiche.
+              Il Collettivo Gelatina torna a casa! Domenica 20 Dicembre il nostro palco fa tappa da Sosò, storico e accogliente pub di Latina in Via Legnano: una serata speciale tra poesia dal vivo, microfono aperto, confronto e convivialità tra rime e boccali di birra.
             </p>
 
-            {/* LE DUE INFO SU DIVANO ASTARNATO E CAFFÈ POETA */}
+            {/* LE DUE INFO SU FORMAT E SOSÒ PUB */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-left mb-6">
-              {/* INFO 1: IL FORMAT */}
+              {/* INFO 1: LA SERATA */}
               <div
                 className="p-5 rounded-2xl flex flex-col justify-between transition-all duration-300 relative overflow-hidden"
                 style={{
@@ -731,13 +740,13 @@ export default function ClientHome() {
               >
                 <div>
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="text-xl">🛋️</span>
+                    <span className="text-xl">🎤</span>
                     <h4 className="text-white font-black text-sm">
-                      Cos'è "Il Divano Astarnato"?
+                      La Serata Gelatina &amp; Open Mic
                     </h4>
                   </div>
                   <p className="text-white/80 text-xs leading-relaxed">
-                    Un format talk &amp; comedy nato a Roma tra interviste senza peli sulla lingua, comici, doppiatori, creator e interazione totale col pubblico. <em>"Astarnato"</em> significa stravaccato, comodo come a casa sul divano: zero copioni, zero censure, solo pura improvvisazione e risate!
+                    Uno spazio libero e informale per far risuonare la parola detta: spoken word, slam, versi inediti e microfono aperto. Che tu voglia salire sul palco a condividere i tuoi testi o semplicemente ascoltare con una buona birra in mano, fai parte della serata!
                   </p>
                 </div>
               </div>
@@ -753,13 +762,13 @@ export default function ClientHome() {
               >
                 <div>
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="text-xl">☕</span>
+                    <span className="text-xl">🍺</span>
                     <h4 className="text-white font-black text-sm">
-                      La cornice: Caffè Poeta Bistrot
+                      La cornice: Sosò Pub
                     </h4>
                   </div>
                   <p className="text-white/80 text-xs leading-relaxed">
-                    Piazza del Popolo 12, nel cuore di Latina. Lo storico locale letterario rinnovato dalla nuova gestione: il punto di ritrovo ideale per un aperitivo, un calice di vino ricercato e una serata di cultura viva, spettacolo e comunità.
+                    In Via Legnano 61, nel cuore della movida autentica di Latina. Atmosfera rustica e calda da vero pub, con un'eccezionale selezione di birre alla spina artigianali, ottimi panini, taglieri tipici e accoglienza calorosa. Il punto d'incontro ideale per la nostra comunità.
                   </p>
                 </div>
               </div>
@@ -777,16 +786,16 @@ export default function ClientHome() {
               <div>
                 <div className="flex items-center justify-center sm:justify-start gap-2 mb-1">
                   <span className="text-base">✨</span>
-                  <span className="text-white font-black text-sm">Posti limitati in sala!</span>
+                  <span className="text-white font-black text-sm">Posti e tavoli consigliati!</span>
                 </div>
                 <p className="text-xs text-white/80">
-                  Vuoi riservare un posto o un tavolo? Scrivi al Collettivo o contattaci direttamente.
+                  Vuoi salire all'Open Mic o prenotare un tavolo con gli amici? Iscriviti o contattaci direttamente.
                 </p>
               </div>
 
               <div className="flex items-center gap-2 flex-shrink-0 w-full sm:w-auto justify-center">
                 <button
-                  onClick={() => openRegModal("Il Divano Astarnato (12 Novembre @ Caffè Poeta)")}
+                  onClick={() => openRegModal("Serata da Sosò (20 Dicembre @ Sosò Pub)")}
                   className="font-black text-xs sm:text-sm px-6 py-3 rounded-full transition-all hover:scale-105 shadow-xl cursor-pointer"
                   style={{
                     background: "white",
@@ -794,14 +803,14 @@ export default function ClientHome() {
                     boxShadow: "0 4px 18px rgba(255, 255, 255, 0.35)",
                   }}
                 >
-                  ✍️ Prenota Posto / Info
+                  ✍️ Prenota Posto / Iscriviti
                 </button>
                 <button
                   onClick={() => {
-                    const text = "🛋️ Il Divano Astarnato arriva a Latina! Giovedì 12 Novembre al Caffè Poeta Bistrot con il Collettivo Gelatina:";
+                    const text = "🍻 Domenica 20 Dicembre serata con il Collettivo Gelatina da Sosò Pub a Latina (Via Legnano 61)! Poesia dal vivo, open mic e birra:";
                     const url = "https://www.collettivogelatina.it";
                     if (navigator.share) {
-                      navigator.share({ title: "Il Divano Astarnato al Caffè Poeta (Latina)", text, url });
+                      navigator.share({ title: "Serata Collettivo Gelatina da Sosò Pub (Latina)", text, url });
                     } else {
                       navigator.clipboard.writeText(`${text}\n${url}`);
                       alert("Link evento copiato negli appunti!");
@@ -1868,6 +1877,7 @@ export default function ClientHome() {
               { name: "Spazio Zero",                    type: "Associazione & Lab",    url: "https://www.spaziozerolab.it/",                                                            icon: "🌀" },
               { name: "Zeldart",                        type: "Arte & Media",          url: "https://www.zeldart.it/",                                                                  icon: "🎙️" },
               { name: "Oriselia",                       type: "Podcast & Mondi",       url: "https://velocalm.com/",                                                                    icon: "🌙" },
+              { name: "Il Divano Astarnato",            type: "Talk Show & Comedy",    url: "https://www.instagram.com/il_divano_astarnato/",                                          icon: "🛋️" },
             ].map((partner) => (
               <a
                 key={partner.name}

@@ -30,6 +30,7 @@ const TAG_COLORS: Record<string, [string, string]> = {
   PERFORMANCE:    ["#F5E0FF", "#8820C0"],
   PRESENTAZIONE:  ["#FFF8E0", "#9A6000"],
   "IN ARRIVO":    ["#E8FFF3", "#2A7A5A"],
+  "LIVE TALK":    ["#F3E8FF", "#7C3AED"],
 };
 
 const EVENT_COVERS: Record<number, string> = {};
@@ -54,7 +55,8 @@ const TIMELINE: TEvent[] = [
   { id: 16, label: "16 Lug 2026",    title: "Sottoscala9",            desc: "Presentazione del libro ed open mic. Uno spazio aperto alle parole e alle nuove pubblicazioni.",           tag: "PRESENTAZIONE", past: true  },
   { id: 17, label: "3 Set 2026",    title: "Slam all'Hotel Tirreno", desc: "Poetry slam sul mare all'Hotel Tirreno. Versi, onde e microfoni accesi.",                               tag: "SLAM",          past: true  },
   { id: 18, label: "28 Ott 2026",   title: "Slam a Bacco e Venere",  desc: "Mercoledì 28 Ottobre da Bacco e Venere a Latina. Tappa LIPS infuocata tra voci dal vivo e voto in streaming.", tag: "SLAM",          past: true  },
-  { id: 19, label: "12 Nov",        title: "Il Divano Astarnato",    desc: "Giovedì 12 Novembre al Caffè Poeta Bistrot (Piazza del Popolo, Latina). Talk live, comicità senza filtri e poesia con Gelatina!", tag: "LIVE TALK",     past: false },
+  { id: 19, label: "12 Nov 2026",   title: "Il Divano Astarnato",    desc: "Giovedì 12 Novembre al Caffè Poeta Bistrot (Piazza del Popolo, Latina). Talk live, comicità senza filtri e poesia con Gelatina!", tag: "LIVE TALK",     past: true  },
+  { id: 20, label: "20 Dic",        title: "Serata da Sosò",         desc: "Domenica 20 Dicembre da Sosò Pub (Via Legnano 61, Latina). Nuova serata tra versi, poesia dal vivo, microfono aperto e birre con Gelatina!", tag: "SLAM",          past: false },
 ];
 
 function CoverFloat({ src }: { src: string }) {
@@ -185,15 +187,15 @@ function Card({ ev, hovered, isFirst, onRegister, onTicketNotice }: { ev: TEvent
                   whiteSpace: "nowrap"
                 }}
               >
-                🛋️ Info &amp; Prenota
+                🍻 Info &amp; Prenota
               </button>
               <button
                 onClick={(e) => {
                   e.stopPropagation();
-                  const text = `🛋️ Il Divano Astarnato arriva a Latina giovedì 12 Novembre al Caffè Poeta con il Collettivo Gelatina!`;
+                  const text = `🍻 Serata del Collettivo Gelatina da Sosò Pub a Latina! Domenica 20 Dicembre in Via Legnano 61:`;
                   const url = `https://www.collettivogelatina.it`;
                   if (navigator.share) {
-                    navigator.share({ title: "Il Divano Astarnato al Caffè Poeta", text, url });
+                    navigator.share({ title: "Serata da Sosò Pub (Latina) — Gelatina", text, url });
                   } else {
                     navigator.clipboard.writeText(`${text}\n${url}`);
                     alert("Link copiato!");
@@ -240,12 +242,12 @@ function Card({ ev, hovered, isFirst, onRegister, onTicketNotice }: { ev: TEvent
                   textDecoration: "none"
                 }}
               >
-                ☕ Caffè Poeta Bistrot (Latina)
+                🍺 Sosò Pub (Latina)
               </a>
             </div>
 
             <span style={{ fontSize: 7, fontWeight: 900, color: "#7C3AED", letterSpacing: "0.04em" }}>
-              ✦ Gio 12 Nov · Piazza del Popolo 12 ✦
+              ✦ Dom 20 Dic · Via Legnano 61 ✦
             </span>
           </div>
         )}
